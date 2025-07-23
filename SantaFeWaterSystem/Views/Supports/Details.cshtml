@@ -1,0 +1,38 @@
+﻿@model SantaFeWaterSystem.Models.Support
+
+@{
+    ViewData["Title"] = "Support Ticket Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>@Model.Subject</h2>
+
+<div>
+    <strong>Consumer:</strong> @Model.Consumer?.FirstName<br />
+    <strong>Status:</strong> @Model.Status<br />
+    <strong>Created At:</strong> @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")<br />
+    @if (Model.IsResolved && Model.ResolvedAt.HasValue)
+    {
+        <strong>Resolved At:</strong> @Model.ResolvedAt.Value.ToString("yyyy-MM-dd HH:mm")
+
+        <br />
+    }
+</div>
+
+<hr />
+
+<h4>User Message</h4>
+<p>@Model.Message</p>
+
+@if (!string.IsNullOrEmpty(Model.AdminReply))
+{
+    <hr />
+    <h4>Admin Reply</h4>
+    <p>@Model.AdminReply</p>
+}
+else
+{
+    <p><em>No reply yet.</em></p>
+}
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

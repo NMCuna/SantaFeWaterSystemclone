@@ -1,0 +1,196 @@
+﻿@model SantaFeWaterSystem.Models.ViewModels.PaginatedPaymentsViewModel
+
+@{
+    ViewData["Title"] = "Manage Payments";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/manage-payments.css" asp-append-version="true" />
+}
+
+<h2 class="page-header"><i class="bi bi-credit-card-2-front-fill"></i> Manage Payments</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <form id="filterForm" method="get" class="d-flex gap-2 flex-wrap align-items-center">
+        <!-- Search -->
+        <div class="input-group">
+            <span class="input-group-text bg-primary text-white">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="searchInput" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search by consumer name..." />
+        </div>
+
+        <!-- Status Filter -->
+        <div class="input-group">
+            <span class="input-group-text bg-warning text-dark">
+                <i class="bi bi-funnel-fill"></i>
+            </span>
+            <select name="statusFilter" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="Verified" selected="@(Model.StatusFilter == "Verified")">Verified</option>
+                <option value="Pending" selected="@(Model.StatusFilter == "Pending")">Pending</option>
+            </select>
+        </div>
+
+        <!-- Payment Method Filter -->
+        <div class="input-group">
+            <span class="input-group-text bg-info text-white">
+                <i class="bi bi-wallet2"></i>
+            </span>
+            <select name="paymentMethodFilter" class="form-select">
+                <option value="">All Methods</option>
+                <option value="GCash" selected="@(Model.PaymentMethodFilter == "GCash")">GCash</option>
+                <option value="Maya" selected="@(Model.PaymentMethodFilter == "Maya")">Maya</option>
+                <option value="Cash" selected="@(Model.PaymentMethodFilter == "Cash")">Cash</option>
+            </select>
+        </div>
+    </form>
+
+    <!-- Action Buttons -->
+    <div class="d-flex gap-2">
+        <a asp-action="CreatePayment" class="btn btn-success" title="Record new walk-in payment">
+            <i class="bi bi-plus-circle-fill"></i> Walk-in Payment
+        </a>
+
+        <button class="btn btn-outline-primary" onclick="downloadSelected()" title="Export selected payments to PDF">
+            <i class="bi bi-download"></i> Download Selected
+        </button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th><input type="checkbox" id="checkAll" /></th>
+                <th>Consumer</th>
+                <th>Payment Date</th>
+                <th>Amount Paid</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model.Payments)
+            {
+                <tr>
+                    <td><input type="checkbox" class="export-checkbox" value="@payment.PaymentId" /></td>
+                    <td>@payment.LastName, @payment.FirstName</td>
+                    <td>@payment.PaymentDate.ToShortDateString()</td>
+                    <td>@payment.AmountPaid.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("fil-PH"))</td>
+                    <td>@payment.PaymentMethod</td>
+                    <td>
+                        @(payment.IsVerified ? "✅ Verified" : "⌛ Pending")
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@payment.PaymentId">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@payment.PaymentId">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@payment.PaymentId">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+
+                        @if (!payment.IsVerified)
+                        {
+                            <form asp-action="Verify" asp-route-id="@payment.PaymentId" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle"></i> Verify
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Unverify" asp-route-id="@payment.PaymentId" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-x-circle"></i> Unverify
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Payment pagination">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="ManagePayments"
+                       asp-route-page="@i"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-statusFilter="@Model.StatusFilter"
+                       asp-route-paymentMethodFilter="@Model.PaymentMethodFilter">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script>
+        // Auto submit on dropdown change
+        document.querySelectorAll('#filterForm select').forEach(select => {
+            select.addEventListener('change', () => document.getElementById('filterForm').submit());
+        });
+
+        // Debounced search auto-submit
+        let searchInput = document.getElementById('searchInput');
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 700);
+        });
+
+        // Select All checkbox
+        document.getElementById('checkAll').addEventListener('change', function () {
+            document.querySelectorAll('.export-checkbox').forEach(cb => cb.checked = this.checked);
+        });
+
+        // Export selected rows to PDF
+        function downloadSelected() {
+            const selectedIds = Array.from(document.querySelectorAll('.export-checkbox:checked'))
+                .map(cb => cb.value);
+
+            if (selectedIds.length === 0) {
+                alert("Please select at least one payment.");
+                return;
+            }
+
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/Payments/ExportSelectedToPdf";
+
+            selectedIds.forEach(id => {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "selectedIds";
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        }
+
+    </script>
+}
+

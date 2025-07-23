@@ -1,0 +1,351 @@
+﻿@model SantaFeWaterSystem.ViewModels.ReportsViewModel
+@{
+    ViewData["Title"] = "Reports";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var consumers = Model.Consumers;
+}
+
+@section Styles {
+    <style>
+        h2.page-header {
+            font-size: 2rem;
+            color: #0d6efd;
+            font-weight: bold;
+            border-left: 5px solid #0d6efd;
+            padding-left: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+            h2.page-header i {
+                margin-right: 10px;
+            }
+
+        .card-title i {
+            margin-right: 8px;
+        }
+
+        .badge {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+        }
+
+        .btn-outline-primary {
+            border-radius: 30px;
+            padding: 8px 20px;
+        }
+
+        .monthly-summary {
+            background-color: #f1f3f5;
+            padding: 10px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        /* 🌙 DARK MODE STYLES */
+
+        body.dark-mode .table,
+        body.dark-mode .table-bordered,
+        body.dark-mode .table-striped {
+            background-color: #1f1f2e;
+            color: #f1f1f1;
+            border-color: #444;
+        }
+
+            body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+                background-color: #2a2a3a;
+            }
+
+        body.dark-mode .table-hover tbody tr:hover {
+            background-color: #353555 !important;
+        }
+
+        body.dark-mode th,
+        body.dark-mode td {
+            border-color: #444 !important;
+        }
+
+        /* 💡 BADGE VISIBILITY IN DARK MODE */
+        body.dark-mode .badge.bg-warning {
+            background-color: #f0ad4e !important;
+            color: #000 !important;
+        }
+
+        body.dark-mode .badge.bg-success {
+            background-color: #198754 !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .badge.bg-danger {
+            background-color: #dc3545 !important;
+            color: #fff !important;
+        }
+
+        body.dark-mode .badge.bg-dark {
+            background-color: #343a40 !important;
+            color: #fff !important;
+        }
+
+        /* 📄 TABLE HEADERS DARK FIX */
+        body.dark-mode .table-light {
+            --bs-table-bg: #2c2c3a !important;
+            --bs-table-striped-bg: #2e2e3e !important;
+            --bs-table-striped-color: #f1f1f1 !important;
+            --bs-table-hover-bg: #3a3a50 !important;
+            --bs-table-hover-color: #f1f1f1 !important;
+            --bs-table-active-bg: #3a3a50 !important;
+            --bs-table-active-color: #f1f1f1 !important;
+            background-color: var(--bs-table-bg) !important;
+            color: var(--bs-table-striped-color) !important;
+            border-color: #444 !important;
+        }
+
+            body.dark-mode .table-light thead,
+            body.dark-mode .table-light thead th {
+                background-color: var(--bs-table-bg) !important;
+                color: var(--bs-table-striped-color) !important;
+                border-color: #444 !important;
+            }
+
+        /* 🧹 CLEANUP: Prevent white thead in light mode if needed */
+        .table-light thead {
+            background-color: #f8f9fa;
+        }
+    </style>
+}
+
+
+<h2 class="page-header"><i class="bi bi-bar-chart-line-fill"></i> Reports</h2>
+
+<!-- Filter Form -->
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label for="startDate" class="form-label">Start Date</label>
+        <input type="date" id="startDate" name="startDate" class="form-control" value="@Model.FilterStartDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <label for="endDate" class="form-label">End Date</label>
+        <input type="date" id="endDate" name="endDate" class="form-control" value="@Model.FilterEndDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <label for="consumerId" class="form-label">Consumer</label>
+        <select id="consumerId" name="consumerId" class="form-select">
+            <option value="">All</option>
+            @foreach (var c in consumers)
+            {
+                <option value="@c.Id" selected="@(Model.SelectedConsumerId == c.Id ? "selected" : null)">
+                    @c.FirstName
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label for="billingStatus" class="form-label">Billing Status</label>
+        <select id="billingStatus" name="billingStatus" class="form-select">
+            <option value="All" selected="@(Model.SelectedBillingStatus == "All" ? "selected" : null)">All</option>
+            <option value="Paid" selected="@(Model.SelectedBillingStatus == "Paid" ? "selected" : null)">Paid</option>
+            <option value="Unpaid" selected="@(Model.SelectedBillingStatus == "Unpaid" ? "selected" : null)">Unpaid</option>
+        </select>
+    </div>
+    <div class="col-md-1 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+<!-- Export Buttons -->
+<div class="d-flex flex-wrap justify-content-end gap-2 mb-3">
+    <a asp-action="DownloadPdf"
+       asp-route-startDate="@Model.FilterStartDate?.ToString("yyyy-MM-dd")"
+       asp-route-endDate="@Model.FilterEndDate?.ToString("yyyy-MM-dd")"
+       asp-route-consumerId="@Model.SelectedConsumerId"
+       asp-route-billingStatus="@Model.SelectedBillingStatus"
+       asp-route-selectedMonth="@Model.SelectedMonth"
+       class="btn btn-danger">
+        <i class="bi bi-file-earmark-pdf"></i> Download Filtered Report PDF
+    </a>
+
+    <form asp-action="DownloadMonthlyReport" method="get" class="d-flex align-items-center gap-2">
+        <select name="selectedMonth" class="form-select" style="width: auto; min-width: 180px;">
+            @foreach (var m in Model.AvailableMonths)
+            {
+                <option value="@m.ToString("yyyy-MM")" selected="@(m.ToString("yyyy-MM") == Model.SelectedMonth ? "selected" : null)">
+                    @m.ToString("MMMM yyyy")
+                </option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-printer-fill"></i> Print Selected Month
+        </button>
+    </form>
+</div>
+
+<!-- Monthly Payment Summary -->
+@{
+    DateTime selectedMonthDate;
+    if (!DateTime.TryParse($"{Model.SelectedMonth}-01", out selectedMonthDate))
+    {
+        selectedMonthDate = DateTime.Today;
+    }
+
+    var selectedYear = selectedMonthDate.Year;
+    var selectedMonth = selectedMonthDate.Month;
+
+    var groupedPayments = Model.Payments
+        .GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
+        .Where(g => g.Key.Year == selectedYear && g.Key.Month == selectedMonth);
+
+    var groupedBillings = Model.Billings
+        .GroupBy(b => new { b.BillingDate.Year, b.BillingDate.Month })
+        .Where(g => g.Key.Year == selectedYear && g.Key.Month == selectedMonth);
+}
+
+@* @foreach (var group in groupedPayments)
+{
+    var label = new DateTime(group.Key.Year, group.Key.Month, 1).ToString("MMMM yyyy");
+    <div class="monthly-summary">
+        <i class="bi bi-calendar3"></i> @label —
+        <strong>Total Payments:</strong> ₱@group.Sum(p => p.AmountPaid).ToString("N2")
+    </div>
+} *@
+
+@if (!groupedPayments.Any() && !groupedBillings.Any())
+{
+    <div class="alert alert-info mt-3">
+        No summary data available for @selectedMonthDate.ToString("MMMM yyyy").
+    </div>
+}
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-cash-coin"></i> Total Revenue</h5>
+                <h4 class="card-text">₱@Model.Payments.Sum(p => p.AmountPaid).ToString("N2")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-journal-text"></i> Total Billed</h5>
+                <h4 class="card-text">₱@Model.Billings.Sum(b => b.TotalAmount).ToString("N2")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-exclamation-circle"></i> Total Unpaid</h5>
+                <h4 class="card-text">₱@Model.Billings.Where(b => b.Status == "Unpaid").Sum(b => b.TotalAmount).ToString("N2")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-dark shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-slash-circle"></i> Total Disconnections</h5>
+                <h4 class="card-text">@Model.Billings.Count(b => b.Status == "Disconnected")</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<h4 class="mt-4"><i class="bi bi-receipt"></i> Payments Received</h4>
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>Consumer</th>
+            <th>Payment Date</th>
+            <th>Amount Paid</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.PagedPayments)
+        {
+            <tr>
+                <td>@($"{p.Consumer?.FirstName} {p.Consumer?.MiddleName} {p.Consumer?.LastName}")</td>
+                <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
+                <td>₱@p.AmountPaid.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model.PagedPayments, page => Url.Action("Index", new
+    {
+        paymentsPage = page,
+        billingsPage = Context.Request.Query["billingsPage"],
+        startDate = Model.FilterStartDate?.ToString("yyyy-MM-dd"),
+        endDate = Model.FilterEndDate?.ToString("yyyy-MM-dd"),
+        consumerId = Model.SelectedConsumerId,
+        billingStatus = Model.SelectedBillingStatus,
+        selectedMonth = Model.SelectedMonth
+    }), new PagedListRenderOptions
+{
+    UlElementClasses = new[] { "pagination" },
+    LiElementClasses = new[] { "page-item" },
+    PageClasses = new[] { "page-link" }
+})
+
+<!-- Billing Table -->
+<h4 class="mt-5"><i class="bi bi-journal-check"></i> Billing Summary</h4>
+<table class="table table-bordered table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>Consumer</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Usage (m³)</th>
+            <th>Total Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Model.PagedBillings)
+        {
+            <tr>
+                <td>@($"{b.Consumer?.FirstName} {b.Consumer?.MiddleName} {b.Consumer?.LastName}")</td>
+                <td>@b.BillingDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @if (b.Status == "Unpaid")
+                    {
+                        <span class="badge bg-danger">Unpaid</span>
+                    }
+                    else if (b.Status == "Disconnected")
+                    {
+                        <span class="badge bg-dark">Disconnected</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Paid</span>
+                    }
+                </td>
+                <td>@b.CubicMeterUsed</td>
+                <td>₱@b.TotalAmount.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@Html.PagedListPager(Model.PagedBillings, page => Url.Action("Index", new
+    {
+        billingsPage = page,
+        paymentsPage = Context.Request.Query["paymentsPage"],
+        startDate = Model.FilterStartDate?.ToString("yyyy-MM-dd"),
+        endDate = Model.FilterEndDate?.ToString("yyyy-MM-dd"),
+        consumerId = Model.SelectedConsumerId,
+        billingStatus = Model.SelectedBillingStatus,
+        selectedMonth = Model.SelectedMonth
+    }), new PagedListRenderOptions
+{
+    UlElementClasses = new[] { "pagination" },
+    LiElementClasses = new[] { "page-item" },
+    PageClasses = new[] { "page-link" }
+})
+
+

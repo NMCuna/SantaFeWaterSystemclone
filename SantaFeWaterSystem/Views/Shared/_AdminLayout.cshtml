@@ -1,0 +1,254 @@
+﻿@using System.Security.Claims
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    Layout = null;
+
+    var user = HttpContextAccessor.HttpContext?.User;
+    var userName = ViewBag.FullName ?? user?.Identity?.Name ?? "User";
+    var isAdmin = user?.IsInRole("Admin") ?? false;
+    var isStaff = user?.IsInRole("Staff") ?? false;
+    var userId = user?.FindFirst("UserId")?.Value ?? "0";
+
+    var userPermissions = user?.Claims
+        .Where(c => c.Type == "Permission")
+        .Select(c => c.Value)
+        .ToList() ?? new List<string>();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/admin-layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dark-mode.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+    @RenderSection("Styles", required: false)
+
+
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-dark bg-dark fixed-top px-4 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <!-- NEW: Toggle button -->
+            <button class="btn btn-outline-light d-md-none me-2" id="sidebarToggleMobile">
+                <i class="bi bi-list"></i>
+            </button>
+            <!-- END -->
+            <a class="navbar-brand d-flex align-items-center" href="/Admin/Dashboard">
+                <i class="bi bi-speedometer2 me-2"></i>
+                @(isAdmin ? "Admin Panel" : isStaff ? "Staff Panel" : "Home")
+            </a>
+
+        </div>
+
+        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center text-white me-3">
+                @await Component.InvokeAsync("UserAvatar")
+                <span>Welcome, @userName (@(isAdmin ? "Admin" : isStaff ? "Staff" : "User"))</span>
+            </div>
+
+            @if (isAdmin)
+            {
+                <div class="me-3">
+                    <a asp-controller="AuditTrail" asp-action="Index" class="btn btn-custom-logs">
+                        <i class="bi bi-clock-history"></i> Audit Logs
+                    </a>
+                </div>
+                <div class="me-3">
+                    <a asp-controller="Notifications" asp-action="SmsLogs" class="btn btn-custom-logs">
+                        <i class="bi bi-chat-dots"></i> SMS Logs
+                    </a>
+                </div>
+            }
+           
+            <div class="me-3">
+                <button class="btn btn-outline-light" id="toggleDarkMode" title="Toggle Dark Mode">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
+            </div>
+
+            <!-- Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm d-flex justify-content-center align-items-center"
+                        type="button" id="adminMenuDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false"
+                        style="width: 40px; height: 40px; padding: 0;">
+                    <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenuDropdown">
+                    @if (userPermissions.Contains("RegisterAdmin"))
+                    {
+                        <li><a class="dropdown-item" href="/Account/RegisterAdmin"><i class="bi bi-person-plus me-2"></i> Register Admin/Staff</a></li>
+                    }
+                    @if (userPermissions.Contains("RegisterUser"))
+                    {
+                        <li><a class="dropdown-item" href="/Account/RegisterUser"><i class="bi bi-person-plus me-2"></i> Register User</a></li>
+                    }
+                    @if (userPermissions.Contains("ManageQRCodes"))
+                    {
+                        <li><a class="dropdown-item" href="@Url.Action("QrCodes", "Settings")"><i class="bi bi-gear me-2"></i> Manage QR Codes</a></li>
+                    }
+                    @if (userPermissions.Contains("ManageRate"))
+                    {
+                        <li><a class="dropdown-item" href="/Rate/Index"><i class="bi bi-droplet-half me-2"></i> Cubic Meter Rate</a></li>
+                    }
+                    @if (userPermissions.Any(p => new[] { "RegisterAdmin", "RegisterUser", "ManageQRCodes", "ManageRate" }.Contains(p)))
+                    {
+                        <li><hr class="dropdown-divider" /></li>
+                    }
+                    <li>
+                        <a class="dropdown-item" asp-controller="UserProfile" asp-action="Profile">
+                            <i class="bi bi-person-circle me-2"></i> Profile
+                        </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+                    @await Component.InvokeAsync("TwoFactorStatusAdmin")
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="px-3" onsubmit="return confirm('Are you sure you want to log out?');">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-outline-danger btn-sm w-100" type="submit">
+                                <i class="bi bi-box-arrow-right me-2"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar p-3" id="sidebar">
+            <div class="animated-logo-wrapper">
+                <!-- Glow Ring 1 -->
+                <svg class="glow-ring ring1" viewBox="0 0 120 120">
+                    <defs>
+                        <linearGradient id="glowGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#66b2ff" />
+                            <stop offset="50%" stop-color="#0d6efd" />
+                            <stop offset="100%" stop-color="#6610f2" />
+                        </linearGradient>
+                        <filter id="blur1">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+                        </filter>
+                    </defs>
+                    <circle cx="60" cy="60" r="50"
+                            stroke="url(#glowGradient1)"
+                            stroke-width="5"
+                            fill="none"
+                            filter="url(#blur1)" />
+                </svg>
+
+                <!-- Glow Ring 2 -->
+                <svg class="glow-ring ring2" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="45"
+                            stroke="#0dcaf0"
+                            stroke-width="2"
+                            fill="none"
+                            opacity="0.3" />
+                </svg>
+
+                <!-- Center Logo -->
+                <img src="~/images/logo.png" alt="Logo" class="main-logo" />
+            </div>
+
+            
+
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link" href="/Admin/Dashboard"><i class="bi bi-house-door"></i> <span>Dashboard</span></a></li>
+                @if (userPermissions.Contains("ManageUsers"))
+                {
+                    <li class="nav-item"><a class="nav-link" href="/Admin/ManageUsers"><i class="bi bi-people"></i> <span>Manage Users</span></a></li>
+                }
+                @if (userPermissions.Contains("ManageConsumers"))
+                {
+                    <li class="nav-item"><a class="nav-link" href="/Admin/Consumers"><i class="bi bi-person-lines-fill"></i> <span>Manage Consumers</span></a></li>
+                }
+                @if (userPermissions.Contains("ManageBilling"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Billing" asp-action="Index"><i class="bi bi-receipt"></i> <span>Manage Billing</span></a></li>
+                }
+                @if (userPermissions.Contains("ManagePayments"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Payments" asp-action="ManagePayments"><i class="bi bi-credit-card"></i> <span>Manage Payments</span></a></li>
+                }
+                @if (userPermissions.Contains("ManageDisconnection"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Disconnection" asp-action="Index"><i class="bi bi-plug"></i> <span>Disconnection</span></a></li>
+                }
+                @if (userPermissions.Contains("ManageNotifications"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell"></i> <span>Notifications</span></a></li>
+                }
+                @if (userPermissions.Contains("ManageSupport"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Supports" asp-action="Index"><i class="bi bi-life-preserver"></i> <span>Support</span></a></li>
+                }
+                @if (userPermissions.Contains("ViewReports"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="Index"><i class="bi bi-bar-chart"></i> <span>Reports</span></a></li>
+                }
+                @if (userPermissions.Contains("ManageFeedback"))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Feedback" asp-action="Index"><i class="bi bi-chat-left-text"></i> <span>Feedback</span></a></li>
+                }
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="p-4 flex-grow-1">
+            @RenderBody()
+        </main>
+    </div>
+
+    @RenderSection("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- NEW: Sidebar Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('sidebarToggleMobile');
+            const sidebar = document.getElementById('sidebar');
+
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', function () {
+                    sidebar.classList.toggle('sidebar-hidden');
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const darkModeToggle = document.getElementById('toggleDarkMode');
+            const body = document.body;
+
+            // Load from localStorage
+            if (localStorage.getItem('dark-mode') === 'enabled') {
+                body.classList.add('dark-mode');
+            }
+
+            darkModeToggle.addEventListener('click', function () {
+                body.classList.toggle('dark-mode');
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('dark-mode', 'enabled');
+                } else {
+                    localStorage.setItem('dark-mode', 'disabled');
+                }
+            });
+        });
+    </script>
+
+    <!-- END -->
+</body>
+</html>

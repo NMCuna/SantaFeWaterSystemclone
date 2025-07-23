@@ -1,0 +1,56 @@
+﻿/* === Container === */
+.receipt-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+
+/* === Header === */
+.receipt-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+    .receipt-header h2.glow {
+        font-weight: bold;
+        color: #007bff;
+        text-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+    }
+
+/* === Sections === */
+.receipt-section {
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #0d6efd;
+    padding-left: 1rem;
+}
+
+/* === Line Items === */
+.receipt-line-item {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+/* === Buttons & Print Control === */
+.no-print {
+    margin-top: 2rem;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+    }
+
+    .receipt-container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+    }
+}

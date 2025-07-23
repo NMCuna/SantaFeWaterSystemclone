@@ -1,0 +1,135 @@
+﻿@model SantaFeWaterSystem.ViewModels.PaginatedList<SantaFeWaterSystem.ViewModels.DisconnectionViewModel>
+@{
+    ViewData["Title"] = "Disconnection List";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var currentSort = ViewBag.CurrentSort as string;
+    var nameSortParam = String.IsNullOrEmpty(currentSort) ? "name_desc" : "";
+    var overdueSortParam = currentSort == "overdue" ? "overdue_desc" : "overdue";
+    var amountSortParam = currentSort == "amount" ? "amount_desc" : "amount";
+    var dueDateSortParam = currentSort == "duedate" ? "duedate_desc" : "duedate";
+}
+
+<h2>Disconnection Candidates</h2>
+
+<form method="get" asp-action="Index" class="mb-3 d-flex gap-2">
+    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control w-25" placeholder="Search by name or meter no..." />
+    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Search</button>
+</form>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="bi bi-x-circle-fill me-2"></i> @TempData["Error"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill me-2"></i>No consumers are currently eligible for disconnection.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@nameSortParam" asp-route-searchTerm="@ViewBag.SearchTerm">Consumer Name</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@overdueSortParam" asp-route-searchTerm="@ViewBag.SearchTerm">Overdue Bills</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@amountSortParam" asp-route-searchTerm="@ViewBag.SearchTerm">Total Unpaid</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@dueDateSortParam" asp-route-searchTerm="@ViewBag.SearchTerm">Latest Due Date</a>
+                    </th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ConsumerName</td>
+                        <td>@item.OverdueBillsCount</td>
+                        <td>@item.TotalUnpaidAmount.ToString("C")</td>
+                        <td>@item.LatestDueDate?.ToShortDateString()</td>
+                        <td>
+                            @if (item.IsDisconnected)
+                            {
+                                <span class="badge bg-danger">Disconnected</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </td>
+                        <td class="d-flex gap-2 flex-wrap">
+                            @if (item.IsDisconnected)
+                            {
+                                <form asp-action="Reconnect" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.ConsumerId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-plug"></i> Reconnect
+                                    </button>
+                                </form>
+
+                            }
+                            else
+                            {
+                                <form asp-action="Disconnect" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.ConsumerId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to disconnect this consumer?');">
+                                        <i class="bi bi-plug-fill"></i> Disconnect
+                                    </button>
+                                </form>
+                            }
+
+                            <form asp-action="Notify" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.ConsumerId" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-bell-fill"></i> Notify
+                                </button>
+                            </form>
+                            <a asp-action="Details" asp-route-id="@item.ConsumerId" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-eye-fill"></i> View Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageIndex - 1)" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-sortOrder="@ViewBag.CurrentSort">Previous</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-sortOrder="@ViewBag.CurrentSort">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageIndex + 1)" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-sortOrder="@ViewBag.CurrentSort">Next</a>
+            </li>
+        </ul>
+    </nav>
+}

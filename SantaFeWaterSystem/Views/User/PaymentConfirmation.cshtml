@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Payment Confirmation";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+
+    var culture = new System.Globalization.CultureInfo("en-PH");
+
+    string transactionId = ViewBag.TransactionId ?? "N/A";
+    string method = ViewBag.Method ?? "N/A";
+    string date = ViewBag.Date ?? "N/A";
+
+    string amountPaidFormatted = "₱0.00";
+    decimal amountPaid = 0;
+
+    if (ViewBag.AmountPaid != null && decimal.TryParse(ViewBag.AmountPaid.ToString(), out amountPaid))
+    {
+        amountPaidFormatted = amountPaid.ToString("C", culture);
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/payment-confirmation.css" asp-append-version="true" />
+}
+
+
+
+<div class="container my-5">
+    <div class="confirmation-container text-center mx-auto" style="max-width: 600px;">
+        <h2 class="confirmation-title mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i> Payment Submitted
+        </h2>
+        <p class="lead-text mb-4">Your payment has been successfully submitted and is pending verification.</p>
+
+        <div class="card confirmation-card shadow-sm mx-auto mb-4" style="max-width: 500px;">
+            <div class="card-body text-start">
+                <p><strong>TransactionId.:</strong> @transactionId</p>
+                <p><strong>Payment Method:</strong> @method</p>
+                <p><strong>Amount Paid:</strong> @amountPaidFormatted</p>
+                <p><strong>Date:</strong> @date</p>
+            </div>
+        </div>
+
+        <a asp-controller="User" asp-action="Dashboard" class="btn btn-primary btn-lg btn-glow">
+            <i class="bi bi-house-door me-2"></i> Back to Dashboard
+        </a>
+    </div>
+</div>

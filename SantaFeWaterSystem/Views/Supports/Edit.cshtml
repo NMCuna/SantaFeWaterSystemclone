@@ -1,0 +1,41 @@
+﻿@model SantaFeWaterSystem.Models.Support
+
+@{
+    ViewData["Title"] = "Edit Support Ticket";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Edit Support Ticket</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ConsumerId" />
+
+    <div class="form-group">
+        <label asp-for="Subject"></label>
+        <input asp-for="Subject" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Message"></label>
+        <textarea asp-for="Message" class="form-control" rows="4" readonly></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AdminReply"></label>
+        <textarea asp-for="AdminReply" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="AdminReply" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="IsResolved" class="form-check-input" />
+        <label asp-for="IsResolved" class="form-check-label">Mark as Resolved</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

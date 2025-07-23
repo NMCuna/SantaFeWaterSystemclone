@@ -1,0 +1,189 @@
+﻿@model SantaFeWaterSystem.ViewModels.UserProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+@section Styles {
+    <link href="~/css/profile.css" rel="stylesheet" asp-append-version="true" />
+}
+
+<h2 class="mb-3 text-primary fw-bold text-center">My Profile <i class="bi bi-person-circle"></i></h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm rounded-3 p-3 mx-auto profile-container">
+    <form asp-action="Profile" method="post" enctype="multipart/form-data" novalidate>
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+        <div class="row g-3 mb-3 align-items-center justify-content-center">
+            <div class="col-12 text-center">
+                <!-- Preview Image -->
+                <img id="previewImage"
+                     src="~/images/profiles/@(Model.ExistingProfilePicture ?? "default.png")"
+                     class="rounded-circle shadow-sm mb-3"
+                     loading="lazy"
+                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0 10px rgba(0,123,255,0.5);"
+                     alt="Profile Picture" />
+
+            </div>
+
+            <div class="col-12 text-center">
+                <label class="form-label fw-semibold mb-2 fs-5">
+                    <i class="bi bi-camera-fill me-2"></i>Change Profile Picture
+                </label>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-center flex-nowrap gap-2 mb-2" style="overflow-x: auto;">
+                    <button type="button" class="btn btn-success btn-sm d-flex align-items-center justify-content-center px-2 flex-shrink-1 text-nowrap"
+                            onclick="document.getElementById('cameraInput').click();">
+                        <i class="bi bi-camera me-1"></i> Take Photo
+                    </button>
+
+                    <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center px-2 flex-shrink-1 text-nowrap"
+                            onclick="document.getElementById('galleryInput').click();">
+                        <i class="bi bi-image me-1"></i> Choose from Gallery
+                    </button>
+                </div>
+
+
+
+                <!-- Hidden File Inputs -->
+                <input type="file"
+                       id="cameraInput"
+                       name="ProfileImage"
+                       accept="image/*"
+                       capture="environment"
+                       class="d-none" />
+
+                <input type="file"
+                       id="galleryInput"
+                       name="ProfileImage"
+                       accept="image/*"
+                       class="d-none" />
+
+                <span asp-validation-for="ProfileImage" class="text-danger small"></span>
+            </div>
+        </div>
+
+
+        <div class="row g-2">
+            <div class="col-12 col-sm-6">
+                <label class="form-label"><i class="bi bi-person-fill text-primary fs-5"></i> Full Name</label>
+                <input class="form-control form-control-sm bg-secondary text-white" value="@Model.FullName" readonly />
+            </div>
+
+            <div class="col-12 col-sm-6">
+                <label asp-for="Address" class="form-label"><i class="bi bi-geo-alt-fill text-primary fs-5"></i> Address</label>
+                <input asp-for="Address" class="form-control form-control-sm bg-secondary text-white" readonly />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-6">
+                <label asp-for="ContactNumber" class="form-label"><i class="bi bi-telephone-fill text-primary fs-5"></i> Contact Number</label>
+                <input asp-for="ContactNumber" class="form-control form-control-sm" />
+                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-6">
+                <label asp-for="Email" class="form-label"><i class="bi bi-envelope-fill text-primary fs-5"></i> Email</label>
+                <input asp-for="Email" type="email" class="form-control form-control-sm" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label asp-for="AccountNumber" class="form-label"><i class="bi bi-credit-card-2-front-fill text-primary fs-5"></i> Account Number</label>
+                <input asp-for="AccountNumber" class="form-control form-control-sm bg-secondary text-white" readonly />
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label asp-for="AccountType" class="form-label"><i class="bi bi-card-list text-primary fs-5"></i> Account Type</label>
+                <input asp-for="AccountType" class="form-control form-control-sm bg-secondary text-white" readonly />
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label asp-for="MeterNo" class="form-label"><i class="bi bi-speedometer2 text-primary fs-5"></i> Meter No.</label>
+                <input asp-for="MeterNo" class="form-control form-control-sm bg-secondary text-white" readonly />
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center flex-nowrap gap-2 mt-3" style="overflow-x: auto;">
+            <button type="submit" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center px-2 flex-shrink-1">
+                <i class="bi bi-save2-fill me-1"></i>
+                <span class="text-nowrap">Update Profile</span>
+            </button>
+
+            <a asp-action="ResetPassword" class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center px-2 flex-shrink-1">
+                <i class="bi bi-key-fill me-1"></i>
+                <span class="text-nowrap">Change Password</span>
+            </a>
+        </div>
+
+
+
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const previewImage = document.getElementById('previewImage');
+        const cameraInput = document.getElementById('cameraInput');
+        const galleryInput = document.getElementById('galleryInput');
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadLabel = document.querySelector('.upload-label');
+
+        // Optional: if you're still using an extra #imageUpload input
+        if (imageUpload) {
+            imageUpload.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Optional: if a clickable label triggers #imageUpload
+        if (uploadLabel && imageUpload) {
+            uploadLabel.addEventListener('click', function () {
+                imageUpload.click();
+            });
+        }
+
+        // Camera & Gallery preview
+        function updatePreview(input) {
+            const file = input.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = e => previewImage.src = e.target.result;
+                reader.readAsDataURL(file);
+            }
+        }
+
+        if (cameraInput) {
+            cameraInput.addEventListener('change', () => updatePreview(cameraInput));
+        }
+
+        if (galleryInput) {
+            galleryInput.addEventListener('change', () => updatePreview(galleryInput));
+        }
+    </script>
+}

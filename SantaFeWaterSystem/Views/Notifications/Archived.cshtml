@@ -1,0 +1,94 @@
+﻿@model List<Notification>
+@{
+    ViewData["Title"] = "Archived Notifications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .archived-header {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .table-notifications {
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+        .table-notifications th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .table-notifications td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+    .btn-info {
+        color: white;
+    }
+
+    .back-button {
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="archived-header">
+        <i class="bi bi-archive-fill me-2"></i>Archived Notifications
+    </div>
+
+    <a class="btn btn-secondary back-button" asp-action="Index">
+        <i class="bi bi-arrow-left-circle me-1"></i>Back to Active Notifications
+    </a>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-notifications">
+            <thead class="table-light">
+                <tr>
+                    <th><i class="bi bi-person"></i> To</th>
+                    <th><i class="bi bi-card-text"></i> Title</th>
+                    <th><i class="bi bi-chat-left-text"></i> Message</th>
+                    <th><i class="bi bi-calendar-event"></i> Date</th>
+                    <th><i class="bi bi-tools"></i> Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var n in Model)
+                    {
+                        <tr>
+                            <td>@n.Consumer?.FirstName</td>
+                            <td>@n.Title</td>
+                            <td>@n.Message</td>
+                            <td>@n.CreatedAt.ToString("yyyy-MM-dd hh:mm tt")</td>
+                            <td>
+                                <form asp-action="Unarchive" method="post" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@n.Id" />
+                                    <button type="submit" class="btn btn-info btn-sm">
+                                        <i class="bi bi-arrow-clockwise"></i> Restore
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-muted text-center">
+                            <i class="bi bi-inbox"></i> No archived notifications found.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

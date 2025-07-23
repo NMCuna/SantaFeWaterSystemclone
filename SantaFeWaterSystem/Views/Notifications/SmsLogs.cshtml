@@ -1,0 +1,43 @@
+﻿@model List<SantaFeWaterSystem.Models.ViewModels.SmsLogViewModel>
+
+@{
+    ViewData["Title"] = "SMS Logs";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="page-header"><i class="bi bi-chat-dots"></i> SMS Logs</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-primary">
+        <tr>
+            <th>Recipient</th>
+            <th>Contact Number</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Sent At</th>
+            <th>Response</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.ConsumerName</td>
+                <td>@log.ContactNumber</td>
+                <td>@log.Message</td>
+                <td>
+                    @if (log.IsSuccess)
+                    {
+                        <span class="badge bg-success">Success</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Failed</span>
+                    }
+                </td>
+                <td>@log.SentAt.ToString("g")</td>
+                <td>@log.ResponseMessage</td>
+            </tr>
+        }
+    </tbody>
+</table>

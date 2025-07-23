@@ -1,0 +1,40 @@
+﻿@model IEnumerable<SantaFeWaterSystem.Models.Support>
+@{
+    ViewData["Title"] = "Archived Support Tickets";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Archived Support Tickets</h2>
+
+<a class="btn btn-secondary mb-3" asp-action="Index">Back to Active Tickets</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Subject</th>
+            <th>Consumer</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticket in Model)
+        {
+            <tr>
+                <td>@ticket.Subject</td>
+                <td>@ticket.Consumer?.FirstName</td>
+                <td>@ticket.Status</td>
+                <td>@ticket.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    <form asp-action="Unarchive" asp-route-id="@ticket.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-info">Unarchive</button>
+                    </form>
+                    <form asp-action="Delete" asp-route-id="@ticket.Id" method="post" class="d-inline" asp-antiforgery="true">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this ticket?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
