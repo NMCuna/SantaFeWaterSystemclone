@@ -238,7 +238,6 @@ namespace SantaFeWaterSystem.Controllers
 
 
         // GET: Billing/Create
-        // GET: AdminDashboard/Billing/Create
         [Authorize(Roles = "Admin,Staff")]
         public IActionResult Create()
         {
@@ -554,7 +553,7 @@ namespace SantaFeWaterSystem.Controllers
 
 
         // GET: Billing/Edit/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -567,7 +566,7 @@ namespace SantaFeWaterSystem.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Billing billing)
@@ -657,7 +656,7 @@ namespace SantaFeWaterSystem.Controllers
 
 
         // GET: Billing/Delete/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -672,7 +671,7 @@ namespace SantaFeWaterSystem.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

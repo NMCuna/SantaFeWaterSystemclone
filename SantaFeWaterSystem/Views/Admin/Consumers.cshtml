@@ -1,11 +1,25 @@
-﻿@{
+﻿@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
     ViewData["Title"] = "Manage Consumers";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var user = HttpContextAccessor.HttpContext?.User;
+    var isAdmin = user?.IsInRole("Admin") ?? false;
+    var isStaff = user?.IsInRole("Staff") ?? false;
+
+    var userPermissions = user?.Claims
+       .Where(c => c.Type == "Permission")
+       .Select(c => c.Value)
+       .ToList() ?? new List<string>();
 }
 
 @section Styles {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="~/css/manage-consumers.css" asp-append-version="true" />
+
+
 }
 
 
@@ -82,15 +96,26 @@
                     }
                 </td>
                 <td class="action-buttons">
-                    <a asp-action="ConsumerDetails" asp-route-id="@consumer.Id" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="View Consumer">
-                        <i class="bi bi-eye"></i> View
-                    </a>
-                    <a asp-action="EditConsumer" asp-route-id="@consumer.Id" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" title="Edit Consumer">
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </a>
-                    <a asp-action="DeleteConsumer" asp-route-id="@consumer.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete Consumer">
-                        <i class="bi bi-trash"></i> Delete
-                    </a>
+                    @if (userPermissions.Contains("ViewConsumer"))
+                    {
+                        <a asp-action="ConsumerDetails" asp-route-id="@consumer.Id" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="View Consumer">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                    }
+
+                    @if (userPermissions.Contains("EditConsumer"))
+                    {
+                        <a asp-action="EditConsumer" asp-route-id="@consumer.Id" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" title="Edit Consumer">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                    }
+
+                    @if (userPermissions.Contains("DeleteConsumer"))
+                    {
+                        <a asp-action="DeleteConsumer" asp-route-id="@consumer.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete Consumer">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    }
                 </td>
             </tr>
         }

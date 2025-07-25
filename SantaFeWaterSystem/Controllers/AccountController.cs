@@ -441,10 +441,10 @@ public class AccountController(
 
 
 
-
-        // GET: Admin/ResetPassword/5
-        [Authorize(Roles = "Admin")]
-        [HttpGet]
+    ////////////User Consumer in Manage user////////////////////
+    // GET: Admin/ResetPassword/5
+    [Authorize(Roles = "Admin,Staff")]
+    [HttpGet]
         public IActionResult ResetPassword(int id)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == id);
@@ -454,8 +454,9 @@ public class AccountController(
             return View("ResetPassword", user); // Loads ResetPassword.cshtml with User model
         }
 
-        // POST: Admin/ResetPassword/5
-        [HttpPost]
+    // POST: Admin/ResetPassword/5
+    [Authorize(Roles = "Admin,Staff")]
+    [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(int id, string NewPassword, string ConfirmPassword)
         {
@@ -541,9 +542,9 @@ public class AccountController(
 
 
 
-
-        // GET: /Account/ForgotPasswordUser
-        [HttpGet]
+    ////////////User Consumer in  User in Login Forgot pass////////////////////
+    // GET: /Account/ForgotPasswordUser
+    [HttpGet]
         public IActionResult ForgotPasswordUser()
         {
             return View();
@@ -644,9 +645,9 @@ public class AccountController(
 
 
 
-
-        // POST: /Account/ResetPasswordUser
-        [HttpPost]
+    ////////////User Consumer in Profile user////////////////////
+    // POST: /Account/ResetPasswordUser
+    [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPasswordUser(ResetPasswordUserViewModel model)
         {
@@ -851,7 +852,11 @@ public class AccountController(
             "ManageUsers", "ManageConsumers", "ManageBilling", "ManagePayments",
             "ManageDisconnection", "ManageNotifications", "ManageSupport",
             "ViewReports", "ManageFeedback", "RegisterAdmin", "RegisterUser",
-            "ManageQRCodes", "ManageRate", "AuditTrail"
+            "ManageQRCodes", "ManageRate", "AuditTrail","EditUser", "ResetPassword",
+            "DeleteUser", "Reset2FA", "LockUser", "UnlockUser","ViewConsumer", 
+            "EditConsumer", "DeleteConsumer","ViewBilling", "EditBilling", "DeleteBilling", 
+            "NotifyBilling", "ViewPenaltyLog", "ViewPayment", "EditPayment", "DeletePayment", 
+            "VerifyPayment"
         };
 
                 foreach (var permission in adminPermissions)

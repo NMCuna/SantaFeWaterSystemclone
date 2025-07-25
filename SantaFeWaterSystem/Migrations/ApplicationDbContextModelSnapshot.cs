@@ -497,6 +497,114 @@ namespace SantaFeWaterSystem.Migrations
                             Id = 13,
                             Description = "Permission to manage rates",
                             Name = "ManageRate"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Permission to edit user details",
+                            Name = "EditUser"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Permission to reset user password",
+                            Name = "ResetPassword"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "Permission to delete a user",
+                            Name = "DeleteUser"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Permission to reset two-factor authentication",
+                            Name = "Reset2FA"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Description = "Permission to lock a user account",
+                            Name = "LockUser"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "Permission to unlock a user account",
+                            Name = "UnlockUser"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Description = "Permission to view consumer details",
+                            Name = "ViewConsumer"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Description = "Permission to edit consumer",
+                            Name = "EditConsumer"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Description = "Permission to delete consumer",
+                            Name = "DeleteConsumer"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Description = "Permission to view billing records",
+                            Name = "ViewBilling"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Description = "Permission to edit billing records",
+                            Name = "EditBilling"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Description = "Permission to delete billing records",
+                            Name = "DeleteBilling"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Description = "Permission to send billing notifications",
+                            Name = "NotifyBilling"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Description = "Permission to view penalty history logs",
+                            Name = "ViewPenaltyLog"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Description = "Permission to view payment records",
+                            Name = "ViewPayment"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Description = "Permission to edit payment records",
+                            Name = "EditPayment"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Description = "Permission to delete payment records",
+                            Name = "DeletePayment"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Description = "Permission to verify payment records",
+                            Name = "VerifyPayment"
                         });
                 });
 

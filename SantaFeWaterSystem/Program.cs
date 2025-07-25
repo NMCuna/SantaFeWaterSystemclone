@@ -91,12 +91,12 @@ using (var scope = app.Services.CreateScope())
     CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
     CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-    if (!db.Users.Any(u => u.Username == "admin"))
+    if (!db.Users.Any(u => u.Username == "st_admin"))
     {
         var adminUser = new User
         {
-            Username = "admin",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            Username = "st_admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("st_Admin@6047"),
             Role = "Admin",  
             IsMfaEnabled = false
         };

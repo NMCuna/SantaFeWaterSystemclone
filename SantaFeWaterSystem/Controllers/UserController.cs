@@ -73,19 +73,19 @@ namespace SantaFeWaterSystem.Controllers
                 .Where(p => p.ConsumerId == consumer.Id)
                 .Include(p => p.Billing)
                 .OrderByDescending(p => p.PaymentDate)
-                .Take(5)
+                .Take(50)
                 .ToListAsync();
 
             var recentSupportTickets = await _context.Supports
                 .Where(s => s.ConsumerId == consumer.Id)
                 .OrderByDescending(s => s.CreatedAt)
-                .Take(6)
+                .Take(10)
                 .ToListAsync();
 
             var notifications = await _context.Notifications
                 .Where(n => n.ConsumerId == consumer.Id)
                 .OrderByDescending(n => n.CreatedAt)
-                .Take(6)
+                .Take(20)
                 .ToListAsync();
 
             var vm = new UserDashboardViewModel

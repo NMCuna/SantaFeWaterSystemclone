@@ -1,11 +1,22 @@
 ﻿@model X.PagedList.IPagedList<SantaFeWaterSystem.Models.Billing>
 @using X.PagedList.Mvc.Core
+@using System.Security.Claims
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Manage Billing";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var searchTerm = Context.Request.Query["searchTerm"].ToString();
     var statusFilter = Context.Request.Query["statusFilter"].ToString();
+
+    var user = HttpContextAccessor.HttpContext?.User;
+    var isAdmin = user?.IsInRole("Admin") ?? false;
+    var isStaff = user?.IsInRole("Staff") ?? false;
+
+    var userPermissions = user?.Claims
+       .Where(c => c.Type == "Permission")
+       .Select(c => c.Value)
+       .ToList() ?? new List<string>();
 }
 
 @section Styles {
@@ -94,8 +105,8 @@
         @foreach (var bill in Model)
         {
             var rowClass = bill.Status == "Unpaid" ? "table-danger"
-                        : bill.Status == "Pending" ? "table-warning"
-                        : "";
+            : bill.Status == "Pending" ? "table-warning"
+            : "";
 
             <tr class="@rowClass">
                 <td><input type="checkbox" class="billCheckbox" value="@bill.Id" /></td>
@@ -107,14 +118,17 @@
                 <td>
                     @if (bill.Penalty > 0)
                     {
-                        <a asp-controller="AuditTrail"
-                           asp-action="Index"
-                           asp-route-actionType="PenaltyApplied"
-                           asp-route-search="@bill.BillNo"
-                           class="btn btn-sm btn-outline-secondary"
-                           title="View penalty log">
-                            <i class="bi bi-clock-history"></i> Logs
-                        </a>
+                        @if (userPermissions.Contains("ViewPenaltyLog"))
+                        {
+                            <a asp-controller="AuditTrail"
+                               asp-action="Index"
+                               asp-route-actionType="PenaltyApplied"
+                               asp-route-search="@bill.BillNo"
+                               class="btn btn-sm btn-outline-secondary"
+                               title="View penalty log">
+                                <i class="bi bi-clock-history"></i> Logs
+                            </a>
+                        }
                     }
                 </td>
                 <td>
@@ -132,11 +146,22 @@
                     }
                 </td>
                 <td class="action-buttons">
-                    <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@bill.Id"><i class="bi bi-eye"></i> View</a>
-                    <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@bill.Id"><i class="bi bi-pencil-square"></i> Edit</a>
-                    <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@bill.Id"><i class="bi bi-trash"></i> Delete</a>
-                    <!-- ✅ Notify Button -->
-                    @if (bill.Status == "Unpaid")
+                    @if (userPermissions.Contains("ViewBilling"))
+                    {
+                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@bill.Id"><i class="bi bi-eye"></i> View</a>
+                    }
+
+                    @if (userPermissions.Contains("EditBilling"))
+                    {
+                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@bill.Id"><i class="bi bi-pencil-square"></i> Edit</a>
+                    }
+
+                    @if (userPermissions.Contains("DeleteBilling"))
+                    {
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@bill.Id"><i class="bi bi-trash"></i> Delete</a>
+                    }
+
+                    @if (bill.Status == "Unpaid" && userPermissions.Contains("NotifyBilling"))
                     {
                         <form asp-action="Notify" asp-route-id="@bill.Id" method="post" class="d-inline">
                             @Html.AntiForgeryToken()

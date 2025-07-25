@@ -300,7 +300,7 @@ namespace SantaFeWaterSystem.Controllers
 
 
         // GET: Payments/Edit/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public IActionResult Edit(int id)
         {
             var payment = _context.Payments
@@ -336,7 +336,7 @@ namespace SantaFeWaterSystem.Controllers
         }
 
         // POST: Payments/Edit/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CreatePaymentViewModel model)
@@ -458,7 +458,7 @@ namespace SantaFeWaterSystem.Controllers
 
 
         // GET: Payments/Delete/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public IActionResult Delete(int id)
         {
             var payment = _context.Payments
@@ -487,7 +487,7 @@ namespace SantaFeWaterSystem.Controllers
         }
 
         // POST: Payments/Delete/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

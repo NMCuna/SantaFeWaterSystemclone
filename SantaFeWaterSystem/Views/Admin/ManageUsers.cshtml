@@ -8,6 +8,11 @@
     var currentUser = HttpContextAccessor.HttpContext?.User;
     var isAdmin = currentUser?.IsInRole("Admin") ?? false;
     var isStaff = currentUser?.IsInRole("Staff") ?? false;
+
+    var userPermissions = currentUser?.Claims
+      .Where(c => c.Type == "Permission")
+      .Select(c => c.Value)
+      .ToList() ?? new List<string>();
 }
 
 @section Styles {
@@ -349,36 +354,61 @@
                             <td>@user.AccountNumber</td>
                             <td>@user.Role</td>
                             <td>
-                                <a asp-action="EditConsumerUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit User">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-controller="Account" asp-action="ResetPassword" asp-route-id="@user.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Reset Password">
-                                    <i class="bi bi-key"></i>
-                                </a>
-                                <a asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete User">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                                <form asp-controller="Admin" asp-action="Reset2FAUser" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to disable 2FA for this user?');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Disable 2FA">
-                                        <i class="bi bi-shield-x"></i>
-                                    </button>
-                                </form>
+                                @* ✏️ Edit User *@
+                                @if (userPermissions.Contains("EditUser"))
+                                {
+                                    <a asp-action="EditConsumerUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit User">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                }
 
-                                @* 🔒 LOCK/UNLOCK BUTTON BASED ON IsLocked STATUS *@
+                                @* 🔑 Reset Password *@
+                                @if (userPermissions.Contains("ResetPassword"))
+                                {
+                                    <a asp-controller="Account" asp-action="ResetPassword" asp-route-id="@user.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Reset Password">
+                                        <i class="bi bi-key"></i>
+                                    </a>
+                                }
+
+                                @* 🗑️ Delete User *@
+                                @if (userPermissions.Contains("DeleteUser"))
+                                {
+                                    <a asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete User">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                }
+
+                                @* ❌ Reset 2FA *@
+                                @if (userPermissions.Contains("Reset2FA"))
+                                {
+                                    <form asp-controller="Admin" asp-action="Reset2FAUser" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to disable 2FA for this user?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Disable 2FA">
+                                            <i class="bi bi-shield-x"></i>
+                                        </button>
+                                    </form>
+                                }
+
+                                @* 🔒 Lock/Unlock (only for users) *@
                                 @if (user.Role == "User")
                                 {
                                     if (user.IsLocked)
                                     {
-                                        <a asp-action="UnlockUser" asp-route-id="@user.Id" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Unlock User">
-                                            <i class="bi bi-unlock-fill"></i>
-                                        </a>
+                                        @if (userPermissions.Contains("UnlockUser"))
+                                        {
+                                            <a asp-action="UnlockUser" asp-route-id="@user.Id" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Unlock User">
+                                                <i class="bi bi-unlock-fill"></i>
+                                            </a>
+                                        }
                                     }
                                     else
                                     {
-                                        <a asp-action="LockUser" asp-route-id="@user.Id" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Lock User">
-                                            <i class="bi bi-lock-fill"></i>
-                                        </a>
+                                        @if (userPermissions.Contains("LockUser"))
+                                        {
+                                            <a asp-action="LockUser" asp-route-id="@user.Id" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Lock User">
+                                                <i class="bi bi-lock-fill"></i>
+                                            </a>
+                                        }
                                     }
                                 }
                             </td>

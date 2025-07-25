@@ -213,8 +213,8 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
 
 
     // GET: Admin/EditConsumerUser/5
+    [Authorize(Roles = "Admin,Staff")]
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> EditConsumerUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -234,9 +234,9 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
     }
 
     // POST: Admin/EditConsumerUser/5
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> EditConsumerUser(EditConsumerUserViewModel model)
     {
         if (!ModelState.IsValid)
@@ -320,8 +320,8 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
 
 
     // GET: Admin/EditAdminUser/5
-    [HttpGet]
     [Authorize(Roles = "Admin")]
+    [HttpGet]
     public async Task<IActionResult> EditAdminUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -340,10 +340,12 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
         return View("EditAdminUser", model);
     }
 
+
+    ////////////User Admin in Manage user edity for satff and admin user////////////////////
     // POST: Admin/EditAdminUser/5
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> EditAdminUser(int id, EditAdminUserViewModel model)
     {
         if (id != model.Id)
@@ -406,8 +408,8 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
 
 
     // GET: Admin/DeleteUser/5
+    [Authorize(Roles = "Admin,Staff")]
     [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -417,10 +419,10 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
             return View(user); // Make sure you have a View: Views/Admin/DeleteUser.cshtml
         }
 
-        // POST: Admin/DeleteUser/5
-        [HttpPost, ActionName("DeleteUser")]
+    // POST: Admin/DeleteUser/5
+    [Authorize(Roles = "Admin,Staff")]
+    [HttpPost, ActionName("DeleteUser")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserConfirmed(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -544,8 +546,8 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
     }
 
     // 🔐 Admin reset 2FA for a Staff
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Reset2FAStaff(int id)
     {
@@ -566,8 +568,8 @@ public class AdminController(PermissionService permissionService, ApplicationDbC
     }
 
     // 🔐 Admin reset 2FA for a User
+    [Authorize(Roles = "Admin,Staff")]
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Reset2FAUser(int id)
     {

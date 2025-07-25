@@ -7,10 +7,12 @@ using SantaFeWaterSystem.Data;
 public class PermissionService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public PermissionService(ApplicationDbContext context)
+    public PermissionService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<List<string>> GetUserPermissionsAsync(int userId)

@@ -133,9 +133,26 @@ namespace SantaFeWaterSystem.Data
     new Permission { Id = 10, Name = "RegisterAdmin", Description = "Permission to register new admins" },
     new Permission { Id = 11, Name = "RegisterUser", Description = "Permission to register new users" },
     new Permission { Id = 12, Name = "ManageQRCodes", Description = "Permission to manage QR codes" },
-    new Permission { Id = 13, Name = "ManageRate", Description = "Permission to manage rates" }
- );
-
+    new Permission { Id = 13, Name = "ManageRate", Description = "Permission to manage rates" },
+    new Permission { Id = 14, Name = "EditUser", Description = "Permission to edit user details" },
+    new Permission { Id = 15, Name = "ResetPassword", Description = "Permission to reset user password" },
+    new Permission { Id = 16, Name = "DeleteUser", Description = "Permission to delete a user" },
+    new Permission { Id = 17, Name = "Reset2FA", Description = "Permission to reset two-factor authentication" },
+    new Permission { Id = 18, Name = "LockUser", Description = "Permission to lock a user account" },
+    new Permission { Id = 19, Name = "UnlockUser", Description = "Permission to unlock a user account" },
+    new Permission { Id = 20, Name = "ViewConsumer", Description = "Permission to view consumer details" },
+    new Permission { Id = 21, Name = "EditConsumer", Description = "Permission to edit consumer" },
+    new Permission { Id = 22, Name = "DeleteConsumer", Description = "Permission to delete consumer" },
+    new Permission { Id = 23, Name = "ViewBilling", Description = "Permission to view billing records" },
+    new Permission { Id = 24, Name = "EditBilling", Description = "Permission to edit billing records" },
+    new Permission { Id = 25, Name = "DeleteBilling", Description = "Permission to delete billing records" },
+    new Permission { Id = 26, Name = "NotifyBilling", Description = "Permission to send billing notifications" },
+    new Permission { Id = 27, Name = "ViewPenaltyLog", Description = "Permission to view penalty history logs" },
+    new Permission { Id = 28, Name = "ViewPayment", Description = "Permission to view payment records" },
+    new Permission { Id = 29, Name = "EditPayment", Description = "Permission to edit payment records" },
+    new Permission { Id = 30, Name = "DeletePayment", Description = "Permission to delete payment records" },
+    new Permission { Id = 31, Name = "VerifyPayment", Description = "Permission to verify payment records" }
+);
         }
 
     }
