@@ -135,6 +135,7 @@ wwwroot\uploads\receipts\80494554-ce43-4df0-9a01-4e101b186fc9.png
 wwwroot\uploads\receipts\84a1fff7-a1a7-48e3-b750-5cf2170bdd4b.jpg
 wwwroot\uploads\receipts\86c511af-b389-4abc-92d4-6ec111f64848.png
 wwwroot\uploads\receipts\9259c8e6-2645-4b9d-9c91-317c303c337d.png
+wwwroot\uploads\receipts\981d80d0-bf55-47b8-8722-f66d2310ccaa.png
 wwwroot\uploads\receipts\98991953-5518-4f22-8bbf-f83d26d41b07.png
 wwwroot\uploads\receipts\9d7e97de-aedd-412f-a796-f4c76c3a448b.jpg
 wwwroot\uploads\receipts\a182b015-3607-4980-89ad-c81b32186beb.png
@@ -154,3 +155,5 @@ wwwroot\uploads\receipts\eaebde39-83d5-40e9-baf6-02a9e80c8aab.png
 wwwroot\uploads\receipts\f3494dc0-f5dc-43ed-b05d-ee13281d58e2.png
 wwwroot\uploads\receipts\f7e45805-7e97-4804-9398-44e1f11babee.png
 wwwroot\uploads\receipts\f81cbe04-2fb8-420f-bee3-2a0c89ef4fab.png
+wwwroot\uploads\receipts\3fe063b9-9312-4b09-9287-96a8e69f5248.jpg
+wwwroot\uploads\receipts\13d0f2b4-c550-41d0-b3f2-f0f5b730e679.jpg

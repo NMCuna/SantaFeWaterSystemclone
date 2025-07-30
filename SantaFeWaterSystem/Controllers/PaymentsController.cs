@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Lib.Net.Http.WebPush;
+using Lib.Net.Http.WebPush.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,7 @@ using SantaFeWaterSystem.Data;
 using SantaFeWaterSystem.Models;
 using SantaFeWaterSystem.Models.ViewModels;
 using SantaFeWaterSystem.Services;
+using System.Text.Json;
 
 namespace SantaFeWaterSystem.Controllers
 {
@@ -201,6 +204,72 @@ namespace SantaFeWaterSystem.Controllers
 
                 // Save everything together
                 await _context.SaveChangesAsync();
+
+                // ✅ Add in-app + push notification for walk-in payment
+                if (consumer != null)
+                {
+                    // In-app notification
+                    var paymentNotif = new Notification
+                    {
+                        ConsumerId = consumer.Id,
+                        Title = "💵 Walk-in Payment Recorded",
+                        Message = $"Hello {consumer.FirstName}, your walk-in payment of ₱{payment.AmountPaid:N2} for Bill No: {billing?.BillNo} has been recorded successfully.",
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Notifications.Add(paymentNotif);
+
+                    // Push Notification
+                    var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == consumer.UserId);
+                    if (appUser != null)
+                    {
+                        var subscriptions = await _context.UserPushSubscriptions
+                            .Where(s => s.UserId == appUser.Id)
+                            .ToListAsync();
+
+                        var vapidAuth = new VapidAuthentication(
+                            "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                            "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                        {
+                            Subject = "mailto:cunanicolemichael@gmail.com"
+                        };
+
+                        var pushClient = new PushServiceClient
+                        {
+                            DefaultAuthentication = vapidAuth
+                        };
+
+                        string pushPayload = JsonSerializer.Serialize(new
+                        {
+                            title = "💵 Walk-in Payment Recorded",
+                            body = $"₱{payment.AmountPaid:N2} for Bill #{billing?.BillNo} has been successfully recorded."
+                        });
+
+                        foreach (var sub in subscriptions)
+                        {
+                            var subscription = new PushSubscription
+                            {
+                                Endpoint = sub.Endpoint,
+                                Keys = new Dictionary<string, string>
+                {
+                    { "p256dh", sub.P256DH },
+                    { "auth", sub.Auth }
+                }
+                            };
+
+                            try
+                            {
+                                await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[Push Error] {ex.Message}");
+                            }
+                        }
+                    }
+
+                    // Save in-app notification + push
+                    await _context.SaveChangesAsync();
+                }
 
                 return RedirectToAction("WalkInConfirmation", new { id = payment.Id });
             }
@@ -539,7 +608,9 @@ namespace SantaFeWaterSystem.Controllers
         {
             var payment = await _context.Payments
                 .Include(p => p.Consumer)
+                .ThenInclude(c => c.User) // Include User for push notification
                 .FirstOrDefaultAsync(p => p.Id == id);
+
             if (payment == null) return NotFound();
 
             payment.IsVerified = true;
@@ -551,10 +622,70 @@ namespace SantaFeWaterSystem.Controllers
                 billing.IsPaid = true;
             }
 
-            // Add audit trail with full consumer name and amount
+            // ✅ In-App Notification
+            var consumer = payment.Consumer;
+            var user = payment.Consumer?.User;
+            var inAppNotif = new Notification
+            {
+                ConsumerId = consumer.Id,
+                Title = "✅ Payment Verified",
+                Message = $"Hello {consumer.FirstName}, your payment of ₱{payment.AmountPaid:N2} has been verified. Thank you!",
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(inAppNotif);
+
+            // ✅ Push Notification
+            if (user != null)
+            {
+                var subscriptions = await _context.UserPushSubscriptions
+                    .Where(s => s.UserId == user.Id)
+                    .ToListAsync();
+
+                var vapidAuth = new VapidAuthentication(
+                    "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                    "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                {
+                    Subject = "mailto:cunanicolemichael@gmail.com"
+                };
+
+                var pushClient = new PushServiceClient
+                {
+                    DefaultAuthentication = vapidAuth
+                };
+
+                string pushPayload = JsonSerializer.Serialize(new
+                {
+                    title = "✅ Payment Verified",
+                    body = $"Your payment of ₱{payment.AmountPaid:N2} has been verified."
+                });
+
+                foreach (var sub in subscriptions)
+                {
+                    var subscription = new PushSubscription
+                    {
+                        Endpoint = sub.Endpoint,
+                        Keys = new Dictionary<string, string>
+                {
+                    { "p256dh", sub.P256DH },
+                    { "auth", sub.Auth }
+                }
+                    };
+
+                    try
+                    {
+                        await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Push Error] {ex.Message}");
+                    }
+                }
+            }
+
+            // ✅ Add Audit Trail
             _context.AuditTrails.Add(new AuditTrail
             {
-                Action = $"Verified online payment for consumer: {payment.Consumer?.FirstName} {payment.Consumer?.LastName}, Amount: ₱{payment.AmountPaid:N2}",
+                Action = $"Verified online payment for: {consumer.FirstName} {consumer.LastName}, Amount: ₱{payment.AmountPaid:N2}",
                 PerformedBy = User.Identity?.Name ?? "Admin",
                 Timestamp = DateTime.Now
             });
@@ -564,13 +695,16 @@ namespace SantaFeWaterSystem.Controllers
             return RedirectToAction(nameof(ManagePayments));
         }
 
+
         [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         public async Task<IActionResult> Unverify(int id)
         {
             var payment = await _context.Payments
                 .Include(p => p.Consumer)
+                .ThenInclude(c => c.User) // Include User for push notification
                 .FirstOrDefaultAsync(p => p.Id == id);
+
             if (payment == null) return NotFound();
 
             payment.IsVerified = false;
@@ -582,10 +716,74 @@ namespace SantaFeWaterSystem.Controllers
                 billing.IsPaid = false;
             }
 
-            // Add audit trail with full consumer name and amount
+            var consumer = payment.Consumer;
+            var user = consumer?.User;
+
+            // ✅ In-App Notification
+            var notif = new Notification
+            {
+                ConsumerId = consumer.Id,
+                Title = "⚠️ Payment Unverified",
+                Message = "Your payment is unverified because the receipt is invalid. After checking GCash using the provided reference number, we found no record of your payment." +
+                          "Please check and confirm your payment. If unresolved within 3 days, " +
+                          "your transaction will be deleted. Visit the municipal hall or contact us to fix it. " +
+                          "Note:If unresolved within 3 days, Your bill will be marked as unpaid again — you will need to pay it.",
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(notif);
+
+            // ✅ Push Notification
+            if (user != null)
+            {
+                var subscriptions = await _context.UserPushSubscriptions
+                    .Where(s => s.UserId == user.Id)
+                    .ToListAsync();
+
+                var vapidAuth = new VapidAuthentication(
+                    "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                    "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                {
+                    Subject = "mailto:cunanicolemichael@gmail.com"
+                };
+
+                var pushClient = new PushServiceClient
+                {
+                    DefaultAuthentication = vapidAuth
+                };
+
+                string pushPayload = JsonSerializer.Serialize(new
+                {
+                    title = "⚠️ Payment Unverified",
+                    body = "Your payment is unverified. Your bill will be marked unpaid again — you will need to pay it. Fix within 3 days or it will be deleted."
+                });
+
+                foreach (var sub in subscriptions)
+                {
+                    var subscription = new PushSubscription
+                    {
+                        Endpoint = sub.Endpoint,
+                        Keys = new Dictionary<string, string>
+                {
+                    { "p256dh", sub.P256DH },
+                    { "auth", sub.Auth }
+                }
+                    };
+
+                    try
+                    {
+                        await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Push Error] {ex.Message}");
+                    }
+                }
+            }
+
+            // ✅ Audit Trail
             _context.AuditTrails.Add(new AuditTrail
             {
-                Action = $"Unverified online payment for consumer: {payment.Consumer?.FirstName} {payment.Consumer?.LastName}, Amount: ₱{payment.AmountPaid:N2}",
+                Action = $"Unverified online payment for consumer: {consumer?.FirstName} {consumer?.LastName}, Amount: ₱{payment.AmountPaid:N2}",
                 PerformedBy = User.Identity?.Name ?? "Admin",
                 Timestamp = DateTime.Now
             });
@@ -594,6 +792,7 @@ namespace SantaFeWaterSystem.Controllers
 
             return RedirectToAction(nameof(ManagePayments));
         }
+
 
 
     }

@@ -17,7 +17,7 @@ namespace SantaFeWaterSystem.Services
                 .BorderColor(Colors.Grey.Lighten2);
         }
 
-        public static byte[] GenerateReport(List<Billing> billings, List<Payment> payments, string logoPath)
+        public static byte[] GenerateReport(List<Billing> billings, List<Payment> payments, string logoPath, decimal totalCubicMeterUsed)
         {
             decimal totalPaid = payments.Sum(p => p.AmountPaid);
             decimal totalBilled = billings.Sum(b => b.TotalAmount);
@@ -35,7 +35,6 @@ namespace SantaFeWaterSystem.Services
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(12));
 
-                    // Header
                     page.Header()
                         .Row(row =>
                         {
@@ -47,12 +46,10 @@ namespace SantaFeWaterSystem.Services
                             });
                         });
 
-                    // Content
                     page.Content()
                         .PaddingVertical(10)
                         .Column(col =>
                         {
-                            // Summary Section
                             col.Item().Element(x => x.PaddingBottom(5)).Text("Summary").FontSize(14).Bold().Underline();
                             col.Item().Table(summary =>
                             {
@@ -73,6 +70,9 @@ namespace SantaFeWaterSystem.Services
 
                                 summary.Cell().Element(CellStyle).Text("Total Disconnections:");
                                 summary.Cell().Element(CellStyle).Text($"{totalDisconnections}");
+
+                                summary.Cell().Element(CellStyle).Text("Total Cubic Meter Used:");
+                                summary.Cell().Element(CellStyle).Text($"{totalCubicMeterUsed:N2} m³");
                             });
 
                             col.Item().PaddingVertical(10);

@@ -1,21 +1,20 @@
-﻿.confirmation-title {
-    font-size: clamp(1.5rem, 4vw, 2.5rem); /* auto scale */
-    font-weight: bold;
-    color: #28a745;
-    text-shadow: 0 0 10px rgba(40, 167, 69, 0.7), 0 0 20px rgba(40, 167, 69, 0.4);
-    white-space: nowrap; /* ✅ Prevent break */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-/* For very small screens like 360px */
+﻿
 @media (max-width: 400px) {
-    .confirmation-title {
+    .receipt-title {
         font-size: 1.25rem;
-        gap: 0.4rem;
+    }
+
+    .receipt-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .receipt-label,
+    .receipt-value {
+        font-size: 0.95rem;
+    }
+
+    .receipt-logo {
+        width: 70px;
+        height: 70px;
     }
 }

@@ -1,8 +1,26 @@
-﻿@model SantaFeWaterSystem.ViewModels.ReportsViewModel
+﻿
+
+@model SantaFeWaterSystem.ViewModels.ReportsViewModel
 @{
     ViewData["Title"] = "Reports";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var consumers = Model.Consumers;
+    DateTime selectedMonthDate;
+    bool validMonth = DateTime.TryParse($"{Model.SelectedMonth}-01", out selectedMonthDate);
+    bool usingMonthFilterOnly = validMonth && !Model.FilterStartDate.HasValue && !Model.FilterEndDate.HasValue;
+
+    var filteredPayments = usingMonthFilterOnly
+        ? Model.Payments.Where(p => p.PaymentDate.Year == selectedMonthDate.Year && p.PaymentDate.Month == selectedMonthDate.Month).ToList()
+        : Model.Payments;
+
+    var filteredBillings = usingMonthFilterOnly
+        ? Model.Billings.Where(b => b.BillingDate.Year == selectedMonthDate.Year && b.BillingDate.Month == selectedMonthDate.Month).ToList()
+        : Model.Billings;
+
+    decimal totalUsage = filteredBillings.Sum(b => b.CubicMeterUsed);
+    decimal totalRevenue = filteredPayments.Sum(p => p.AmountPaid);
+    decimal totalBilled = filteredBillings.Sum(b => b.TotalAmount);
+    decimal totalUnpaid = filteredBillings.Where(b => b.Status == "Unpaid").Sum(b => b.TotalAmount);
 }
 
 @section Styles {
@@ -120,7 +138,6 @@
     </style>
 }
 
-
 <h2 class="page-header"><i class="bi bi-bar-chart-line-fill"></i> Reports</h2>
 
 <!-- Filter Form -->
@@ -171,7 +188,8 @@
     </a>
 
     <form asp-action="DownloadMonthlyReport" method="get" class="d-flex align-items-center gap-2">
-        <select name="selectedMonth" class="form-select" style="width: auto; min-width: 180px;">
+        <select name="selectedMonth" class="form-select" style="width: auto; min-width: 180px;" onchange="this.form.submit()">
+            <option value="">None (All Months)</option>
             @foreach (var m in Model.AvailableMonths)
             {
                 <option value="@m.ToString("yyyy-MM")" selected="@(m.ToString("yyyy-MM") == Model.SelectedMonth ? "selected" : null)">
@@ -185,36 +203,24 @@
     </form>
 </div>
 
-<!-- Monthly Payment Summary -->
-@{
-    DateTime selectedMonthDate;
-    if (!DateTime.TryParse($"{Model.SelectedMonth}-01", out selectedMonthDate))
-    {
-        selectedMonthDate = DateTime.Today;
-    }
-
-    var selectedYear = selectedMonthDate.Year;
-    var selectedMonth = selectedMonthDate.Month;
-
-    var groupedPayments = Model.Payments
-        .GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
-        .Where(g => g.Key.Year == selectedYear && g.Key.Month == selectedMonth);
-
-    var groupedBillings = Model.Billings
-        .GroupBy(b => new { b.BillingDate.Year, b.BillingDate.Month })
-        .Where(g => g.Key.Year == selectedYear && g.Key.Month == selectedMonth);
+<!-- Summary Context -->
+@if (usingMonthFilterOnly)
+{
+    <div class="monthly-summary">Showing summary for <strong>@selectedMonthDate.ToString("MMMM yyyy")</strong>.</div>
+}
+else if (Model.FilterStartDate.HasValue || Model.FilterEndDate.HasValue)
+{
+    <div class="monthly-summary">
+        Showing summary from <strong>@Model.FilterStartDate?.ToString("yyyy-MM-dd")</strong> to
+        <strong>@Model.FilterEndDate?.ToString("yyyy-MM-dd")</strong>.
+    </div>
+}
+else
+{
+    <div class="monthly-summary">Showing <strong>all records</strong>.</div>
 }
 
-@* @foreach (var group in groupedPayments)
-{
-    var label = new DateTime(group.Key.Year, group.Key.Month, 1).ToString("MMMM yyyy");
-    <div class="monthly-summary">
-        <i class="bi bi-calendar3"></i> @label —
-        <strong>Total Payments:</strong> ₱@group.Sum(p => p.AmountPaid).ToString("N2")
-    </div>
-} *@
-
-@if (!groupedPayments.Any() && !groupedBillings.Any())
+@if (usingMonthFilterOnly && !filteredPayments.Any() && !filteredBillings.Any())
 {
     <div class="alert alert-info mt-3">
         No summary data available for @selectedMonthDate.ToString("MMMM yyyy").
@@ -222,37 +228,35 @@
 }
 
 <!-- Summary Cards -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-success shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-cash-coin"></i> Total Revenue</h5>
-                <h4 class="card-text">₱@Model.Payments.Sum(p => p.AmountPaid).ToString("N2")</h4>
-            </div>
+<div class="d-flex flex-row gap-3 overflow-auto mb-4">
+    <div class="card text-white bg-success shadow-sm flex-shrink-0" style="min-width: 220px;">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-cash-coin"></i> Total Revenue</h5>
+            <h4 class="card-text">₱@totalRevenue.ToString("N2")</h4>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-primary shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-journal-text"></i> Total Billed</h5>
-                <h4 class="card-text">₱@Model.Billings.Sum(b => b.TotalAmount).ToString("N2")</h4>
-            </div>
+    <div class="card text-white bg-primary shadow-sm flex-shrink-0" style="min-width: 220px;">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-journal-text"></i> Total Billed</h5>
+            <h4 class="card-text">₱@totalBilled.ToString("N2")</h4>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-exclamation-circle"></i> Total Unpaid</h5>
-                <h4 class="card-text">₱@Model.Billings.Where(b => b.Status == "Unpaid").Sum(b => b.TotalAmount).ToString("N2")</h4>
-            </div>
+    <div class="card text-white bg-danger shadow-sm flex-shrink-0" style="min-width: 220px;">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-exclamation-circle"></i> Total Unpaid</h5>
+            <h4 class="card-text">₱@totalUnpaid.ToString("N2")</h4>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-dark shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-slash-circle"></i> Total Disconnections</h5>
-                <h4 class="card-text">@Model.Billings.Count(b => b.Status == "Disconnected")</h4>
-            </div>
+    <div class="card text-white bg-info shadow-sm flex-shrink-0" style="min-width: 220px;">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-droplet-half"></i> Total Usage</h5>
+            <h4 class="card-text">@totalUsage.ToString("N2") m³</h4>
+        </div>
+    </div>
+    <div class="card text-white bg-dark shadow-sm flex-shrink-0" style="min-width: 220px;">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-slash-circle"></i> Total Disconnections</h5>
+            <h4 class="card-text">@Model.Consumers.Count(c => c.Status == "Disconnected")</h4>
         </div>
     </div>
 </div>
@@ -279,15 +283,15 @@
     </tbody>
 </table>
 @Html.PagedListPager(Model.PagedPayments, page => Url.Action("Index", new
-    {
-        paymentsPage = page,
-        billingsPage = Context.Request.Query["billingsPage"],
-        startDate = Model.FilterStartDate?.ToString("yyyy-MM-dd"),
-        endDate = Model.FilterEndDate?.ToString("yyyy-MM-dd"),
-        consumerId = Model.SelectedConsumerId,
-        billingStatus = Model.SelectedBillingStatus,
-        selectedMonth = Model.SelectedMonth
-    }), new PagedListRenderOptions
+{
+    paymentsPage = page,
+    billingsPage = Context.Request.Query["billingsPage"],
+    startDate = Model.FilterStartDate?.ToString("yyyy-MM-dd"),
+    endDate = Model.FilterEndDate?.ToString("yyyy-MM-dd"),
+    consumerId = Model.SelectedConsumerId,
+    billingStatus = Model.SelectedBillingStatus,
+    selectedMonth = Model.SelectedMonth
+}), new PagedListRenderOptions
 {
     UlElementClasses = new[] { "pagination" },
     LiElementClasses = new[] { "page-item" },
@@ -333,19 +337,17 @@
     </tbody>
 </table>
 @Html.PagedListPager(Model.PagedBillings, page => Url.Action("Index", new
-    {
-        billingsPage = page,
-        paymentsPage = Context.Request.Query["paymentsPage"],
-        startDate = Model.FilterStartDate?.ToString("yyyy-MM-dd"),
-        endDate = Model.FilterEndDate?.ToString("yyyy-MM-dd"),
-        consumerId = Model.SelectedConsumerId,
-        billingStatus = Model.SelectedBillingStatus,
-        selectedMonth = Model.SelectedMonth
-    }), new PagedListRenderOptions
+{
+    billingsPage = page,
+    paymentsPage = Context.Request.Query["paymentsPage"],
+    startDate = Model.FilterStartDate?.ToString("yyyy-MM-dd"),
+    endDate = Model.FilterEndDate?.ToString("yyyy-MM-dd"),
+    consumerId = Model.SelectedConsumerId,
+    billingStatus = Model.SelectedBillingStatus,
+    selectedMonth = Model.SelectedMonth
+}), new PagedListRenderOptions
 {
     UlElementClasses = new[] { "pagination" },
     LiElementClasses = new[] { "page-item" },
     PageClasses = new[] { "page-link" }
 })
-
-

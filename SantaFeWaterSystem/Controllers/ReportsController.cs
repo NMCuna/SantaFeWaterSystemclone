@@ -44,19 +44,19 @@ namespace SantaFeWaterSystem.Controllers
         {
             int pageSize = 5;
 
-            // Start with base queries
             var billingsQuery = _context.Billings.Include(b => b.Consumer).AsQueryable();
             var paymentsQuery = _context.Payments.Include(p => p.Consumer).AsQueryable();
 
-            // Handle selected month
+            // Case 1: Filter by selectedMonth (single month)
             if (!string.IsNullOrWhiteSpace(selectedMonth) &&
-                DateTime.TryParse($"{selectedMonth}-01", out var monthDate))
+                DateTime.TryParse($"{selectedMonth}-01", out var monthDate) &&
+                !startDate.HasValue && !endDate.HasValue) // Only apply if no other range filters
             {
                 startDate = new DateTime(monthDate.Year, monthDate.Month, 1);
                 endDate = startDate.Value.AddMonths(1).AddDays(-1);
             }
 
-            // Apply date range filters
+            // Case 2: Apply range filters (or already assigned above from selectedMonth)
             if (startDate.HasValue)
             {
                 billingsQuery = billingsQuery.Where(b => b.BillingDate >= startDate.Value);
@@ -69,37 +69,40 @@ namespace SantaFeWaterSystem.Controllers
                 paymentsQuery = paymentsQuery.Where(p => p.PaymentDate <= endDate.Value);
             }
 
-            // Apply consumer filter
+            // Filter by consumer
             if (consumerId.HasValue)
             {
                 billingsQuery = billingsQuery.Where(b => b.ConsumerId == consumerId.Value);
                 paymentsQuery = paymentsQuery.Where(p => p.ConsumerId == consumerId.Value);
             }
 
-            // Apply billing status filter
-            billingStatus = billingStatus?.Trim();
-            if (!string.IsNullOrEmpty(billingStatus) && billingStatus != "All")
+            // Example billingStatus logic
+            if (!string.IsNullOrWhiteSpace(billingStatus) && billingStatus != "All")
             {
-                billingsQuery = billingsQuery.Where(b => b.Status == billingStatus);
+                if (billingStatus == "Unpaid")
+                {
+                    billingsQuery = billingsQuery.Where(b => b.Status == "Pending" || b.Status == "Unpaid");
+                }
+                else
+                {
+                    billingsQuery = billingsQuery.Where(b => b.Status == billingStatus);
+                }
             }
 
-            // Execute ToListAsync() separately for summary data (non-paged)
+            // Get filtered lists
             var billingsList = await billingsQuery.ToListAsync();
             var paymentsList = await paymentsQuery.ToListAsync();
 
-            // Dropdown: available billing months
+            // Available months for dropdown
             var availableMonths = _context.Billings
-     .AsNoTracking()
-     .Select(b => b.BillingDate)
-     .AsEnumerable()
-     .Select(d => new DateTime(d.Year, d.Month, 1))
-     .Distinct()
-     .OrderByDescending(d => d)
-     .ToList(); // ✅ correct
+                .AsNoTracking()
+                .Select(b => b.BillingDate)
+                .AsEnumerable()
+                .Select(d => new DateTime(d.Year, d.Month, 1))
+                .Distinct()
+                .OrderByDescending(d => d)
+                .ToList();
 
-
-
-            // ViewModel with paginated + full lists
             var viewModel = new ReportsViewModel
             {
                 PagedBillings = await billingsQuery
@@ -113,12 +116,13 @@ namespace SantaFeWaterSystem.Controllers
                 Billings = billingsList,
                 Payments = paymentsList,
                 Consumers = await _context.Consumers.ToListAsync(),
+
                 FilterStartDate = startDate,
                 FilterEndDate = endDate,
                 SelectedConsumerId = consumerId,
                 SelectedBillingStatus = billingStatus ?? "All",
-                AvailableMonths = availableMonths,
-                SelectedMonth = selectedMonth
+                SelectedMonth = selectedMonth,
+                AvailableMonths = availableMonths
             };
 
             return View(viewModel);
@@ -150,8 +154,12 @@ namespace SantaFeWaterSystem.Controllers
                 .Where(p => p.PaymentDate >= start && p.PaymentDate <= end)
                 .ToListAsync();
 
+            // ✅ Calculate total cubic meter used for the month
+            decimal totalCubicMeterUsed = billings.Sum(b => b.CubicMeterUsed);
+
+
             var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
-            var pdf = ReportPdfService.GenerateReport(billings, payments, logoPath);
+            var pdf = ReportPdfService.GenerateReport(billings, payments, logoPath, totalCubicMeterUsed);
 
             var fileName = $"MonthlyReport_{start:yyyy_MM}.pdf";
             return File(pdf, "application/pdf", fileName);
@@ -201,7 +209,9 @@ namespace SantaFeWaterSystem.Controllers
             var paymentsList = await payments.ToListAsync();
 
             var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/logo.png");
-            var pdfBytes = ReportPdfService.GenerateReport(billingsList, paymentsList, logoPath);
+            var totalCubicMeterUsed = billingsList.Sum(b => b.CubicMeterUsed); 
+            var pdfBytes = ReportPdfService.GenerateReport(billingsList, paymentsList, logoPath, totalCubicMeterUsed); 
+
 
             var filename = string.IsNullOrEmpty(selectedMonth)
                 ? "FilteredReport.pdf"

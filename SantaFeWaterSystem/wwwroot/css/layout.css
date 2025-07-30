@@ -77,6 +77,11 @@ body, html {
     padding: 2rem;
 }
 
+
+body {
+    padding-top: 70px; /* Adjust based on navbar height */
+}
+
 /* MEDIA QUERY: RESPONSIVE SPACING */
 @media (max-width: 768px) {
     .container-responsive {

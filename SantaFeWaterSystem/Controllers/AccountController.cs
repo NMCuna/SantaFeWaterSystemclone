@@ -333,7 +333,7 @@ public class AccountController(
 
             await _audit.LogAsync("Locked Out", $"Login attempt blocked due to lockout. Try again at {unlockTimePH:f} (PH time).", user.AccountNumber);
 
-            return View("TemporaryLocked", user); // 👈 View handles display + countdown
+            return View("TemporaryLocked", user); //  View handles display + countdown
         }
 
 

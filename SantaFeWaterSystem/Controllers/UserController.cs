@@ -1,17 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lib.Net.Http.WebPush;
+using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SantaFeWaterSystem.Data;
 using SantaFeWaterSystem.Models;
 using SantaFeWaterSystem.Models.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using SantaFeWaterSystem.ViewModels;
 using SantaFeWaterSystem.Services;
-using System.Security.Claims;
+using SantaFeWaterSystem.ViewModels;
 using System.Globalization;
-using Microsoft.AspNetCore.Identity;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 
 namespace SantaFeWaterSystem.Controllers
@@ -573,6 +576,71 @@ namespace SantaFeWaterSystem.Controllers
            $"User submitted a payment for Bill #{bill.BillNo} using {model.SelectedPaymentMethod}. Amount: ₱{model.TotalAmount:F2}. Transaction ID: {model.TransactionId}",
            accountNumber
             );
+
+            // ✅ Add app + push notification for user
+            var consumer = bill.Consumer;
+            var user = bill.Consumer?.User;
+
+            // ✅ In-App Notification
+            var paymentNotif = new Notification
+            {
+                ConsumerId = consumer.Id,
+                Title = "💵 Payment Submitted",
+                Message = $"Thank you {consumer.FirstName}, your payment of ₱{payment.AmountPaid:N2} for Bill No: {bill.BillNo} has been submitted and is pending verification.",
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(paymentNotif);
+
+            // ✅ Push Notification
+            if (user != null)
+            {
+                var subscriptions = await _context.UserPushSubscriptions
+                    .Where(s => s.UserId == user.Id)
+                    .ToListAsync();
+
+                var vapidAuth = new VapidAuthentication(
+                    "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                    "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                {
+                    Subject = "mailto:cunanicolemichael@gmail.com"
+                };
+
+                var pushClient = new PushServiceClient
+                {
+                    DefaultAuthentication = vapidAuth
+                };
+
+                string pushPayload = JsonSerializer.Serialize(new
+                {
+                    title = "💵 Payment Submitted",
+                    body = $"₱{payment.AmountPaid:N2} for Bill #{bill.BillNo} submitted successfully."
+                });
+
+                foreach (var sub in subscriptions)
+                {
+                    var subscription = new PushSubscription
+                    {
+                        Endpoint = sub.Endpoint,
+                        Keys = new Dictionary<string, string>
+            {
+                { "p256dh", sub.P256DH },
+                { "auth", sub.Auth }
+            }
+                    };
+
+                    try
+                    {
+                        await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Push Error] {ex.Message}");
+                    }
+                }
+            }
+
+            // ✅ Save new notification
+            await _context.SaveChangesAsync();
 
             // ✅ Store Transaction Info in TempData for Confirmation View
             TempData["TransactionId"] = model.TransactionId;

@@ -114,7 +114,7 @@ namespace SantaFeWaterSystem.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AuditArchive(string? month, string? actionType, string? search, int page = 1)
         {
-            int pageSize = 9;
+            int pageSize = 8;
 
             var query = _context.AuditTrailArchives.AsQueryable();
 
