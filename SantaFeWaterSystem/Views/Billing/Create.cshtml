@@ -95,6 +95,11 @@
                     <input asp-for="Billing.AmountDue" class="form-control" readonly />
                     <span asp-validation-for="Billing.AmountDue" class="text-danger"></span>
                 </div>
+                <div class="col-md-12">
+                    <label asp-for="Billing.Remarks" class="form-label"></label>
+                    <input asp-for="Billing.Remarks" class="form-control" readonly />
+                    <span asp-validation-for="Billing.Remarks" class="text-danger"></span>
+                </div>
 
                 <div class="col-md-6">
                     <label asp-for="Billing.AdditionalFees" class="form-label"></label>
@@ -146,6 +151,7 @@
         const penaltyInput = document.querySelector('[name="Billing.Penalty"]');
         const totalAmountInput = document.querySelector('[name="Billing.TotalAmount"]');
         const dueDateInput = document.querySelector('[name="Billing.DueDate"]');
+        const remarksInput = document.querySelector('[name="Billing.Remarks"]');
 
         let rate = 0;
         let penaltyFromDb = 0;
@@ -193,15 +199,18 @@
                 amountDueInput.value = '';
                 penaltyInput.value = '0.00';
                 totalAmountInput.value = '';
+                remarksInput.value = '';
                 return;
             }
 
-            let cubicUsed = present - prev;
-            if (cubicUsed < 10) cubicUsed = 10;
+            // ✅ Actual usage
+            const actualCubicUsed = present - prev;
+            cubicMeterUsedInput.value = actualCubicUsed.toFixed(2);
 
-            cubicMeterUsedInput.value = cubicUsed.toFixed(2);
+            // ✅ Apply minimum 10 for billing purposes only
+            const chargeableCubicUsed = actualCubicUsed < 10 ? 10 : actualCubicUsed;
 
-            const amountDue = cubicUsed * rate;
+            const amountDue = chargeableCubicUsed * rate;
             amountDueInput.value = amountDue.toFixed(2);
 
             const additionalFees = parseFloat(additionalFeesInput.value) || 0;
@@ -217,6 +226,9 @@
 
             const totalAmount = amountDue + penalty + additionalFees;
             totalAmountInput.value = totalAmount.toFixed(2);
+
+            // ✅ Set remarks if minimum charge applied
+            remarksInput.value = actualCubicUsed < 10 ? 'Minimum charge applied' : '';
         }
 
         function clearBillingFields() {
@@ -224,6 +236,7 @@
             amountDueInput.value = '';
             penaltyInput.value = '0.00';
             totalAmountInput.value = '';
+            remarksInput.value = '';
         }
 
         function clearFields() {

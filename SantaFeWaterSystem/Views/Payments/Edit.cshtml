@@ -89,6 +89,11 @@
                 <select asp-for="BillingId" asp-items="Model.Billings" class="form-control" disabled></select>
             </div>
 
+            <div class="form-group">
+                <label asp-for="BillNo" class="control-label"></label>
+                <input asp-for="BillNo" class="form-control" readonly />
+            </div>
+
             <div class="mb-3">
                 <label asp-for="PaymentDate" class="form-label">Payment Date</label>
                 <input asp-for="PaymentDate" class="form-control" />

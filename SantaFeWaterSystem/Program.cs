@@ -22,19 +22,22 @@ builder.Services.AddScoped<PdfService>();
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
 builder.Services.Configure<SemaphoreSettings>(
-    builder.Configuration.GetSection("Semaphore"));
-
+    builder.Configuration.GetSection("SemaphoreSettings")
+);
 
 
 // Register SMS services
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddScoped<ISemaphoreSmsService, MockSmsService>(); // ✅ TESTING ONLY
+    // Use mock SMS service in development
+    builder.Services.AddScoped<ISemaphoreSmsService, MockSmsService>();
 }
 else
 {
-    builder.Services.AddScoped<ISemaphoreSmsService, SemaphoreSmsService>(); // ✅ FOR DEPLOYMENT  
+    // Register real SMS service with HttpClient support
+    builder.Services.AddHttpClient<ISemaphoreSmsService, SemaphoreSmsService>();
 }
+
 // Always register the queue (required by NotificationsController)
 builder.Services.AddSingleton<ISmsQueue, InMemorySmsQueue>();
 builder.Services.AddHostedService<InMemorySmsQueue>();
@@ -42,6 +45,13 @@ builder.Services.AddHostedService<InMemorySmsQueue>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuditLogService>();
 
+// Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+
+Console.WriteLine("Environment: " + builder.Environment.EnvironmentName); // Should print "Development"
 
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));

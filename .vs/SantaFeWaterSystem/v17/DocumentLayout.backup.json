@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\payments\\managepayments.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\payments\\managepayments.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\models\\viewmodels\\paginatedpaymentsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\models\\viewmodels\\paginatedpaymentsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,32 +22,45 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PaymentsController.cs",
-              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
-              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
-              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\PaymentsController.cs*",
-              "RelativeToolTip": "SantaFeWaterSystem\\Controllers\\PaymentsController.cs*",
-              "ViewState": "AgIAAKgCAAAAAAAAAAAAwLgCAAAAAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "PaginatedPaymentsViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
+              "RelativeToolTip": "SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-30T13:36:54.118Z",
+              "WhenOpened": "2025-08-04T14:21:22.417Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ManagePayments.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml*",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml*",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAowHIAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-04T14:16:31.908Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "UserController.cs",
-              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\UserController.cs",
-              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Controllers\\UserController.cs",
-              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\UserController.cs*",
-              "RelativeToolTip": "SantaFeWaterSystem\\Controllers\\UserController.cs*",
-              "ViewState": "AgIAANcBAAAAAAAAAAAuwKICAAAzAAAAAAAAAA==",
+              "Title": "PaymentsController.cs",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
+              "RelativeToolTip": "SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAkwE8AAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-30T13:19:55.757Z",
+              "WhenOpened": "2025-08-04T14:16:23.253Z",
               "EditorCaption": ""
             }
           ]

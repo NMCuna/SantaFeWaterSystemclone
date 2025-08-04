@@ -32,6 +32,13 @@
                 </div>
 
                 <div id="billingInfo" style="display:none;">
+                    <div class="mb-3">
+                        <label class="form-label form-icon-label">
+                            <i class="bi bi-receipt-cutoff"></i> Bill No
+                        </label>
+                        <input type="text" class="form-control" id="billNo" readonly />
+                    </div>
+                   
                     <input type="hidden" asp-for="BillingId" id="billingId" />
                     <div class="mb-3">
                         <label class="form-label form-icon-label">
@@ -46,7 +53,8 @@
                         <input type="text" class="form-control" id="amountDue" readonly />
                     </div>
                 </div>
-
+                <!-- Add this hidden field inside #billingInfo to store raw amount due -->
+                <input type="hidden" id="amountDueRaw" />
                 <div class="mb-3">
                     <label asp-for="AmountPaid" class="form-label form-icon-label">
                         <i class="bi bi-currency-dollar"></i> Amount Paid
@@ -87,7 +95,9 @@
                     <a asp-action="ManagePayments" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle"></i> Cancel
                     </a>
-                    <button type="submit" class="btn btn-success">
+                   
+                    <!-- Submit button updated with ID -->
+                    <button type="submit" class="btn btn-success" id="submitBtn">
                         <i class="bi bi-check-circle"></i> Submit Payment
                     </button>
                 </div>
@@ -115,25 +125,46 @@
 
         $(document).ready(function () {
             $('#transactionId').val(generateTransactionId());
-        });
 
-        $('#consumerSelect').change(function () {
-            $('#transactionId').val(generateTransactionId());
+            $('#consumerSelect').change(function () {
+                $('#transactionId').val(generateTransactionId());
 
-            const consumerId = $(this).val();
-            if (!consumerId) {
-                $('#billingInfo').hide();
-                return;
-            }
+                const consumerId = $(this).val();
+                if (!consumerId) {
+                    $('#billingInfo').hide();
+                    return;
+                }
 
-            $.get('/Payments/GetLatestBilling', { consumerId }, function (data) {
-                $('#billingId').val(data.id);
-                $('#billingDate').val(new Date(data.billingDate).toLocaleDateString());
-                $('#amountDue').val(`₱${parseFloat(data.totalAmount).toFixed(2)}`);
-                $('#billingInfo').slideDown();
-            }).fail(function () {
-                $('#billingInfo').hide();
-                alert("No unpaid billing found for the selected consumer.");
+                $.get('/Payments/GetLatestBilling', { consumerId }, function (data) {
+                    $('#billingId').val(data.id);
+                    $('#billNo').val(data.billNo);
+                    $('#billingDate').val(new Date(data.billingDate).toLocaleDateString());
+                    $('#amountDue').val(`₱${parseFloat(data.totalAmount).toFixed(2)}`);
+                    $('#amountDueRaw').val(parseFloat(data.totalAmount)); // ✅ store raw value
+                    $('#billingInfo').slideDown();
+                }).fail(function () {
+                    $('#billingInfo').hide();
+                    alert("No unpaid billing found for the selected consumer.");
+                });
+            });
+
+            // ✅ Form submission protection and validation
+            $('#walkInForm').submit(function (e) {
+                const amountPaid = parseFloat($('#AmountPaid').val());
+                const amountDue = parseFloat($('#amountDueRaw').val());
+                const submitBtn = $('#submitBtn');
+
+                // Validate exact match
+                if (isNaN(amountPaid) || isNaN(amountDue) || amountPaid !== amountDue) {
+                    e.preventDefault();
+                    alert(`❌ Amount Paid must exactly match the Amount Due of ₱${amountDue.toFixed(2)}.`);
+                    $('#AmountPaid').focus();
+                    return false;
+                }
+
+                // ✅ Prevent double submission
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<i class="bi bi-clock-history"></i> Submitting...'); // optional feedback
             });
         });
     </script>

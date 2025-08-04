@@ -130,6 +130,7 @@
     <p><span class="receipt-label">Consumer Name:</span> @Model.Consumer.FirstName @Model.Consumer.LastName</p>
     <p><span class="receipt-label">Account Number:</span> @Model.Consumer.User?.AccountNumber</p>
     <p><span class="receipt-label">Address:</span> @Model.Consumer.HomeAddress</p>
+    <p><span class="receipt-label">Bill No:</span> @Model.Billing.BillNo</p>
     <p><span class="receipt-label">Amount Paid:</span> ₱@Model.AmountPaid.ToString("N2")</p>
     <p><span class="receipt-label">Payment Method:</span> @Model.Method</p>
     <p><span class="receipt-label">Date:</span> @Model.PaymentDate.ToString("MMMM dd, yyyy - hh:mm tt")</p>
@@ -137,17 +138,11 @@
     <p><span class="receipt-label">Processed By:</span> @Model.ProcessedBy</p>
 
     <!-- QR Code -->
-    <div class="mt-4">
-        <p><strong>Scan to verify receipt:</strong></p>
-        <img src="@($"https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl={Uri.EscapeDataString(qrContent)}")" alt="QR Code" />
-    </div>
+    
 
 
     <!-- Signature Area -->
-    <div class="signature-area mt-5">
-        <p>Authorized Signature:</p>
-        <div class="signature-line"></div>
-    </div>
+   
 
     <!-- Watermark -->
     <div class="watermark">Santa Fe Water</div>
@@ -156,7 +151,7 @@
 <!-- Action Buttons -->
 <div class="btn-actions">
     <a asp-action="ManagePayments" class="btn btn-primary me-2">
-        <i class="bi bi-arrow-left-circle"></i> Back to Manage Payments
+        <i class="bi bi-arrow-left-circle"></i> Back
     </a>
     <a asp-action="DownloadReceipt" asp-route-id="@Model.Id" class="btn btn-outline-success me-2">
         <i class="bi bi-file-earmark-pdf"></i> Download Receipt (PDF)

@@ -43,6 +43,8 @@ namespace SantaFeWaterSystem.Controllers
             string searchTerm,
             string statusFilter,
             string paymentMethodFilter,
+            int? selectedMonth,
+            int? selectedYear,
             int page = 1,
             int pageSize = 6)
         {
@@ -75,6 +77,16 @@ namespace SantaFeWaterSystem.Controllers
                 query = query.Where(p => p.Method == paymentMethodFilter);
             }
 
+            // ✅ Filter: Month and Year
+            if (selectedMonth.HasValue)
+            {
+                query = query.Where(p => p.PaymentDate.Month == selectedMonth.Value);
+            }
+            if (selectedYear.HasValue)
+            {
+                query = query.Where(p => p.PaymentDate.Year == selectedYear.Value);
+            }
+
             var totalPayments = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalPayments / (double)pageSize);
 
@@ -93,7 +105,8 @@ namespace SantaFeWaterSystem.Controllers
                     PaymentMethod = p.Method,
                     TransactionId = p.TransactionId,
                     ReceiptImageUrl = p.ReceiptPath,
-                    IsVerified = p.IsVerified
+                    IsVerified = p.IsVerified,
+                    BillNo = p.Billing.BillNo
                 })
                 .ToListAsync();
 
@@ -104,7 +117,9 @@ namespace SantaFeWaterSystem.Controllers
                 TotalPages = totalPages,
                 SearchTerm = searchTerm,
                 StatusFilter = statusFilter,
-                PaymentMethodFilter = paymentMethodFilter
+                PaymentMethodFilter = paymentMethodFilter,
+                SelectedMonth = selectedMonth,
+                SelectedYear = selectedYear
             };
 
             return View(viewModel);
@@ -149,17 +164,32 @@ namespace SantaFeWaterSystem.Controllers
         {
             // ✅ Only consumers with at least one unpaid billing
             var unpaidConsumers = _context.Consumers
-                .Where(c => _context.Billings.Any(b => b.ConsumerId == c.Id && b.Status != "Paid"))
-                .OrderBy(c => c.FirstName)
-                .Select(c => new
-                {
-                    c.Id,
-                    FullName = c.FirstName + " " + c.LastName
-                })
-                .ToList();
+       .Select(c => new
+       {
+           c.Id,
+           c.FirstName,
+           c.LastName,
+           c.User,
+           Bill = _context.Billings
+               .Where(b => b.ConsumerId == c.Id &&
+                           (b.Status == "Unpaid" || b.Status == "Overdue"))
+               .OrderBy(b => b.BillingDate) // oldest unpaid/overdue
+               .FirstOrDefault()
+       })
+       .Where(x => x.Bill != null) // ✅ Only if they have an unpaid/overdue bill
+       .OrderBy(x => x.FirstName)
+       .Select(x => new
+       {
+           x.Id,
+           FullName = x.FirstName + " " + x.LastName +
+               (x.User != null && !string.IsNullOrEmpty(x.User.AccountNumber)
+                   ? $" ({x.User.AccountNumber})"
+                   : "") +
+               $" - Bill No: {x.Bill.BillNo}" // ✅ Only show unpaid/overdue BillNo
+       })
+       .ToList();
 
             ViewBag.Consumers = new SelectList(unpaidConsumers, "Id", "FullName");
-
             return View();
         }
 
@@ -188,6 +218,7 @@ namespace SantaFeWaterSystem.Controllers
                 if (billing != null)
                 {
                     billing.Status = "Paid";
+                    billing.IsPaid = true;
                 }
 
                 // Get consumer for audit trail
@@ -276,17 +307,30 @@ namespace SantaFeWaterSystem.Controllers
 
             // Rebuild consumer list with unpaid billings only
             var unpaidConsumers = _context.Consumers
-                .Where(c => _context.Billings.Any(b => b.ConsumerId == c.Id && b.Status == "Unpaid"))
-                .OrderBy(c => c.FirstName)
-                .Select(c => new
-                {
-                    c.Id,
-                    FullName = c.FirstName + " " + c.LastName +
-                        (c.User != null && !string.IsNullOrEmpty(c.User.AccountNumber)
-                            ? $" ({c.User.AccountNumber})"
-                            : "")
-                })
-                .ToList();
+      .Select(c => new
+      {
+          c.Id,
+          c.FirstName,
+          c.LastName,
+          c.User,
+          Bill = _context.Billings
+              .Where(b => b.ConsumerId == c.Id &&
+                          (b.Status == "Unpaid" || b.Status == "Overdue"))
+              .OrderBy(b => b.BillingDate)
+              .FirstOrDefault()
+      })
+      .Where(x => x.Bill != null)
+      .OrderBy(x => x.FirstName)
+      .Select(x => new
+      {
+          x.Id,
+          FullName = x.FirstName + " " + x.LastName +
+              (x.User != null && !string.IsNullOrEmpty(x.User.AccountNumber)
+                  ? $" ({x.User.AccountNumber})"
+                  : "") +
+              $" - Bill No: {x.Bill.BillNo}"
+      })
+      .ToList();
 
             ViewBag.Consumers = new SelectList(unpaidConsumers, "Id", "FullName", payment.ConsumerId);
             return View(payment);
@@ -295,16 +339,18 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-        // API: Get latest unpaid billing for selected consumer
+        
+        // API: Get oldest unpaid billing for selected consumer
         [HttpGet]
         public IActionResult GetLatestBilling(int consumerId)
         {
             var billing = _context.Billings
                 .Where(b => b.ConsumerId == consumerId && !b.IsPaid)
-                .OrderByDescending(b => b.BillingDate)
+                .OrderBy(b => b.BillingDate) // ✅ Order by oldest first
                 .Select(b => new
                 {
                     b.Id,
+                    b.BillNo,                // ✅ Include BillNo
                     b.BillingDate,
                     CubicMeter = b.CubicMeterUsed,
                     b.AmountDue,
@@ -318,6 +364,7 @@ namespace SantaFeWaterSystem.Controllers
 
             return Json(billing);
         }
+
 
 
 
@@ -336,7 +383,7 @@ namespace SantaFeWaterSystem.Controllers
         {
             var payment = await _context.Payments
                 .Include(p => p.Consumer)
-                    .ThenInclude(c => c.User) // Include User to get AccountNumber
+                .ThenInclude(c => c.User) // Include User to get AccountNumber
                 .Include(p => p.Billing)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -385,6 +432,7 @@ namespace SantaFeWaterSystem.Controllers
                 ConsumerId = payment.ConsumerId,
                 BillingId = payment.BillingId,
                 PaymentDate = payment.PaymentDate,
+                BillNo = payment.Billing?.BillNo,
                 AmountPaid = payment.AmountPaid,
                 Method = payment.Method,
                 TransactionId = payment.TransactionId,
@@ -429,9 +477,14 @@ namespace SantaFeWaterSystem.Controllers
 
             var payment = await _context.Payments
                 .Include(p => p.Consumer)
+                .Include(p => p.Billing)
                 .FirstOrDefaultAsync(p => p.Id == model.PaymentId);
 
             if (payment == null) return NotFound();
+
+            // Optional: Get the related Billing record for BillNo
+            var billing = await _context.Billings.FindAsync(model.BillingId);
+            var billNo = billing?.BillNo ?? "N/A";
 
             // Keep old values for audit
             var oldAmount = payment.AmountPaid;
@@ -468,6 +521,7 @@ namespace SantaFeWaterSystem.Controllers
             _context.AuditTrails.Add(new AuditTrail
             {
                 Action = $"Edited payment for consumer: {payment.Consumer?.FirstName}. " +
+                         $"Bill No: {payment.Billing?.BillNo ?? "N/A"}. " +
                          $"Old Amount: ₱{oldAmount:N2}, New Amount: ₱{model.AmountPaid:N2}. " +
                          $"Old Method: {oldMethod ?? "N/A"}, New Method: {model.Method ?? "N/A"}. " +
                          $"Old Date: {oldDate:MMMM dd, yyyy}, New Date: {model.PaymentDate:MMMM dd, yyyy}. " +

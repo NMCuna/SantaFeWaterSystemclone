@@ -43,7 +43,7 @@ namespace SantaFeWaterSystem.Controllers
 
         // GET: Billing    
         [Authorize(Roles = "Admin,Staff")]
-        public async Task<IActionResult> Index(string searchTerm, string statusFilter, int page = 1)
+        public async Task<IActionResult> Index(string searchTerm, string statusFilter, int? selectedMonth, int? selectedYear, int page = 1)
     {
         int pageSize = 7;
 
@@ -62,6 +62,20 @@ namespace SantaFeWaterSystem.Controllers
         {
             query = query.Where(b => b.Status == statusFilter);
         }
+            // ✅ Filter by Month and Year if selected
+            if (selectedMonth.HasValue && selectedYear.HasValue)
+            {
+                query = query.Where(b =>
+                    b.BillingDate.Month == selectedMonth.Value &&
+                    b.BillingDate.Year == selectedYear.Value);
+            }
+            else
+            {
+                // Default to current month if no filters are applied
+                query = query.Where(b =>
+                    b.BillingDate.Month == DateTime.Now.Month &&
+                    b.BillingDate.Year == DateTime.Now.Year);
+            }
 
             var billingsPaged = await query
          .OrderByDescending(b => b.BillingDate)
@@ -107,6 +121,10 @@ namespace SantaFeWaterSystem.Controllers
             _context.Billings.UpdateRange(billingsPaged);
             await _context.SaveChangesAsync();
 
+            ViewBag.CurrentSearchTerm = searchTerm;
+            ViewBag.CurrentStatusFilter = statusFilter;
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
             return View(billingsPaged);
 
         }
@@ -327,12 +345,18 @@ namespace SantaFeWaterSystem.Controllers
                 decimal rate = rateRecord.RatePerCubicMeter;
 
                 // Apply minimum usage if below 10 cubic meters
-                if (billing.CubicMeterUsed < 10)
-                {
-                    billing.CubicMeterUsed = 10;
-                }
+                var actualUsage = billing.CubicMeterUsed; // real usage, e.g., from form
 
-                billing.AmountDue = rate * billing.CubicMeterUsed;
+                // Enforce minimum
+                var chargeableUsage = actualUsage < 10 ? 10 : actualUsage;
+
+                // Apply billing logic
+                billing.CubicMeterUsed = actualUsage; // store real usage
+                billing.AmountDue = rate * chargeableUsage;
+                billing.Remarks = actualUsage < 10 ? "Minimum charge applied" : null;
+
+
+
 
                 // Set default due date if not set
                 if (billing.DueDate == default)
@@ -467,8 +491,34 @@ namespace SantaFeWaterSystem.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+                // ✅ Send SMS
+                if (!string.IsNullOrWhiteSpace(consumer.ContactNumber))
+                {
+                    var smsMessage = $"Hello {consumer.FullName}, your water bill (#{billing.BillNo}) for {billing.BillingDate:MMMM yyyy} is ₱{billing.TotalAmount:N2}. It is due on {billing.DueDate:MMMM d}. – Santa Fe Water System";
 
-                TempData["SuccessMessage"] = "✅ Billing successfully created and notification sent.";
+                    Console.WriteLine("SMS Service Type: " + _smsService.GetType().Name); // Will print: MockSmsService
+
+                    var smsResult = await _smsService.SendSmsAsync(consumer.ContactNumber, smsMessage);
+
+                    TempData["SmsStatus"] = smsResult.success
+                        ? "✅ SMS sent successfully (mock)."
+                        : $"❌ SMS failed: {smsResult.response}";
+                
+                // ✅ Save to SMS log
+                _context.SmsLogs.Add(new SmsLog
+                {
+                    ConsumerId = consumer.Id,
+                    ContactNumber = consumer.ContactNumber,
+                    Message = smsMessage,
+                    IsSuccess = smsResult.success,
+                    SentAt = DateTime.Now,
+                    ResponseMessage = smsResult.response
+                });
+
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "✅ Billing successfully created and notification sent.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -703,8 +753,8 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-        
-       
+
+
 
 
 
@@ -734,25 +784,43 @@ namespace SantaFeWaterSystem.Controllers
                 if (string.IsNullOrWhiteSpace(number)) continue;
 
                 string amount = billing.TotalAmount.ToString("C", new CultureInfo("en-PH"));
-                string message = $"Santa Fe Water Billing Reminder:\n" +
-                                 $"Name: {consumer.FirstName} {consumer.LastName}\n" +
-                                 $"Amount Due: {amount}\n" +
-                                 $"Due Date: {billing.DueDate:MMMM dd, yyyy}";
+                string message = $"Hello {consumer.FirstName} {consumer.LastName}, this is a reminder from Santa Fe Water System. " +
+                   $"Your water bill for {billing.BillingDate:MMMM yyyy} is {amount}, due on {billing.DueDate:MMMM dd, yyyy}.";
+
+
+                bool isSuccess = false;
+                string response = "";
 
                 if (_env.IsDevelopment())
                 {
-                    var (success, response) = await _smsService.SendSmsAsync(number, message);
-                    if (success)
-                        sentCount++;
-                    else
-                        failed.Add($"{number}: {response}");
+                    var result = await _smsService.SendSmsAsync(number, message);
+                    isSuccess = result.success;
+                    response = result.response;
+
+                    if (isSuccess) sentCount++;
+                    else failed.Add($"{number}: {response}");
                 }
                 else
                 {
                     await _smsQueue.QueueMessageAsync(number, message, consumer.Id);
+                    isSuccess = true;
+                    response = "Queued for sending.";
                     sentCount++;
                 }
+
+                // ✅ Log to database
+                _context.SmsLogs.Add(new SmsLog
+                {
+                    ConsumerId = consumer.Id,
+                    ContactNumber = number,
+                    Message = message,
+                    IsSuccess = isSuccess,
+                    SentAt = DateTime.Now,
+                    ResponseMessage = response
+                });
             }
+
+            await _context.SaveChangesAsync(); // 💾 Save logs
 
             return Ok(new
             {

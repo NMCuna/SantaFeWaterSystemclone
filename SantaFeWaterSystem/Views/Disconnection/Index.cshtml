@@ -9,7 +9,11 @@
     var dueDateSortParam = currentSort == "duedate" ? "duedate_desc" : "duedate";
 }
 
-<h2>Disconnection Candidates</h2>
+@section Styles {
+<link rel="stylesheet" href="~/css/disconnection.css" asp-append-version="true" />
+}
+
+<h2 class="disconnection-title mb-4">Disconnection List</h2>
 
 <form method="get" asp-action="Index" class="mb-3 d-flex gap-2">
     <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control w-25" placeholder="Search by name or meter no..." />
@@ -18,16 +22,19 @@
 
 @if (TempData["Message"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="tempAlert">
         <i class="bi bi-check-circle-fill me-2"></i> @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="tempAlert">
         <i class="bi bi-x-circle-fill me-2"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
+
 
 @if (!Model.Any())
 {
@@ -132,4 +139,17 @@ else
             </li>
         </ul>
     </nav>
+}
+
+@section Scripts {
+    <script>
+        // Auto-remove alert after 5 seconds
+        setTimeout(function () {
+            var alert = document.getElementById("tempAlert");
+            if (alert) {
+                var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+            }
+        }, 5000); // 5000ms = 5 seconds
+    </script>
 }

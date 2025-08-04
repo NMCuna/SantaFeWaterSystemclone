@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Lib.Net.Http.WebPush;
+using Lib.Net.Http.WebPush.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SantaFeWaterSystem.Data;
@@ -7,6 +9,7 @@ using SantaFeWaterSystem.Services;
 using SantaFeWaterSystem.ViewModels;
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SantaFeWaterSystem.Controllers
@@ -14,7 +17,7 @@ namespace SantaFeWaterSystem.Controllers
     public class DisconnectionController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private const int PageSize = 10;
+        private const int PageSize = 9;
         private readonly AuditLogService _audit;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -145,12 +148,13 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-        // POST: Disconnection/Disconnect/5
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         public async Task<IActionResult> Disconnect(int id)
         {
             var consumer = await _context.Consumers
                 .Include(c => c.Billings)
+                .Include(c => c.User) // Include User for push notification
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (consumer == null)
@@ -159,7 +163,6 @@ namespace SantaFeWaterSystem.Controllers
             consumer.IsDisconnected = true;
             consumer.Status = "Disconnected";
 
-
             var disconnection = new Disconnection
             {
                 ConsumerId = id,
@@ -167,13 +170,12 @@ namespace SantaFeWaterSystem.Controllers
                 Remarks = "2 or more overdue bills",
                 IsReconnected = false,
                 Action = "Disconnected",
-                 PerformedBy = GetCurrentUsername() ?? "Unknown" 
+                PerformedBy = GetCurrentUsername() ?? "Unknown"
             };
-
 
             _context.Disconnections.Add(disconnection);
 
-            // ➕ Create Notification
+            // ✅ In-App Notification
             var notif = new Notification
             {
                 ConsumerId = consumer.Id,
@@ -183,6 +185,55 @@ namespace SantaFeWaterSystem.Controllers
                 CreatedAt = DateTime.Now
             };
             _context.Notifications.Add(notif);
+
+            // ✅ Push Notification
+            var user = consumer.User;
+            if (user != null)
+            {
+                var subscriptions = await _context.UserPushSubscriptions
+                    .Where(s => s.UserId == user.Id)
+                    .ToListAsync();
+
+                var vapidAuth = new VapidAuthentication(
+                    "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                    "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                {
+                    Subject = "mailto:cunanicolemichael@gmail.com"
+                };
+
+                var pushClient = new PushServiceClient
+                {
+                    DefaultAuthentication = vapidAuth
+                };
+
+                string pushPayload = JsonSerializer.Serialize(new
+                {
+                    title = "❌ Disconnection Notice",
+                    body = "Your water service has been disconnected due to 2 or more overdue bills. Please visit the office to reconnect."
+                });
+
+                foreach (var sub in subscriptions)
+                {
+                    var subscription = new PushSubscription
+                    {
+                        Endpoint = sub.Endpoint,
+                        Keys = new Dictionary<string, string>
+                {
+                    { "p256dh", sub.P256DH },
+                    { "auth", sub.Auth }
+                }
+                    };
+
+                    try
+                    {
+                        await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Push Error] {ex.Message}");
+                    }
+                }
+            }
 
             // 🔍 Audit log
             var audit = new AuditTrail
@@ -201,17 +252,20 @@ namespace SantaFeWaterSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
         // POST: Disconnection/Reconnect/5
         [HttpPost]
         public async Task<IActionResult> Reconnect(int id)
         {
-            var consumer = await _context.Consumers.FindAsync(id);
+            var consumer = await _context.Consumers
+                .Include(c => c.User) // Include User for push notification
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (consumer == null)
                 return NotFound();
 
             consumer.IsDisconnected = false;
             consumer.Status = "Active";
-
 
             var disconnection = await _context.Disconnections
                 .Where(d => d.ConsumerId == id && !d.IsReconnected)
@@ -224,17 +278,66 @@ namespace SantaFeWaterSystem.Controllers
                 disconnection.DateReconnected = DateTime.Now;
             }
 
-            // ➕ Create Notification
+            // ➕ In-App Notification
             var notif = new Notification
             {
                 ConsumerId = consumer.Id,
                 Title = "Reconnection Notice",
-                Message = $"Hello {consumer.FirstName}, your water service has been successfully reconnected. Thank you for settling your bills. You may now continue using our services.",
+                Message = $"Hello {consumer.FirstName}, your water service has been successfully reconnected. Thank you for settling your bills.",
                 CreatedAt = DateTime.Now
             };
             _context.Notifications.Add(notif);
 
-            // 🔍 Audit log
+            // ✅ Push Notification
+            var user = consumer.User;
+            if (user != null)
+            {
+                var subscriptions = await _context.UserPushSubscriptions
+                    .Where(s => s.UserId == user.Id)
+                    .ToListAsync();
+
+                var vapidAuth = new VapidAuthentication(
+                    "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                    "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                {
+                    Subject = "mailto:cunanicolemichael@gmail.com"
+                };
+
+                var pushClient = new PushServiceClient
+                {
+                    DefaultAuthentication = vapidAuth
+                };
+
+                string pushPayload = JsonSerializer.Serialize(new
+                {
+                    title = "✅ Reconnection Notice",
+                    body = "Your water service has been reconnected. Thank you for settling your bills."
+                });
+
+                foreach (var sub in subscriptions)
+                {
+                    var subscription = new PushSubscription
+                    {
+                        Endpoint = sub.Endpoint,
+                        Keys = new Dictionary<string, string>
+                {
+                    { "p256dh", sub.P256DH },
+                    { "auth", sub.Auth }
+                }
+                    };
+
+                    try
+                    {
+                        await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Push Error] {ex.Message}");
+                    }
+                }
+            }
+
+            // 🔍 Audit Log
             var audit = new AuditTrail
             {
                 Action = "Reconnect",
@@ -247,7 +350,6 @@ namespace SantaFeWaterSystem.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Message"] = $"Consumer {consumer.FirstName} has been reconnected and notified.";
-
             return RedirectToAction(nameof(Index));
         }
 
@@ -257,11 +359,12 @@ namespace SantaFeWaterSystem.Controllers
         // POST: Disconnection/Notify/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Notify(int id)
+        public async Task<IActionResult> Notify(int id)
         {
-            var consumer = _context.Consumers
+            var consumer = await _context.Consumers
                 .Include(c => c.Billings)
-                .FirstOrDefault(c => c.Id == id);
+                .Include(c => c.User) // For push notification
+                .FirstOrDefaultAsync(c => c.Id == id);
 
             if (consumer != null)
             {
@@ -281,6 +384,55 @@ namespace SantaFeWaterSystem.Controllers
 
                     _context.Notifications.Add(notif);
 
+                    // ✅ Push Notification
+                    var user = consumer.User;
+                    if (user != null)
+                    {
+                        var subscriptions = await _context.UserPushSubscriptions
+                            .Where(s => s.UserId == user.Id)
+                            .ToListAsync();
+
+                        var vapidAuth = new VapidAuthentication(
+                            "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                            "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                        {
+                            Subject = "mailto:cunanicolemichael@gmail.com"
+                        };
+
+                        var pushClient = new PushServiceClient
+                        {
+                            DefaultAuthentication = vapidAuth
+                        };
+
+                        string pushPayload = JsonSerializer.Serialize(new
+                        {
+                            title = "⚠️ Disconnection Warning",
+                            body = "You have 2 unpaid overdue bills. Pay within 3 days to avoid disconnection."
+                        });
+
+                        foreach (var sub in subscriptions)
+                        {
+                            var subscription = new PushSubscription
+                            {
+                                Endpoint = sub.Endpoint,
+                                Keys = new Dictionary<string, string>
+                        {
+                            { "p256dh", sub.P256DH },
+                            { "auth", sub.Auth }
+                        }
+                            };
+
+                            try
+                            {
+                                await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[Push Error] {ex.Message}");
+                            }
+                        }
+                    }
+
                     // 🔍 Audit log
                     var audit = new AuditTrail
                     {
@@ -291,7 +443,7 @@ namespace SantaFeWaterSystem.Controllers
                     };
                     _context.AuditTrails.Add(audit);
 
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                     TempData["Message"] = $"Disconnection notice sent to {consumer.FirstName}.";
                 }
                 else
@@ -306,6 +458,7 @@ namespace SantaFeWaterSystem.Controllers
 
             return RedirectToAction("Index");
         }
+
 
     }
 }

@@ -23,18 +23,49 @@
                                 "Pending" => "bg-warning text-dark",
                                 _ => "bg-secondary text-white"
                             };
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-sm-12 col-md-6">
                                 <div class="card shadow-sm h-100">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold">
+                                        <h6 class="card-title fw-bold mb-2">
                                             Billing Date: @bill.BillingDate.ToString("MMM dd, yyyy")
                                         </h6>
-                                        <p class="card-text mb-1">Amount Due: <strong>₱@bill.AmountDue.ToString("N2")</strong></p>
+
+                                        <p class="card-text mb-1">
+                                            Amount Due: <strong>₱@bill.AmountDue.ToString("N2")</strong>
+                                        </p>
+
+                                        @if (bill.Penalty > 0)
+                                        {
+                                            <p class="card-text text-danger mb-1">
+                                                <i class="bi bi-exclamation-circle me-1"></i>
+                                                <strong>Overdue Penalty:</strong> ₱@bill.Penalty.ToString("N2")
+                                            </p>
+                                        }
+
+                                        @if ((bill.AdditionalFees ?? 0) > 0)
+                                        {
+                                            <p class="card-text text-info mb-1">
+                                                <i class="bi bi-plus-circle me-1"></i>
+                                                <strong>Additional Fees:</strong> ₱@bill.AdditionalFees?.ToString("N2")
+                                            </p>
+                                        }
+
+                                        @if (bill.Penalty > 0 || (bill.AdditionalFees ?? 0) > 0)
+                                        {
+                                            <p class="card-text fw-bold text-primary mb-2">
+                                                <i class="bi bi-cash-coin me-1"></i>
+                                                <strong>Total Amount:</strong> ₱@bill.TotalAmount.ToString("N2")
+                                            </p>
+                                        }
+
                                         <span class="badge @statusClass mb-2">@bill.Status</span>
+
                                         <div>
                                             @if (bill.Status == "Unpaid")
                                             {
-                                                <a href="@Url.Action("Pay", "Payments", new { id = bill.Id })" class="btn btn-sm btn-primary">Pay Now</a>
+                                                <a href="@Url.Action("Pay", "User", new { billId = bill.Id })" class="btn btn-sm btn-primary w-100">
+                                                    Pay Now
+                                                </a>
                                             }
                                             else
                                             {

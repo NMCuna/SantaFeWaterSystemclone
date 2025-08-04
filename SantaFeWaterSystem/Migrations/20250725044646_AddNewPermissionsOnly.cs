@@ -12,19 +12,27 @@ namespace SantaFeWaterSystem.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Permissions",
-                columns: new[] { "Id", "Description", "Name" },
-                values: new object[,]
-                {
-                    { 14, "Permission to edit user details", "EditUser" },
-                    { 15, "Permission to reset user password", "ResetPassword" },
-                    { 16, "Permission to delete a user", "DeleteUser" },
-                    { 17, "Permission to reset two-factor authentication", "Reset2FA" },
-                    { 18, "Permission to lock a user account", "LockUser" },
-                    { 19, "Permission to unlock a user account", "UnlockUser" }
-                });
+            migrationBuilder.Sql(@"
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 14)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (14, 'Permission to edit user details', 'EditUser');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 15)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (15, 'Permission to reset user password', 'ResetPassword');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 16)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (16, 'Permission to delete a user', 'DeleteUser');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 17)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (17, 'Permission to reset two-factor authentication', 'Reset2FA');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 18)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (18, 'Permission to lock a user account', 'LockUser');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 19)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (19, 'Permission to unlock a user account', 'UnlockUser');
+    ");
         }
+
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)

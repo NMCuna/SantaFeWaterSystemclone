@@ -44,6 +44,18 @@
     </div>
 }
 
+@if (TempData["SmsStatus"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="bi bi-chat-left-text me-2"></i>
+        @TempData["SmsStatus"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+
+
 <h2 class="page-header"><i class="bi bi-receipt-cutoff"></i> Manage Billing</h2>
 
 <div class="action-buttons-bar d-flex flex-wrap gap-3 mb-4">
@@ -85,7 +97,54 @@
             <option value="Pending" selected="@(statusFilter == "Pending" ? "selected" : null)">Pending</option>
         </select>
     </div>
+
+    <!-- Month Filter -->
+    <div class="input-group mb-1">
+        <span class="input-group-text bg-info text-white">
+            <i class="bi bi-calendar-month"></i>
+        </span>
+        <select name="selectedMonth" class="form-select">
+            <option value="">All Months</option>
+            @for (int m = 1; m <= 12; m++)
+            {
+                var monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m);
+                <option value="@m" selected="@(ViewBag.SelectedMonth == m ? "selected" : null)">
+                    @monthName
+                </option>
+            }
+        </select>
+    </div>
+
+    <!-- Year Filter -->
+    <div class="input-group mb-1">
+        <span class="input-group-text bg-secondary text-white">
+            <i class="bi bi-calendar3"></i>
+        </span>
+        <select name="selectedYear" class="form-select">
+            <option value="">All Years</option>
+            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
+            {
+               <option value="@y" selected="@(ViewBag.SelectedYear == y ? "selected" : null)">
+    @y
+</option>
+            }
+        </select>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-funnel-fill"></i> Filter
+        </button>
+    </div>
 </form>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> No billing records available for the selected filters.
+    </div>
+}
 
 <table class="table table-bordered table-striped shadow-sm">
     <thead>
@@ -179,7 +238,14 @@
 @if (Model.PageCount > 1)
 {
     <div class="d-flex justify-content-center mt-4">
-        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm, statusFilter }), new PagedListRenderOptions
+        @Html.PagedListPager(Model, page => Url.Action("Index", new
+        {
+            page,
+        searchTerm = ViewBag.CurrentSearchTerm,
+        statusFilter = ViewBag.CurrentStatusFilter,
+        selectedMonth = ViewBag.SelectedMonth,
+        selectedYear = ViewBag.SelectedYear
+        }), new PagedListRenderOptions
         {
             DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
             DisplayLinkToNextPage = PagedListDisplayMode.Always,
@@ -189,8 +255,9 @@
             LiElementClasses = new[] { "page-item" },
             PageClasses = new[] { "page-link" }
         })
-    </div>
+</div>
 }
+
 
 <!-- Anti-forgery token form -->
 <form id="smsTokenForm" method="post">

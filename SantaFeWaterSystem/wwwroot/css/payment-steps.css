@@ -331,6 +331,21 @@
 
 
 
+.total-amount-text {
+    font-size: 1.5rem; /* default size */
+}
+
+@media (max-width: 576px) {
+    .total-amount-text {
+        font-size: 1.25rem; /* slightly smaller on small devices */
+    }
+}
+
+@media (max-width: 360px) {
+    .total-amount-text {
+        font-size: 1rem; /* even smaller on very small devices */
+    }
+}
 
 
 

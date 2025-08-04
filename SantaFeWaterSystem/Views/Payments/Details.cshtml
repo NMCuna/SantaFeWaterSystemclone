@@ -53,6 +53,7 @@
         <p><span class="detail-label"><i class="bi bi-person-fill"></i> Consumer:</span> @Model.FullName</p>
         <p><span class="detail-label"><i class="bi bi-calendar2-week-fill"></i> Billing Date:</span> @Model.BillingDate.ToShortDateString()</p>
         <p><span class="detail-label"><i class="bi bi-calendar-check-fill"></i> Payment Date:</span> @Model.PaymentDate.ToShortDateString()</p>
+        <p><span class="detail-label"><i class="bi bi-receipt"></i> Bill No:</span> @Model.BillNo</p>
         <p><span class="detail-label"><i class="bi bi-cash-coin"></i> Amount Paid:</span> ₱@Model.AmountPaid.ToString("N2")</p>
         <p><span class="detail-label"><i class="bi bi-wallet2"></i> Payment Method:</span> @Model.PaymentMethod</p>
         <p><span class="detail-label"><i class="bi bi-hash"></i> Transaction ID:</span> @Model.TransactionId</p>

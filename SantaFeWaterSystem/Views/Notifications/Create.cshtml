@@ -9,7 +9,7 @@
     <h2><i class="bi bi-megaphone-fill text-primary me-2"></i>Send Notification</h2>
     <hr />
 
-    <form asp-action="Create" method="post">
+    <form asp-action="Create" method="post" onsubmit="disableSubmit(this)">
         <div class="mb-3 form-check">
             <input asp-for="SendToAll" class="form-check-input" />
             <label asp-for="SendToAll" class="form-check-label">Send to All Consumers</label>
@@ -43,7 +43,7 @@
             <span asp-validation-for="Message" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
             <i class="bi bi-send-fill"></i> Send Notification
         </button>
     </form>
@@ -52,46 +52,54 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        function disableSubmit(form) {
+            const button = form.querySelector("#submitBtn");
+            button.disabled = true;
+            button.innerHTML = '<i class="bi bi-send-fill"></i> Sending...';
+        }
+
         const dropdown = document.getElementById("TitleDropdown");
         const titleInput = document.getElementById("CustomTitle");
         const messageBox = document.getElementById("MessageBox");
 
         dropdown.addEventListener("change", function () {
             const selected = this.value;
-
-            // Auto-fill the custom title input
             titleInput.value = selected;
+
+            const today = new Date().toLocaleDateString("en-PH", {
+                year: "numeric", month: "long", day: "numeric"
+            });
 
             switch (selected) {
                 case "🛠 Water Maintenance":
                     messageBox.value =
-                        "🛠 Scheduled Water Maintenance Alert:\n" +
-                        "Maintenance will take place on July 29, 2025, from 8:00 AM to 5:00 PM.\n" +
-                        "Affected areas may experience low pressure or no water. Please store enough water in advance.";
+                        `🛠 Scheduled Water Maintenance Alert:\n` +
+                        `Maintenance will take place on ${today}, from 8:00 AM to 5:00 PM.\n` +
+                        `Affected areas may experience low pressure or no water. Please store enough water in advance.`;
                     break;
 
                 case "🚱 Water Interruption":
                     messageBox.value =
-                        "🚱 Emergency Water Interruption:\n" +
-                        "Residents of Brgy. Pooc will experience a water service interruption today, July 22, 2025, due to a major pipe leak.\n" +
-                        "Our technical team is already working on urgent repairs. We apologize for the inconvenience.";
+                        `🚱 Emergency Water Interruption:\n` +
+                        `Residents of Brgy. Pooc will experience a water service interruption today, ${today}, due to a major pipe leak.\n` +
+                        `Our technical team is already working on urgent repairs. We apologize for the inconvenience.`;
                     break;
 
                 case "💰 Billing Rate Update":
                     messageBox.value =
-                        "💰 Billing Rate Adjustment Effective August 1, 2025:\n" +
-                        "Please be informed that due to increased operational and infrastructure costs, the new billing rates are as follows:\n" +
-                        "- Residential: ₱13 ➡ ₱15 per cubic meter\n" +
-                        "- Commercial: ₱18 ➡ ₱20 per cubic meter\n" +
-                        "- Industrial: ₱20 ➡ ₱23 per cubic meter\n" +
-                        "- Institutional: ₱17 ➡ ₱19 per cubic meter\n" +
-                        "This adjustment ensures continued service improvement and system upgrades.";
+                        `💰 Billing Rate Adjustment Effective August 1, 2025:\n` +
+                        `Please be informed that due to increased operational and infrastructure costs, the new billing rates are as follows:\n` +
+                        `- Residential: ₱13 ➡ ₱15 per cubic meter\n` +
+                        `- Commercial: ₱18 ➡ ₱20 per cubic meter\n` +
+                        `- Industrial: ₱20 ➡ ₱23 per cubic meter\n` +
+                        `- Institutional: ₱17 ➡ ₱19 per cubic meter\n` +
+                        `This adjustment ensures continued service improvement and system upgrades.`;
                     break;
 
                 case "📢 General Announcement":
                     messageBox.value =
-                        "📢 General Advisory:\n" +
-                        "Stay updated with the latest news and advisories from Santa Fe Water System. Visit our official website or follow our Facebook page.";
+                        `📢 General Advisory:\n` +
+                        `Stay updated with the latest news and advisories from Santa Fe Water System. Visit our official website or follow our Facebook page.`;
                     break;
 
                 default:
@@ -100,7 +108,6 @@
             }
         });
 
-        // If user types a custom title manually, clear dropdown
         titleInput.addEventListener("input", function () {
             dropdown.value = "";
         });

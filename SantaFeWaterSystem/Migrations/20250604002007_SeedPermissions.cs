@@ -12,19 +12,27 @@ namespace SantaFeWaterSystem.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Permissions",
-                columns: new[] { "Id", "Description", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Access to user management", "ManageUsers" },
-                    { 2, "Access to consumer management", "ManageConsumers" },
-                    { 3, "Access to billing management", "ManageBilling" },
-                    { 4, "Access to payment management", "ManagePayments" },
-                    { 5, "Access to disconnection management", "ManageDisconnections" },
-                    { 6, "Access to reports", "ViewReports" }
-                });
+            migrationBuilder.Sql(@"
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 1)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (1, 'Access to user management', 'ManageUsers');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 2)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (2, 'Access to consumer management', 'ManageConsumers');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 3)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (3, 'Access to billing management', 'ManageBilling');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 4)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (4, 'Access to payment management', 'ManagePayments');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 5)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (5, 'Access to disconnection management', 'ManageDisconnections');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 6)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (6, 'Access to reports', 'ViewReports');
+    ");
         }
+
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)

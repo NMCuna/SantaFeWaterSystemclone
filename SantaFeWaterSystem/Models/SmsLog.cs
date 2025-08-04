@@ -13,6 +13,7 @@
         public Consumer? Consumer { get; set; }
         // ✅ New field
         public int RetryCount { get; set; }
+        public bool IsArchived { get; set; } = false;
     }
 
 }

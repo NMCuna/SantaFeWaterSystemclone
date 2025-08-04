@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 }
 
-<div class="receipt-container">
+<div id="receiptCapture" class="receipt-container">
     <div class="receipt-header">
         <h2 class="glow"><i class="bi bi-file-earmark-text-fill"></i> Billing Receipt</h2>
         <p class="text-muted">Santa Fe Water Billing System</p>
@@ -82,13 +82,36 @@
         </div>
     </div>
 
-    <div class="text-center mt-4 no-print">
+    <div class="text-center mt-4 no-print no-capture">
         <div class="d-flex justify-content-center gap-2 flex-wrap">
-            <a href="javascript:window.print()" class="btn btn-outline-dark">
-                <i class="bi bi-printer me-1"></i> Print Receipt
-            </a>
+            <button id="downloadImageBtn" class="btn btn-success">
+                <i class="bi bi-image me-1"></i> Download
+            </button>
             <a asp-action="BillingHistory" class="btn btn-secondary">
                 <i class="bi bi-arrow-left-circle me-1"></i> Back
             </a>
         </div>
     </div>
+
+
+@section Scripts {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <script>
+            document.getElementById('downloadImageBtn').addEventListener('click', function () {
+                const elementsToHide = document.querySelectorAll('.no-capture');
+
+                // Temporarily hide elements (but preserve layout)
+                elementsToHide.forEach(el => el.style.visibility = 'hidden');
+
+                html2canvas(document.querySelector('#receiptCapture')).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'billing-receipt.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+
+                    // Restore visibility after capture
+                    elementsToHide.forEach(el => el.style.visibility = 'visible');
+                });
+            });
+        </script>
+}

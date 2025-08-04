@@ -115,12 +115,13 @@ namespace SantaFeWaterSystem.Data
                 .WithMany(b => b.Disconnections)
                 .HasForeignKey(d => d.BillingId)
                 .OnDelete(DeleteBehavior.Restrict);
-        
+
+           
 
 
 
 
-        modelBuilder.Entity<Permission>().HasData(
+            modelBuilder.Entity<Permission>().HasData(
      new Permission { Id = 1, Name = "ManageUsers", Description = "Access to user management" },
      new Permission { Id = 2, Name = "ManageConsumers", Description = "Access to consumer management" },
      new Permission { Id = 3, Name = "ManageBilling", Description = "Access to billing management" },

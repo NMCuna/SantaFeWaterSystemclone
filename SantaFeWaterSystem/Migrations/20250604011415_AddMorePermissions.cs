@@ -12,15 +12,16 @@ namespace SantaFeWaterSystem.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Permissions",
-                columns: new[] { "Id", "Description", "Name" },
-                values: new object[,]
-                {
-                    { 7, "Access to notifications management", "ManageNotifications" },
-                    { 8, "Access to support management", "ManageSupport" },
-                    { 9, "Access to feedback management", "ManageFeedback" }
-                });
+            migrationBuilder.Sql(@"
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 7)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (7, 'Access to notifications management', 'ManageNotifications');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 8)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (8, 'Access to support management', 'ManageSupport');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 9)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (9, 'Access to feedback management', 'ManageFeedback');
+    ");
         }
 
         /// <inheritdoc />

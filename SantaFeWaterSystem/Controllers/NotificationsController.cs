@@ -1,14 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lib.Net.Http.WebPush;
+using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using SantaFeWaterSystem.Data;
-using SantaFeWaterSystem.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SantaFeWaterSystem.Models.ViewModels;
-using X.PagedList;
-using SantaFeWaterSystem.Services;
-using SantaFeWaterSystem.Settings;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
+using SantaFeWaterSystem.Data;
+using SantaFeWaterSystem.Helpers;
+using SantaFeWaterSystem.Models;
+using SantaFeWaterSystem.Models.ViewModels;
+using SantaFeWaterSystem.Services;
+using SantaFeWaterSystem.Settings;
+using System.Text.Json;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace SantaFeWaterSystem.Controllers
 {
@@ -84,8 +89,6 @@ namespace SantaFeWaterSystem.Controllers
         }
 
 
-
-
         [Authorize(Roles = "Admin,Staff")]
         // GET: Notification/Create
         public IActionResult Create()
@@ -93,49 +96,152 @@ namespace SantaFeWaterSystem.Controllers
             return View();
         }
 
-        // POST: Notification/Create
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Notification notification)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(notification);
+
+            notification.CreatedAt = DateTime.Now;
+
+            // ✅ For broadcast: notify all consumers with linked users
+            if (notification.SendToAll)
             {
-                notification.CreatedAt = DateTime.Now;
+                var consumers = await _context.Consumers
+                    .Include(c => c.User)
+                    .Where(c => c.User != null)
+                    .ToListAsync();
 
-                if (notification.SendToAll)
+                foreach (var consumer in consumers)
                 {
-                    // Get all consumers
-                    var consumers = await _context.Consumers.ToListAsync();
-
-                    foreach (var consumer in consumers)
+                    // Add in-app notification
+                    var userNotification = new Notification
                     {
-                        var userNotification = new Notification
+                        Title = notification.Title,
+                        Message = notification.Message,
+                        ConsumerId = consumer.Id,
+                        CreatedAt = DateTime.Now,
+                        IsRead = false,
+                        IsArchived = false,
+                        SendToAll = true
+                    };
+                    _context.Notifications.Add(userNotification);
+
+                    // Push Notification
+                    var subscriptions = await _context.UserPushSubscriptions
+                        .Where(s => s.UserId == consumer.UserId)
+                        .ToListAsync();
+
+                    if (subscriptions.Any())
+                    {
+                        var vapidAuth = new VapidAuthentication(
+                            "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                            "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
                         {
-                            Title = notification.Title,
-                            Message = notification.Message,
-                            ConsumerId = consumer.Id,
-                            CreatedAt = DateTime.Now,
-                            IsRead = false,
-                            IsArchived = false,
-                            SendToAll = true
+                            Subject = "mailto:cunanicolemichael@gmail.com"
                         };
 
-                        _context.Notifications.Add(userNotification);
+                        var pushClient = new PushServiceClient
+                        {
+                            DefaultAuthentication = vapidAuth
+                        };
+
+                        string pushPayload = JsonSerializer.Serialize(new
+                        {
+                            title = notification.Title,
+                            body = notification.Message
+                        });
+
+                        foreach (var sub in subscriptions)
+                        {
+                            var subscription = new PushSubscription
+                            {
+                                Endpoint = sub.Endpoint,
+                                Keys = new Dictionary<string, string>
+                        {
+                            { "p256dh", sub.P256DH },
+                            { "auth", sub.Auth }
+                        }
+                            };
+
+                            try
+                            {
+                                await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[Push Error - Broadcast] {ex.Message}");
+                            }
+                        }
                     }
                 }
-                else
-                {
-                    // Individual (optional case)
-                    _context.Notifications.Add(notification);
-                }
+            }
+            else
+            {
+                // ✅ Send to specific consumer only
+                _context.Notifications.Add(notification);
 
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Notification sent successfully.";
-                return RedirectToAction("Index", "Notifications");
+                var consumer = await _context.Consumers
+                    .FirstOrDefaultAsync(c => c.Id == notification.ConsumerId && c.UserId != null);
+
+                if (consumer != null)
+                {
+                    var subscriptions = await _context.UserPushSubscriptions
+                        .Where(s => s.UserId == consumer.UserId)
+                        .ToListAsync();
+
+                    if (subscriptions.Any())
+                    {
+                        var vapidAuth = new VapidAuthentication(
+                            "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                            "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                        {
+                            Subject = "mailto:cunanicolemichael@gmail.com"
+                        };
+
+                        var pushClient = new PushServiceClient
+                        {
+                            DefaultAuthentication = vapidAuth
+                        };
+
+                        string pushPayload = JsonSerializer.Serialize(new
+                        {
+                            title = notification.Title,
+                            body = notification.Message
+                        });
+
+                        foreach (var sub in subscriptions)
+                        {
+                            var subscription = new PushSubscription
+                            {
+                                Endpoint = sub.Endpoint,
+                                Keys = new Dictionary<string, string>
+                        {
+                            { "p256dh", sub.P256DH },
+                            { "auth", sub.Auth }
+                        }
+                            };
+
+                            try
+                            {
+                                await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[Push Error - Individual] {ex.Message}");
+                            }
+                        }
+                    }
+                }
             }
 
-            return View(notification);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Notification sent successfully.";
+            return RedirectToAction("Index", "Notifications");
         }
+
 
 
 
@@ -363,33 +469,110 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-        [Authorize(Roles = "Admin")]
-        public IActionResult SmsLogs()
+        //////////////////////////////SMS LOGS CONTROLLER/////////////////////////////
+
+        [Authorize(Roles = "Admin,Staff")]
+        // View Active SMS Logs
+        public async Task<IActionResult> SmsLogs(int? page)
         {
-            var logs = _context.SmsLogs
-                .Include(s => s.Consumer)
-                .OrderByDescending(s => s.SentAt)
-                .Take(100)
-                .Select(s => new SmsLogViewModel
+            int pageSize = 9;
+            int pageNumber = page ?? 1;
+
+            var logs = await _context.SmsLogs
+                .Include(l => l.Consumer)
+                .Where(l => !l.IsArchived)
+                .OrderByDescending(l => l.SentAt)
+                .Select(l => new SmsLogViewModel
                 {
-                    ContactNumber = s.ContactNumber,
-                    Message = s.Message,
-                    SentAt = s.SentAt,
-                    IsSuccess = s.IsSuccess,
-                    ResponseMessage = s.ResponseMessage,
-                    ConsumerName = s.Consumer != null
-                        ? $"{s.Consumer.FirstName} {s.Consumer.LastName}"
-                        : "N/A"
+                    Id = l.Id,
+                    ConsumerName = l.Consumer.FullName,
+                    ContactNumber = l.ContactNumber,
+                    Message = l.Message,
+                    SentAt = l.SentAt,
+                    IsSuccess = l.IsSuccess,
+                    ResponseMessage = l.ResponseMessage,
+                    IsArchived = l.IsArchived
                 })
-                .ToList();
+                .ToPagedListAsync(pageNumber, pageSize);
 
             return View(logs);
         }
 
+        // View Archived Logs with filtering
+        [Authorize(Roles = "Admin,Staff")]
+        public async Task<IActionResult> ArchivedSmsLogs(int? month, int? year, int? page)
+        {
+            int selectedMonth = month ?? DateTime.Now.Month;
+            int selectedYear = year ?? DateTime.Now.Year;
+            int pageSize = 8;
+            int pageNumber = page ?? 1;
+
+            var query = _context.SmsLogs
+                .Include(l => l.Consumer)
+                .Where(l =>
+                    l.IsArchived &&
+                    l.SentAt.Month == selectedMonth &&
+                    l.SentAt.Year == selectedYear)
+                .OrderByDescending(l => l.SentAt)
+                .Select(l => new SmsLogViewModel
+                {
+                    Id = l.Id,
+                    ContactNumber = l.ContactNumber,
+                    Message = l.Message,
+                    SentAt = l.SentAt,
+                    IsSuccess = l.IsSuccess,
+                    ResponseMessage = l.ResponseMessage,
+                    ConsumerName = l.Consumer.FullName,
+                    IsArchived = l.IsArchived
+                });
+
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
+
+            return View(await query.ToPagedListAsync(pageNumber, pageSize));
+        }
+
+        // Archive selected logs
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpPost]
+        public async Task<IActionResult> ArchiveSelected(List<int> selectedIds)
+        {
+            if (selectedIds == null || !selectedIds.Any())
+            {
+                TempData["Error"] = "No SMS logs selected.";
+                return RedirectToAction("SmsLogs");
+            }
+
+            var logsToArchive = await _context.SmsLogs
+                .Where(s => selectedIds.Contains(s.Id) && !s.IsArchived)
+                .ToListAsync();
+
+            foreach (var log in logsToArchive)
+            {
+                log.IsArchived = true;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"{logsToArchive.Count} SMS logs archived.";
+            return RedirectToAction("SmsLogs");
+        }
 
 
+        // Unarchive single log
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpPost]
+        public async Task<IActionResult> UnarchiveSmsLog(int id)
+        {
+            var log = await _context.SmsLogs.FindAsync(id);
+            if (log == null)
+                return NotFound();
 
-       
+            log.IsArchived = false;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("ArchivedSmsLogs");
+        }
+
     }
 
 

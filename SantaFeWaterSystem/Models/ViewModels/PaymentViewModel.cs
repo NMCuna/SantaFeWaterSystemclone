@@ -17,5 +17,7 @@
         public string? TransactionId { get; set; }
         public string? ReceiptImageUrl { get; set; }
         public bool IsVerified { get; set; }
+        public string? BillNo { get; set; }
+
     }
 }

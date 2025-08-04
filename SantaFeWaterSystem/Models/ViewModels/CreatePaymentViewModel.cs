@@ -14,6 +14,8 @@ namespace SantaFeWaterSystem.Models.ViewModels
         public decimal AmountPaid { get; set; }
         public string? Method { get; set; }
         public string? TransactionId { get; set; }
+        public string? BillNo { get; set; }
+
 
         // For uploading new receipt
         public IFormFile? ReceiptImageFile { get; set; }

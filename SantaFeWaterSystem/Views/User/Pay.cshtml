@@ -87,7 +87,9 @@
             <p><strong>Amount Due:</strong> @Model.AmountDue.ToString("C")</p>
             <p><strong>Additional Fee:</strong> @Model.AdditionalFee.ToString("C")</p>
             <p><strong>Penalty:</strong> @Model.Penalty.ToString("C")</p>
-            <p><strong>Total Amount:</strong> @Model.TotalAmount.ToString("C")</p>
+            <p class="fw-bold text-danger total-amount-text">
+                <strong>Total Amount to Pay:</strong> @Model.TotalAmount.ToString("C")
+            </p>
             <p><strong>Transaction ID:</strong> @Model.TransactionId</p>
         </div>
     </div>
@@ -106,7 +108,7 @@
         <ol class="text-start d-inline-block">
             <li><i class="bi bi-check-circle text-success me-1"></i> Select a payment method.</li>
             <li><i class="bi bi-phone text-info me-1"></i> Open GCash or Maya app and scan the QR code.</li>
-            <li><i class="bi bi-cash-coin text-warning me-1"></i> Pay the exact amount shown.</li>
+            <li><i class="bi bi-cash-coin text-warning me-1"></i> Pay the exact total amount shown.</li>
             <li><i class="bi bi-download text-secondary me-1"></i> Download your receipt—you’ll need it next.</li>
         </ol>
     </div>
@@ -126,15 +128,16 @@
             <option value="GCash">GCash</option>
             <option value="Maya">Maya</option>
         </select>
+        <div id="paymentMethodError" class="text-danger mt-2" style="display:none;">Please choose a payment method.</div>
     </div>
 
-    <button class="btn btn-success" onclick="goToStep(3)">
+    <button class="btn btn-success" onclick="validateAndProceed()">
         <i class="bi bi-upload me-2"></i> Proceed to Upload Receipt
     </button>
 </div>
 <!-- STEP 3 -->
 <div id="step3Section" class="step-section animate__animated animate__fadeIn" style="display:none;">
-    <form asp-action="Pay" method="post" enctype="multipart/form-data" novalidate>
+    <form asp-action="Pay" method="post" enctype="multipart/form-data" novalidate onsubmit="return validateReceiptFile()">
         @Html.AntiForgeryToken()
 
         <input type="hidden" asp-for="BillingId" />
@@ -165,6 +168,7 @@
             <input type="file" class="form-control shadow-sm" id="receiptInput" name="Receipt" accept=".png,.jpeg,.jpg" required>
             <div class="form-text text-muted">Only PNG and JPEG formats are allowed.</div>
             <div id="fileLabel" class="form-text text-muted">No file chosen.</div>
+            <div id="fileError" class="text-danger mt-2" style="display:none;">Only PNG or JPG files are allowed.</div>
             <span asp-validation-for="Receipt" class="text-danger"></span>
         </div>
 
@@ -185,6 +189,7 @@
         const gcashUrl = '@Url.Content(Model.GcashQrImageUrl)';
         const mayaUrl = '@Url.Content(Model.MayaQrImageUrl)';
         const select = document.getElementById('paymentMethodSelect');
+        let isSubmitting = false;
 
         select.addEventListener('change', function () {
             if (this.value === 'GCash') {
@@ -260,15 +265,66 @@
             updateProgressBar(1); // Initialize progress bar at Step 1
         });
 
-        // 🛡 Prevent multiple form submissions
+        function validateAndProceed() {
+            const paymentMethod = document.getElementById("paymentMethodSelect").value;
+            const errorText = document.getElementById("paymentMethodError");
+
+            if (!paymentMethod) {
+                errorText.style.display = "block";
+            } else {
+                errorText.style.display = "none";
+                goToStep(3);
+            }
+        }
+
+               function validateReceiptFile() {
+            const fileInput = document.getElementById('receiptInput');
+            const fileError = document.getElementById('fileError');
+            const file = fileInput.files[0];
+            const payNowBtn = document.getElementById('payNowBtn');
+
+            // Reset error and button state
+            fileError.style.display = "none";
+            fileError.textContent = "";
+            payNowBtn.disabled = false;
+            payNowBtn.innerHTML = "Pay Now";
+
+            if (!file) {
+                fileError.textContent = "Please upload a receipt image before proceeding.";
+                fileError.style.display = "block";
+                fileError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            const fileName = file.name.toLowerCase();
+            const validExtensions = /\.(png|jpe?g)$/i;
+
+            if (!validExtensions.test(fileName)) {
+                fileError.textContent = "Invalid file extension. Only PNG or JPG files are allowed.";
+                fileError.style.display = "block";
+                fileError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // ✅ Only show spinner if all validations pass
+            payNowBtn.disabled = true;
+            payNowBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Processing...
+            `;
+
+            return true;
+        }
+
+
+        // Prevent double submissions
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function (e) {
-                const payBtn = form.querySelector('#payNowBtn');
-                if (payBtn) {
-                    payBtn.disabled = true;
-                    payBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Processing...`;
+                if (isSubmitting) {
+                    e.preventDefault();
                 }
             });
         });
     </script>
+
 }

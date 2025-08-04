@@ -26,6 +26,9 @@ namespace SantaFeWaterSystem.Models
         [Display(Name = "Billing Date")]
         public DateTime BillingDate { get; set; }
 
+        // ✅ Add this:
+        public string? Remarks { get; set; }
+
         [Required]
         [Display(Name = "Previous Reading")]
         [Precision(18, 2)]

@@ -12,18 +12,24 @@ namespace SantaFeWaterSystem.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Permissions",
-                columns: new[] { "Id", "Description", "Name" },
-                values: new object[,]
-                {
-                    { 23, "Permission to view billing records", "ViewBilling" },
-                    { 24, "Permission to edit billing records", "EditBilling" },
-                    { 25, "Permission to delete billing records", "DeleteBilling" },
-                    { 26, "Permission to send billing notifications", "NotifyBilling" },
-                    { 27, "Permission to view penalty history logs", "ViewPenaltyLog" }
-                });
+            migrationBuilder.Sql(@"
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 23)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (23, 'Permission to view billing records', 'ViewBilling');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 24)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (24, 'Permission to edit billing records', 'EditBilling');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 25)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (25, 'Permission to delete billing records', 'DeleteBilling');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 26)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (26, 'Permission to send billing notifications', 'NotifyBilling');
+
+        IF NOT EXISTS (SELECT 1 FROM Permissions WHERE Id = 27)
+        INSERT INTO Permissions (Id, Description, Name) VALUES (27, 'Permission to view penalty history logs', 'ViewPenaltyLog');
+    ");
         }
+
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)

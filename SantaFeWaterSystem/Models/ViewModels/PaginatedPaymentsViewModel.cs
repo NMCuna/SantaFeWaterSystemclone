@@ -15,7 +15,9 @@ namespace SantaFeWaterSystem.Models.ViewModels
         // NEW
         public string PaymentMethodFilter { get; set; }
 
-     
+        public string? BillNo { get; set; }
+        public int? SelectedMonth { get; set; }
+        public int? SelectedYear { get; set; }
     }
 }
     
