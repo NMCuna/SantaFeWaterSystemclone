@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SantaFeWaterSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f1485ca701ee18525a003e5ddb93f85b7e3b7cea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+117b44cdfcf4d65235fa98d57e9717dc9181593e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SantaFeWaterSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SantaFeWaterSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

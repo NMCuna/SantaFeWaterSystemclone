@@ -48,14 +48,13 @@ namespace SantaFeWaterSystem.Controllers
             if (consumer == null)
                 return Content("Consumer information not found.");
 
-            // ✅ Set 2FA status for header display
             ViewBag.IsMfaEnabled = consumer.User?.IsMfaEnabled ?? false;
 
-            // Get recent 5 bills
+            // ✅ Get latest 5 bills (can be changed if needed)
             var recentBills = await _context.Billings
                 .Where(b => b.ConsumerId == consumer.Id)
                 .OrderByDescending(b => b.BillingDate)
-                .Take(5)
+                .Take(5000)
                 .ToListAsync();
 
             var billIds = recentBills.Select(b => b.Id).ToList();
@@ -72,32 +71,24 @@ namespace SantaFeWaterSystem.Controllers
                 bill.Status = hasVerified ? "Paid" : hasAny ? "Pending" : "Unpaid";
             }
 
+            // ✅ Get ALL unpaid bills from the latest 5
+            var filteredBills = recentBills
+                .Where(b => b.Status == "Unpaid")
+                .OrderByDescending(b => b.BillingDate)
+                .ToList();
+
             var recentPayments = await _context.Payments
                 .Where(p => p.ConsumerId == consumer.Id)
                 .Include(p => p.Billing)
                 .OrderByDescending(p => p.PaymentDate)
-                .Take(50)
-                .ToListAsync();
-
-            var recentSupportTickets = await _context.Supports
-                .Where(s => s.ConsumerId == consumer.Id)
-                .OrderByDescending(s => s.CreatedAt)
-                .Take(10)
-                .ToListAsync();
-
-            var notifications = await _context.Notifications
-                .Where(n => n.ConsumerId == consumer.Id)
-                .OrderByDescending(n => n.CreatedAt)
-                .Take(20)
+                .Take(5000)
                 .ToListAsync();
 
             var vm = new UserDashboardViewModel
             {
                 Consumer = consumer,
-                RecentBills = recentBills,
-                RecentPayments = recentPayments,
-                RecentSupportTickets = recentSupportTickets,
-                Notifications = notifications
+                RecentBills = filteredBills, // ← now shows ALL unpaid
+                RecentPayments = recentPayments
             };
 
             return View(vm);
@@ -370,7 +361,7 @@ namespace SantaFeWaterSystem.Controllers
         public async Task<IActionResult> Payment()
         {
             var userIdClaim = User.FindFirst("UserId")?.Value;
-            var accountNumber = User.Identity?.Name; // ✅ AccountNumber for audit
+            var accountNumber = User.Identity?.Name;
 
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized();
@@ -384,31 +375,33 @@ namespace SantaFeWaterSystem.Controllers
             if (consumer == null)
                 return NotFound("Consumer not found");
 
-            // Get all unpaid bills for the consumer
-            var unpaidBills = await _context.Billings
-                .Where(b => b.ConsumerId == consumer.Id && !b.IsPaid)
+            // Get all bills for the consumer
+            var allBills = await _context.Billings
+                .Where(b => b.ConsumerId == consumer.Id)
                 .ToListAsync();
 
-            // Get all related payments for these bills
-            var billIds = unpaidBills.Select(b => b.Id).ToList();
+            // Separate unpaid bills
+            var unpaidBills = allBills.Where(b => !b.IsPaid).ToList();
+            var paidBills = allBills
+                .Where(b => b.IsPaid == true) // strict check
+                .ToList();
 
+
+            // Related payments to unpaid bills
+            var billIds = unpaidBills.Select(b => b.Id).ToList();
             var relatedPayments = await _context.Payments
                 .Where(p => billIds.Contains(p.BillingId))
                 .ToListAsync();
 
-            // Flag bills that have pending/unverified payment, and calculate TotalAmount
             foreach (var bill in unpaidBills)
             {
                 bill.HasPendingPayment = relatedPayments.Any(p => p.BillingId == bill.Id && !p.IsVerified);
                 bill.TotalAmount = bill.AmountDue + bill.Penalty + bill.AdditionalFees.GetValueOrDefault();
             }
 
-            // 💡 Show all unpaid bills (no more filtering!)
-            var pendingBills = unpaidBills;
-
-            // Load previous payments for display
+            // All previous payments
             var previousPayments = await _context.Payments
-                 .Include(p => p.Billing)
+                .Include(p => p.Billing)
                 .Where(p => p.ConsumerId == consumer.Id)
                 .OrderByDescending(p => p.PaymentDate)
                 .ToListAsync();
@@ -419,10 +412,13 @@ namespace SantaFeWaterSystem.Controllers
                 FirstName = consumer.FirstName,
                 MiddleName = consumer.MiddleName,
                 LastName = consumer.LastName,
-                PendingBills = pendingBills,
-                PreviousPayments = previousPayments
+                PendingBills = unpaidBills,
+                PreviousPayments = previousPayments,
+                PaidBillsCount = allBills.Count(b => b.IsPaid),
+                UnpaidBillsCount = unpaidBills.Count
+
             };
-            // ✅ Use AccountNumber for audit
+
             await _audit.LogAsync(
                 "Viewed Payment Page",
                 $"User viewed their pending bills and payment history. Unpaid bills count: {unpaidBills.Count}, Previous payments: {previousPayments.Count}",
@@ -431,7 +427,6 @@ namespace SantaFeWaterSystem.Controllers
 
             return View(vm);
         }
-
 
 
 
@@ -944,6 +939,19 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteSupport(int id)
+        {
+            var support = await _context.Supports.FindAsync(id);
+            if (support == null)
+                return NotFound();
+
+            _context.Supports.Remove(support);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
 
 
 

@@ -26,159 +26,7 @@
 }
 
 @section Styles {
-   
-    <style>
-        .clickable-card {
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-
-            .clickable-card:hover {
-                background-color: #f8f9fa;
-            }
-
-        .badge-status {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-        }
-
-        .pay-now-btn {
-            font-size: 0.85rem;
-            padding: 0.25rem 0.5rem;
-        }
-
-        /* Custom colors for payments */
-        .bg-cash {
-            background-color: #fff3cd !important;
-            color: #664d03 !important;
-        }
-
-        .bg-gcash {
-            background-color: #87ceeb !important;
-            color: #0c2340 !important;
-        }
-
-        /* === Dark Mode Styles === */
-        body.dark-mode {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-
-            body.dark-mode .card {
-                background-color: #1e1e1e;
-                color: #ccc;
-                border-color: #333;
-            }
-
-            body.dark-mode .card-header {
-                background-color: #292929;
-                border-bottom: 1px solid #444;
-            }
-
-            body.dark-mode .clickable-card {
-                background-color: #2c2c2c;
-                border-color: #444;
-            }
-
-                body.dark-mode .clickable-card:hover {
-                    background-color: #3a3a3a;
-                }
-
-            body.dark-mode .badge-status {
-                opacity: 0.9;
-            }
-
-            body.dark-mode .bg-success {
-                background-color: #198754 !important;
-                color: #d4edda !important;
-            }
-
-            body.dark-mode .bg-danger {
-                background-color: #dc3545 !important;
-                color: #f8d7da !important;
-            }
-
-            body.dark-mode .bg-warning {
-                background-color: #ffc107 !important;
-                color: #212529 !important;
-            }
-
-            body.dark-mode .bg-secondary {
-                background-color: #6c757d !important;
-                color: #e2e3e5 !important;
-            }
-
-            body.dark-mode .btn-primary {
-                background-color: #0d6efd;
-                border-color: #0d6efd;
-            }
-
-            body.dark-mode .btn-outline-primary {
-                color: #0d6efd;
-                border-color: #0d6efd;
-            }
-
-                body.dark-mode .btn-outline-primary:hover {
-                    background-color: #0d6efd;
-                    color: #fff;
-                }
-
-            /* Custom payment method badges (Dark Mode) */
-            body.dark-mode .bg-cash {
-                background-color: #665c00 !important;
-                color: #fff3cd !important;
-            }
-
-            body.dark-mode .bg-gcash {
-                background-color: #1e90ff !important;
-                color: #cce6ff !important;
-            }
-
-        /* Dark mode toggle button */
-        #darkModeToggle {
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        body.dark-mode #darkModeToggle {
-            background-color: #444;
-            color: #eee;
-            border-color: #666;
-        }
-
-        .text-danger {
-            font-weight: bold;
-            animation: blink 1s infinite;
-        }
-
-        @@keyframes blink {
-            50%
-
-        {
-            opacity: 0.6;
-        }
-
-        }
-
-        .dashboard-title {
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            font-size: clamp(1rem, 4vw, 2rem);
-        }
-
-        .greeting-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
-
+    <link href="~/css/userdashboard.css" rel="stylesheet" asp-append-version="true" />
 }
 
 
@@ -186,10 +34,48 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="dashboard-title m-0">
         <i class="bi @iconClass me-2 text-warning"></i>
-        <span class="greeting-text">@greeting, @Model.Consumer.FirstName!</span>
-    </h2>
+        <span class="greeting-text">@greeting, @($"{Model.Consumer.FirstName} {Model.Consumer.LastName}".Trim())!</span>
 </div>
 
+
+<!-- Quick Access -->
+<div class="row mb-4" id="quick-access">
+    <div class="col">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="bi bi-box-arrow-up-right me-2"></i>Quick Access
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-2 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 g-2">
+                    <div class="col">
+                        <a href="@Url.Action("Payment", "User")" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-wallet2 me-1"></i>Payment
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="@Url.Action("BillingHistory", "User", new { showArchived = true })" class="btn btn-outline-success w-100">
+                            <i class="bi bi-clock-history me-1"></i>Billing History
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="@Url.Action("Create", "Feedback")" class="btn btn-outline-info w-100">
+                            <i class="bi bi-chat-left-text me-1"></i>Feedback
+                        </a>
+                    </div>
+                    <div class="col">
+                        <a href="@Url.Action("Profile", "User")" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-life-preserver me-1"></i>Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* Account Info *@
+@* 
 <!-- Account Info -->
 <div class="row mb-4">
     <div class="col-12 col-md-6">
@@ -223,6 +109,8 @@
         </div>
     </div>
 </div>
+*@
+
 
 <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
 
@@ -231,7 +119,7 @@
         <div class="card shadow-sm h-100">
             <div class="card-header fw-bold d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-receipt-cutoff me-2"></i>Recent Bills</span>
-                @if (Model.RecentBills?.Count > 3)
+                @if (Model.RecentBills?.Count > 1)
                 {
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#billsModal">View All</button>
                 }
@@ -239,7 +127,7 @@
             <div class="card-body">
                 @if (Model.RecentBills?.Any() == true)
                 {
-                    @foreach (var bill in Model.RecentBills.Take(3))
+                    @foreach (var bill in Model.RecentBills.Take(1))
                     {
                         var statusClass = bill.Status switch
                         {
@@ -266,11 +154,12 @@
                                     <strong>Due Date:</strong>
                                     <span>@bill.DueDate.ToString("MMM dd, yyyy")</span>
                                 </div>
-                                <div class="d-flex flex-wrap align-items-center gap-1 text-break text-muted">
+                                <div class="d-flex flex-wrap align-items-center gap-1 text-break amount-due">
                                     <i class="bi bi-currency-exchange me-1"></i>
                                     <strong>Amount Due:</strong>
                                     <span>₱@bill.AmountDue.ToString("N2")</span>
                                 </div>
+
 
                                 @if (bill.Penalty > 0)
                                 {
@@ -330,7 +219,7 @@
         <div class="card shadow-sm h-100">
             <div class="card-header fw-bold d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-wallet2 me-2"></i>Recent Payments</span>
-                @if (Model.RecentPayments?.Count > 3)
+                @if (Model.RecentPayments?.Count > 1)
                 {
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paymentsModal">View All</button>
                 }
@@ -338,7 +227,7 @@
             <div class="card-body">
                 @if (Model.RecentPayments?.Any() == true)
                 {
-                    @foreach (var p in Model.RecentPayments.Take(3))
+                    @foreach (var p in Model.RecentPayments.Take(1))
                     {
                         var methodClass = p.Method switch
                         {
@@ -369,7 +258,7 @@
                                     <strong>Payment Date:</strong>
                                     <span>@p.PaymentDate.ToString("MMM dd, yyyy")</span>
                                 </div>
-                                <div class="d-flex flex-wrap align-items-center gap-1 text-break text-muted">
+                                <div class="d-flex flex-wrap align-items-center gap-1 text-break text-muted amount-line">
                                     <i class="bi bi-currency-dollar me-1"></i>
                                     <strong>Amount Paid:</strong>
                                     <span>₱@p.AmountPaid.ToString("N2")</span>
@@ -393,149 +282,10 @@
             </div>
         </div>
     </div>
+</div>
 
 
-
-    <!-- Support Tickets -->
-    <div class="col">
-        <div class="card shadow-sm h-100">
-            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-life-preserver me-2"></i>Support Tickets</span>
-                @if (Model.RecentSupportTickets?.Count > 3)
-                {
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#supportModal">View All</button>
-                }
-            </div>
-            <div class="card-body">
-                @if (Model.RecentSupportTickets?.Any() == true)
-                {
-                    var latestTicket = Model.RecentSupportTickets
-                    .OrderByDescending(t => t.CreatedAt)
-                    .First();
-                    var ticketClass = latestTicket.Status switch
-                    {
-                        "Open" => "bg-warning text-dark",
-                        "Closed" => "bg-success text-white",
-                        _ => "bg-secondary text-white"
-                    };
-
-                    <div class="clickable-card position-relative mb-3"
-                         style="cursor: pointer;"
-                         data-bs-toggle="modal"
-                         data-bs-target="#ticketModal"
-                         onclick="markReplySeen(@latestTicket.Id)">
-
-                        <div class="fw-bold">@latestTicket.Subject</div>
-                        <div class="text-muted small">@latestTicket.CreatedAt.ToString("MMM dd, yyyy")</div>
-                        <div class="small text-truncate">@latestTicket.Message</div>
-
-                        @if (!string.IsNullOrEmpty(latestTicket.AdminReply) && !latestTicket.IsReplySeen)
-                        {
-                            <span id="ticket-badge-@latestTicket.Id" class="position-absolute top-0 end-0 badge bg-danger">New Reply</span>
-                        }
-
-                        <!-- Modal for Latest Ticket -->
-                        <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="ticketModalLabel">Ticket: @latestTicket.Subject</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p><strong>Submitted:</strong> @latestTicket.CreatedAt.ToString("MMM dd, yyyy")</p>
-                                        <p><strong>Your Message:</strong></p>
-                                        <p>@latestTicket.Message</p>
-
-                                        <hr />
-
-                                        <p><strong>Admin Reply:</strong></p>
-                                        @if (!string.IsNullOrEmpty(latestTicket.AdminReply))
-                                        {
-                                            <p>@latestTicket.AdminReply</p>
-                                        }
-                                        else
-                                        {
-                                            <p class="text-muted">No reply yet.</p>
-                                        }
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted">No support tickets.</p>
-                }
-            </div>
-        </div>
-    </div>
-
-
-
-
-    <!-- Notifications -->
-    <div class="col">
-        <div class="card shadow-sm h-100">
-            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-bell me-2"></i>Notifications</span>
-                @if (Model.Notifications?.Count > 3)
-                {
-                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationsModal">View All</button>
-                }
-            </div>
-            <div class="card-body">
-                @if (Model.Notifications?.Any() == true)
-                {
-                    var latest = Model.Notifications.OrderByDescending(n => n.CreatedAt).First();
-
-                    <div class="clickable-card position-relative mb-3"
-                         style="cursor: pointer;"
-                         data-bs-toggle="modal"
-                         data-bs-target="#notifModal-@latest.Id"
-                         onclick="markNotificationAsRead(@latest.Id)">
-
-                        <div class="fw-bold">@latest.Title</div>
-                        <div class="text-muted small">@latest.CreatedAt.ToString("MMM dd, yyyy")</div>
-                        <div class="small text-truncate">@latest.Message</div>
-
-                        @if (!latest.IsRead)
-                        {
-                            <span id="notif-badge-@latest.Id" class="position-absolute top-0 end-0 badge bg-danger">New</span>
-                        }
-                    </div>
-
-                    <!-- Modal -->
-                    <div class="modal fade" id="notifModal-@latest.Id" tabindex="-1" aria-labelledby="notifModalLabel-@latest.Id" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="notifModalLabel-@latest.Id">@latest.Title</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p class="text-muted small">@latest.CreatedAt.ToString("MMM dd, yyyy")</p>
-                                    <p>@latest.Message</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted">No notifications.</p>
-                }
-            </div>
-        </div>
-    </div>
-
+  
     <!-- Include dashboard-related modals -->
 @await Html.PartialAsync("~/Views/Shared/_DashboardModals.cshtml", Model)
 

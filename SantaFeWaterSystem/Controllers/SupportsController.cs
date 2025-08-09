@@ -5,11 +5,12 @@ using SantaFeWaterSystem.Data;
 using SantaFeWaterSystem.Models;
 using SantaFeWaterSystem.Services;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SantaFeWaterSystem.Controllers
 {
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Staff,User")]
     public class SupportsController : BaseController
     {
        
@@ -234,6 +235,58 @@ namespace SantaFeWaterSystem.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+
+        ////////////////////////User Sopport top bar////////////////////////
+
+
+
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> UserSupport()
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized();
+
+            var consumer = await _context.Consumers.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (consumer == null) return NotFound();
+
+            var supports = await _context.Supports
+                .Where(s => s.ConsumerId == consumer.Id && !s.IsArchived)
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+
+            // ✅ Mark all seen replies as seen
+            foreach (var support in supports.Where(s => s.AdminReply != null && !s.IsReplySeen))
+            {
+                support.IsReplySeen = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return View(supports);
+        }
+
+
+        [Authorize(Roles = "User")]
+        [HttpGet]
+        public IActionResult GetUnseenRepliesCount()
+        {
+            var userIdClaim = User.FindFirst("UserId"); // ✅ Use "UserId" claim
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Json(new { count = 0 });
+
+            var unseenCount = _context.Supports
+                .Where(s =>
+                    s.Consumer != null &&
+                    s.Consumer.UserId == userId &&
+                    !s.IsReplySeen &&
+                    !string.IsNullOrEmpty(s.AdminReply))
+                .Count();
+
+            return Json(new { count = unseenCount });
+        }
+
 
 
     }

@@ -70,8 +70,9 @@
     </div>
 
     <!-- Login Button -->
-    <div class="text-center mt-5">
-        <a class="btn btn-login btn-lg px-5 text-white" asp-controller="Account" asp-action="UserLogin">
+    <div class="text-center mt-5 px-3">
+        <!-- add horizontal padding on small devices -->
+        <a class="btn btn-login btn-lg text-white w-100 w-sm-auto" asp-controller="Account" asp-action="UserLogin" style="max-width: 300px;">
             <i class="bi bi-box-arrow-in-right me-2"></i>Login to Your Account
         </a>
     </div>

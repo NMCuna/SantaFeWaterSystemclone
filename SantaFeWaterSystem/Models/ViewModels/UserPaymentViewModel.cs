@@ -15,9 +15,12 @@ namespace SantaFeWaterSystem.Models.ViewModels
         public Consumer Consumer { get; set; }
     public List<Billing> PendingBills { get; set; }
     public List<Payment> PreviousPayments { get; set; }
-      
-      
 
+
+   
+        // 👇 Add these two new properties
+        public int PaidBillsCount { get; set; }
+        public int UnpaidBillsCount { get; set; }
 
     }
 

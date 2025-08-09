@@ -47,11 +47,11 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle"></i> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
 
 <form method="get" class="mb-3 row g-2">
     <div class="col-md-4">
@@ -66,16 +66,27 @@
 
 
 
-<div class="mb-4 d-flex gap-2 flex-wrap">
-    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-circle me-1"></i> Announcement</a>
-    <a class="btn btn-success" asp-action="SendSms"><i class="bi bi-chat-dots-fill me-1"></i> Send SMS for Bills</a>
-    <a class="btn btn-secondary" asp-action="Archived"><i class="bi bi-archive-fill me-1"></i> View Archived</a>
-</div>
+<form asp-action="ArchiveSelectedByAdmin" method="post" id="bulkArchiveForm" class="mb-4 d-flex gap-2 flex-wrap">
+    <a class="btn btn-primary" asp-action="Create">
+        <i class="bi bi-plus-circle me-1"></i> Announcement
+    </a>
+
+    <a class="btn btn-secondary" asp-action="Archived">
+        <i class="bi bi-archive-fill me-1"></i> View Archived
+    </a>
+
+    <input type="hidden" name="selectedIds" id="bulkSelectedIds" />
+
+    <button type="submit" class="btn btn-warning" onclick="return confirm('Archive selected notifications?')">
+        <i class="bi bi-archive"></i> Archive Selected
+    </button>
+</form>
 
 <div class="table-responsive">
     <table class="table table-bordered align-middle table-hover shadow-sm">
         <thead class="text-center">
             <tr>
+                <th><input type="checkbox" id="selectAll" /></th>
                 <th>To</th>
                 <th>Title</th>
                 <th>Message</th>
@@ -87,6 +98,9 @@
             @foreach (var n in Model)
             {
                 <tr class="@(n.IsRead ? "" : "fw-bold")">
+                    <td class="text-center">
+                        <input type="checkbox" name="selectedIds" value="@n.Id" class="notification-checkbox" />
+                    </td>
                     <td>
                         @if (n.Consumer != null)
                         {
@@ -99,7 +113,7 @@
                     </td>
                     <td>@n.Title</td>
                     <td class="text-truncate">
-                        <a href="javascript:void(0);" onclick="showMessage('@n.Title', `@n.Message.Replace("`", "\\`")`)">
+                        <a href="javascript:void(0);" class="text-decoration-none" onclick="showMessage('@n.Title', `@n.Message.Replace("`", "\\`")`)">
                             <i class="bi bi-eye-fill text-primary"></i> View
                         </a>
                     </td>
@@ -127,12 +141,30 @@
             <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
                 <a class="page-link" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-search="@filter">Previous</a>
             </li>
-            @for (int i = 1; i <= Model.PageCount; i++)
+
+            @{
+                int totalPages = Model.PageCount;
+                int currentPage = Model.PageNumber;
+                int displayPages = 5;
+
+                int startPage = currentPage - displayPages / 2;
+                if (startPage < 1) startPage = 1;
+
+                int endPage = startPage + displayPages - 1;
+                if (endPage > totalPages)
+                {
+                    endPage = totalPages;
+                    startPage = Math.Max(1, endPage - displayPages + 1);
+                }
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
             {
                 <li class="page-item @(Model.PageNumber == i ? "active" : "")">
                     <a class="page-link" asp-route-pageNumber="@i" asp-route-search="@filter">@i</a>
                 </li>
             }
+
             <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
                 <a class="page-link" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-search="@filter">Next</a>
             </li>
@@ -142,17 +174,17 @@
 
 <!-- Modal -->
 <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Message Title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title fw-semibold" id="modalTitle">Message Title</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="modalMessage">
+            <div class="modal-body px-4 py-3" id="modalMessage" style="white-space: pre-wrap; text-align: justify;">
                 Full message content will appear here.
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <div class="modal-footer bg-light rounded-bottom-4">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Close
                 </button>
             </div>
@@ -167,5 +199,25 @@
             document.getElementById("modalMessage").innerText = message;
             new bootstrap.Modal(document.getElementById("messageModal")).show();
         }
+
+        // Select All Checkboxes
+        document.getElementById("selectAll").addEventListener("change", function () {
+            const isChecked = this.checked;
+            document.querySelectorAll(".notification-checkbox").forEach(cb => cb.checked = isChecked);
+        });
+
+        // Before submitting bulk form, gather checked IDs
+        document.getElementById("bulkArchiveForm").addEventListener("submit", function (e) {
+            const checked = Array.from(document.querySelectorAll(".notification-checkbox:checked"))
+                .map(cb => cb.value);
+
+            if (checked.length === 0) {
+                e.preventDefault();
+                alert("Please select at least one notification to archive.");
+                return;
+            }
+
+            document.getElementById("bulkSelectedIds").value = checked.join(',');
+        });
     </script>
 }

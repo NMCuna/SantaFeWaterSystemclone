@@ -31,7 +31,7 @@
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container">
                 <a class="navbar-brand fw-bold d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-droplet-half me-2"></i> Santa Fe Water
+                    <i class="bi bi-droplet-half me-2"></i> Santa Fe Water System
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
@@ -59,7 +59,15 @@
                                     <a class="nav-link" href="/Admin/Dashboard"><i class="bi bi-speedometer2 me-1"></i>Admin Panel</a>
                                 </li>
                             }
-                            else if (User.IsInRole("User"))
+
+                            if (User.IsInRole("Staff"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/Admin/Dashboard"><i class="bi bi-speedometer2 me-1"></i>Staff Panel</a>
+                                </li>
+                            }
+
+                            if (User.IsInRole("User"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" href="/User/Dashboard"><i class="bi bi-person-square me-1"></i>User Dashboard</a>

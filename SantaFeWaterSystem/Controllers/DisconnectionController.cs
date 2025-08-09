@@ -179,7 +179,7 @@ namespace SantaFeWaterSystem.Controllers
             var notif = new Notification
             {
                 ConsumerId = consumer.Id,
-                Title = "Disconnection Notice",
+                Title = "🛑 Water Service Disconnected",
                 Message = $"Hello {consumer.FirstName}, you failed to pay any bill from your 2 overdue bills within 3 days. Your water service has been disconnected. " +
                           $"To reconnect, please visit the main office of Santa Fe Water System located at the Santa Fe Municipal Hall. Thank you.",
                 CreatedAt = DateTime.Now
@@ -208,7 +208,7 @@ namespace SantaFeWaterSystem.Controllers
 
                 string pushPayload = JsonSerializer.Serialize(new
                 {
-                    title = "❌ Disconnection Notice",
+                    title = "\U0001f6d1 Water Service Disconnected",
                     body = "Your water service has been disconnected due to 2 or more overdue bills. Please visit the office to reconnect."
                 });
 
@@ -282,7 +282,7 @@ namespace SantaFeWaterSystem.Controllers
             var notif = new Notification
             {
                 ConsumerId = consumer.Id,
-                Title = "Reconnection Notice",
+                Title = "💧 Water Service Reconnected",
                 Message = $"Hello {consumer.FirstName}, your water service has been successfully reconnected. Thank you for settling your bills.",
                 CreatedAt = DateTime.Now
             };
@@ -310,7 +310,7 @@ namespace SantaFeWaterSystem.Controllers
 
                 string pushPayload = JsonSerializer.Serialize(new
                 {
-                    title = "✅ Reconnection Notice",
+                    title = "💧 Water Service Reconnected",
                     body = "Your water service has been reconnected. Thank you for settling your bills."
                 });
 
@@ -377,7 +377,7 @@ namespace SantaFeWaterSystem.Controllers
                     var notif = new Notification
                     {
                         ConsumerId = consumer.Id,
-                        Title = "Disconnection Notice",
+                        Title = "⚠️ Disconnection Notice",
                         Message = $"Hello {consumer.FirstName}, you have 2 overdue bills that are not yet paid. Please pay at least one bill within 3 days to avoid disconnection.",
                         CreatedAt = DateTime.Now
                     };

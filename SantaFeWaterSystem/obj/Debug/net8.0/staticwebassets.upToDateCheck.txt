@@ -30,7 +30,10 @@ wwwroot\css\twofaUser.css
 wwwroot\css\user-activity.css
 wwwroot\css\user-dashboard.css
 wwwroot\css\user-login.css
+wwwroot\css\userdashboard.css
 wwwroot\css\userlayout.css
+wwwroot\css\usernotifications.css
+wwwroot\css\usersupport.css
 wwwroot\favicon.ico
 wwwroot\images\default-avatar.png
 wwwroot\images\gcash-logo.png
@@ -148,6 +151,7 @@ wwwroot\uploads\receipts\9d7e97de-aedd-412f-a796-f4c76c3a448b.jpg
 wwwroot\uploads\receipts\a182b015-3607-4980-89ad-c81b32186beb.png
 wwwroot\uploads\receipts\a3fdcdab-6754-4de7-85c2-4fdcc77122a4.jpg
 wwwroot\uploads\receipts\a59fd914-b42a-48ed-a2c8-00713193fd13.png
+wwwroot\uploads\receipts\acf976ae-0e81-432f-9c75-1de80f5da5e2.png
 wwwroot\uploads\receipts\ae52e8c7-f8a1-4399-b05e-7b0d86ade79a.png
 wwwroot\uploads\receipts\b0aaf735-2236-4657-9e18-432b4f0b47fc.png
 wwwroot\uploads\receipts\bbb909e5-d30b-4e8d-b8e6-09d2f795479d.jpg

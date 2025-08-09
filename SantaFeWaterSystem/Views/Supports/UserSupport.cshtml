@@ -1,0 +1,193 @@
+﻿@model IEnumerable<SantaFeWaterSystem.Models.Support>
+
+@{
+    ViewData["Title"] = "Support Requests";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/usersupport.css" asp-append-version="true" />
+}
+
+<h2 class="mb-4 text-black" style="text-shadow: 0 0 10px rgba(0, 123, 255, 0.8);">
+    My Support Requests
+</h2>
+
+<div class="mb-3 text-end">
+    <a asp-controller="User" asp-action="Support" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> New Support Request
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">You haven't sent any support requests yet.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Model.OrderByDescending(s => s.CreatedAt))
+        {
+            var cardClass = item.IsReplySeen
+            ? "border-success border-2 shadow glow-seen"
+            : "border-warning border-2 shadow glow-unseen";
+            var headerClass = item.IsReplySeen
+            ? "bg-success text-white"
+            : "bg-warning text-dark";
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 @cardClass">
+                    <div class="card-header @headerClass d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">@item.Subject</span>
+                        @if (!item.IsReplySeen)
+                        {
+                            <span class="badge bg-danger glow-badge">
+                                <i class="bi bi-eye-slash-fill me-1"></i>New Reply
+                            </span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            <strong>Status:</strong>
+                            @if (item.IsResolved)
+                            {
+                                <span class="badge bg-success">Resolved</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Open</span>
+                            }
+                        </p>
+
+                        <p><strong>Created:</strong> @item.CreatedAt.ToString("MMM dd, yyyy - hh:mm tt")</p>
+
+                        <p>
+                            <strong>Message:</strong>
+                            @Html.Raw(item.Message.Length > 100 ? item.Message.Substring(0, 100) + "..." : item.Message)
+                        </p>
+
+                        <p>
+                            <strong>Admin Reply:</strong>
+                            @if (!string.IsNullOrWhiteSpace(item.AdminReply))
+                            {
+                                @Html.Raw(item.AdminReply.Length > 100 ? item.AdminReply.Substring(0, 100) + "..." : item.AdminReply)
+                            }
+                            else
+                            {
+                                <span class="text-muted">No reply yet</span>
+                            }
+                        </p>
+
+                        <div class="text-end mt-3">
+                            <button class="btn btn-outline-primary btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#viewSupportModal"
+                                    data-subject="@item.Subject"
+                                    data-status="@(item.IsResolved ? "Resolved" : "Open")"
+                                    data-created="@item.CreatedAt.ToString("MMM dd, yyyy - hh:mm tt")"
+                                    data-message="@item.Message"
+                                    data-reply="@(item.AdminReply ?? "No reply yet")"
+                                    data-replied="@item.RepliedAt?.ToString("MMM dd, yyyy - hh:mm tt") ?? " -""
+                                    data-seen="@(item.IsReplySeen ? "Seen" : "Unseen")">
+                                <i class="bi bi-eye"></i> View 
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteSupport(@item.Id)">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- 🔍 Full Details Modal -->
+<div class="modal fade" id="viewSupportModal" tabindex="-1" aria-labelledby="viewSupportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewSupportModalLabel">Support Request Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2">
+                        <strong>Subject:</strong>
+                        <div class="form-control-plaintext" id="modalSubject"></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <strong>Status:</strong>
+                        <div class="form-control-plaintext" id="modalStatus"></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <strong>Reply Seen:</strong>
+                        <div class="form-control-plaintext" id="modalSeen"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2">
+                        <strong>Created At:</strong>
+                        <div class="form-control-plaintext" id="modalCreated"></div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <strong>Replied At:</strong>
+                        <div class="form-control-plaintext" id="modalReplied"></div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-secondary">Message:</h6>
+                    <div class="bg-light border rounded p-3" id="modalMessage" style="white-space: pre-wrap;"></div>
+                </div>
+
+                <div>
+                    <h6 class="fw-bold text-secondary">Admin Reply:</h6>
+                    <div class="bg-light border rounded p-3" id="modalReply" style="white-space: pre-wrap;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const viewSupportModal = document.getElementById('viewSupportModal');
+
+        viewSupportModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            document.getElementById('modalSubject').textContent = button.getAttribute('data-subject');
+            document.getElementById('modalStatus').textContent = button.getAttribute('data-status');
+            document.getElementById('modalCreated').textContent = button.getAttribute('data-created');
+            document.getElementById('modalMessage').textContent = button.getAttribute('data-message');
+            document.getElementById('modalReply').textContent = button.getAttribute('data-reply');
+            document.getElementById('modalReplied').textContent = button.getAttribute('data-replied');
+            document.getElementById('modalSeen').textContent = button.getAttribute('data-seen');
+        });
+    </script>
+
+    <script>
+        function deleteSupport(id) {
+            if (!confirm("Are you sure you want to delete this support request?")) return;
+
+            fetch(`/User/DeleteSupport?id=${id}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(res => {
+                if (res.ok) {
+                    location.reload(); // Refresh the page to update the list
+                } else {
+                    alert("Failed to delete support request.");
+                }
+            });
+        }
+    </script>
+
+}

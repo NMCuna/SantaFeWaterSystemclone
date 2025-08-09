@@ -18,6 +18,14 @@
             min-height: 100vh;
             background-color: #f4f7fa;
         }
+
+        .ticket-card .card {
+            border-left: 4px solid #0d6efd;
+        }
+
+        #moreTickets {
+            display: none;
+        }
     </style>
 }
 
@@ -56,74 +64,67 @@
 
     @if (Model.PreviousTickets != null && Model.PreviousTickets.Any())
     {
-        if (Model.PreviousTickets.Count > 1)
-        {
-            <div class="d-flex justify-content-center mb-3">
-                <button id="toggleMoreTicketsBtn" class="btn btn-outline-primary btn-sm" aria-expanded="false" aria-controls="moreTickets">
-                    <i class="bi bi-chevron-down me-2"></i> Show All Tickets
-                </button>
-            </div>
-        }
+        <div class="ticket-card">
+            @{
+                var firstTicket = Model.PreviousTickets.First();
+                var statusFirst = firstTicket.Status.ToLowerInvariant();
+                var badgeClassFirst = statusFirst switch
+                {
+                    "resolved" => "bg-success",
+                    "pending" or "open" => "bg-warning text-dark",
+                    _ => "bg-secondary"
+                };
+            }
 
-        <div class="table-responsive shadow rounded bg-white">
-            <table class="table table-striped align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Subject</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Reply</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        var firstTicket = Model.PreviousTickets.First();
-                        var statusFirst = firstTicket.Status.ToLowerInvariant();
-                        var badgeClassFirst = statusFirst switch
+            <!-- First Ticket Card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">@firstTicket.Subject</span>
+                    <span class="badge @badgeClassFirst text-capitalize">@firstTicket.Status</span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Created:</strong> @firstTicket.CreatedAt.ToString("yyyy-MM-dd")</p>
+                    <button type="button" class="btn btn-sm btn-info shadow-sm" data-bs-toggle="modal" data-bs-target="#ticketModal-@firstTicket.Id">
+                        <i class="bi bi-eye"></i> View
+                    </button>
+                </div>
+            </div>
+
+            @if (Model.PreviousTickets.Count > 1)
+            {
+                <div class="d-flex justify-content-center mb-3">
+                    <button id="toggleMoreTicketsBtn" class="btn btn-outline-primary btn-sm" aria-expanded="false" aria-controls="moreTickets">
+                        <i class="bi bi-chevron-down me-2"></i> Show All Tickets
+                    </button>
+                </div>
+
+                <!-- More Tickets -->
+                <div id="moreTickets">
+                    @foreach (var ticket in Model.PreviousTickets.Skip(1))
+                    {
+                        var status = ticket.Status.ToLowerInvariant();
+                        var badgeClass = status switch
                         {
                             "resolved" => "bg-success",
                             "pending" or "open" => "bg-warning text-dark",
                             _ => "bg-secondary"
                         };
-                    }
-                    <tr>
-                        <td class="fw-semibold">@firstTicket.Subject</td>
-                        <td><span class="badge @badgeClassFirst text-capitalize">@firstTicket.Status</span></td>
-                        <td>@firstTicket.CreatedAt.ToString("yyyy-MM-dd")</td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-info shadow-sm" data-bs-toggle="modal" data-bs-target="#ticketModal-@firstTicket.Id" aria-label="View ticket details">
-                                <i class="bi bi-eye"></i> View
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
 
-                @if (Model.PreviousTickets.Count > 1)
-                {
-                    <tbody id="moreTickets" style="display:none;">
-                        @foreach (var ticket in Model.PreviousTickets.Skip(1))
-                        {
-                            var status = ticket.Status.ToLowerInvariant();
-                            var badgeClass = status switch
-                            {
-                                "resolved" => "bg-success",
-                                "pending" or "open" => "bg-warning text-dark",
-                                _ => "bg-secondary"
-                            };
-                            <tr>
-                                <td class="fw-semibold">@ticket.Subject</td>
-                                <td><span class="badge @badgeClass text-capitalize">@ticket.Status</span></td>
-                                <td>@ticket.CreatedAt.ToString("yyyy-MM-dd")</td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-info shadow-sm" data-bs-toggle="modal" data-bs-target="#ticketModal-@ticket.Id" aria-label="View ticket details">
-                                        <i class="bi bi-eye"></i> View
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                }
-            </table>
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">@ticket.Subject</span>
+                                <span class="badge @badgeClass text-capitalize">@ticket.Status</span>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Created:</strong> @ticket.CreatedAt.ToString("yyyy-MM-dd")</p>
+                                <button type="button" class="btn btn-sm btn-info shadow-sm" data-bs-toggle="modal" data-bs-target="#ticketModal-@ticket.Id">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         </div>
     }
     else
@@ -132,6 +133,7 @@
     }
 </div>
 
+<!-- Modals for each ticket -->
 @if (Model.PreviousTickets != null)
 {
     foreach (var ticket in Model.PreviousTickets)
@@ -177,6 +179,7 @@
 
 @await Html.PartialAsync("_ToastNotification")
 
+<!-- Toggle Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const toggleBtn = document.getElementById('toggleMoreTicketsBtn');
@@ -187,7 +190,7 @@
         toggleBtn.addEventListener('click', () => {
             const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
             toggleBtn.setAttribute('aria-expanded', !expanded);
-            moreTickets.style.display = expanded ? 'none' : 'table-row-group';
+            moreTickets.style.display = expanded ? 'none' : 'block';
             toggleBtn.innerHTML = expanded
                 ? '<i class="bi bi-chevron-down me-2"></i> Show All Tickets'
                 : '<i class="bi bi-chevron-up me-2"></i> Hide Tickets';

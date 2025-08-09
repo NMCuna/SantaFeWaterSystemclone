@@ -2,6 +2,20 @@
 @{
     ViewData["Title"] = "Archived Notifications";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    int pageSize = ViewBag.PageSize;
+    int maxPagesToShow = 5;
+
+    int startPage = Math.Max(1, currentPage - maxPagesToShow / 2);
+    int endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
+
+    if ((endPage - startPage + 1) < maxPagesToShow)
+    {
+        startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+    }
+
+    int previewLength = 100;
 }
 
 <style>
@@ -36,6 +50,10 @@
     .back-button {
         margin-bottom: 20px;
     }
+
+    .pagination {
+        margin-top: 20px;
+    }
 </style>
 
 <div class="container-fluid">
@@ -66,7 +84,39 @@
                         <tr>
                             <td>@n.Consumer?.FirstName</td>
                             <td>@n.Title</td>
-                            <td>@n.Message</td>
+                            <td>
+                                @if (n.Message.Length <= previewLength)
+                                {
+                                    @n.Message
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-link text-decoration-none p-0" data-bs-toggle="modal" data-bs-target="#msgModal@n.Id">
+                                        View Message
+                                    </button>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="msgModal@n.Id" tabindex="-1" aria-labelledby="msgModalLabel@n.Id" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content shadow-lg border-0 rounded-4">
+                                                <div class="modal-header bg-primary text-white rounded-top-4">
+                                                    <h5 class="modal-title" id="msgModalLabel@n.Id">
+                                                        Message Details
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-4">
+                                                    <p class="mb-2">@n.Message</p>
+                                                    <p class="mb-2 text-muted">
+                                                        <i class="bi bi-calendar-event me-1"></i>
+                                                        <strong>Sent On:</strong>
+                                                        <span id="modalSentOn">@n.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
                             <td>@n.CreatedAt.ToString("yyyy-MM-dd hh:mm tt")</td>
                             <td>
                                 <form asp-action="Unarchive" method="post" style="display:inline">
@@ -91,4 +141,33 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Controls -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Archived" asp-route-page="@(currentPage - 1)">Previous</a>
+                    </li>
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Archived" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Archived" asp-route-page="@(currentPage + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </div>

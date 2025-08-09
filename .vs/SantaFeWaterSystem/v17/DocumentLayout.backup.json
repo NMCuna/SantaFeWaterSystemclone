@@ -3,16 +3,52 @@
   "WorkspaceRootPath": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\payments\\managepayments.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\payments\\managepayments.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\wwwroot\\css\\home.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\wwwroot\\css\\home.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\models\\viewmodels\\paginatedpaymentsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\models\\viewmodels\\paginatedpaymentsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\account\\userlogin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\account\\userlogin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\user\\resetpassword.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\user\\resetpassword.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\account\\forgotpassworduser.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\account\\forgotpassworduser.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\user\\paymentreceipt.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\user\\paymentreceipt.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\user\\profile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\user\\profile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\wwwroot\\css\\profile.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\wwwroot\\css\\profile.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\user\\dashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\user\\dashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|c:\\users\\lenovo\\source\\repos\\santafewatersystemclone\\santafewatersystem\\views\\user\\billinghistory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{542567C7-1E18-4C23-8783-79BC597B801D}|SantaFeWaterSystem\\SantaFeWaterSystem.csproj|solutionrelative:santafewatersystem\\views\\user\\billinghistory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,41 +62,158 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "PaginatedPaymentsViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
-              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
-              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
-              "RelativeToolTip": "SantaFeWaterSystem\\Models\\ViewModels\\PaginatedPaymentsViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-04T14:21:22.417Z",
+              "DocumentIndex": 1,
+              "Title": "home.css",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\wwwroot\\css\\home.css",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\wwwroot\\css\\home.css",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\wwwroot\\css\\home.css",
+              "RelativeToolTip": "SantaFeWaterSystem\\wwwroot\\css\\home.css",
+              "ViewState": "AgIAAE0BAAAAAAAAAAAAAFYBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-08-09T10:42:57.652Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ManagePayments.cshtml",
-              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml",
-              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml",
-              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml*",
-              "RelativeToolTip": "SantaFeWaterSystem\\Views\\Payments\\ManagePayments.cshtml*",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAowHIAAAAdAAAAAAAAAA==",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Home\\Index.cshtml*",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\Home\\Index.cshtml*",
+              "ViewState": "AgIAADwAAAAAAAAAAAAkwE8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-04T14:16:31.908Z",
+              "WhenOpened": "2025-08-09T10:35:27.362Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PaymentsController.cs",
-              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
-              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
-              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
-              "RelativeToolTip": "SantaFeWaterSystem\\Controllers\\PaymentsController.cs",
-              "ViewState": "AgIAAD0AAAAAAAAAAAAkwE8AAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-04T14:16:23.253Z",
+              "DocumentIndex": 2,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAACUAAAAAAAAAAAAQwG8AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-09T05:13:47.654Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UserLogin.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Account\\UserLogin.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\Account\\UserLogin.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Account\\UserLogin.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\Account\\UserLogin.cshtml",
+              "ViewState": "AgIAAAUAAAAAAAAAAADwvyUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-09T05:04:42.971Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ForgotPasswordUser.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Account\\ForgotPasswordUser.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\Account\\ForgotPasswordUser.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\Account\\ForgotPasswordUser.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\Account\\ForgotPasswordUser.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-09T04:53:54.844Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "site.css",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\wwwroot\\css\\site.css",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\wwwroot\\css\\site.css",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\wwwroot\\css\\site.css",
+              "RelativeToolTip": "SantaFeWaterSystem\\wwwroot\\css\\site.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-08-09T04:28:07.18Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "PaymentReceipt.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\PaymentReceipt.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\User\\PaymentReceipt.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\PaymentReceipt.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\User\\PaymentReceipt.cshtml",
+              "ViewState": "AgIAABYAAAAAAAAAAAAAABYAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-08T00:06:22.987Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ResetPassword.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\ResetPassword.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\User\\ResetPassword.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\ResetPassword.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\User\\ResetPassword.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-08T00:01:41.298Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "profile.css",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\wwwroot\\css\\profile.css",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\wwwroot\\css\\profile.css",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\wwwroot\\css\\profile.css",
+              "RelativeToolTip": "SantaFeWaterSystem\\wwwroot\\css\\profile.css",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-08-07T23:50:14.634Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Profile.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\Profile.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\User\\Profile.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\Profile.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\User\\Profile.cshtml",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAAAK0AAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-07T23:35:37.368Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Dashboard.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\Dashboard.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\User\\Dashboard.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\Dashboard.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\User\\Dashboard.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-07T22:44:33.007Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "BillingHistory.cshtml",
+              "DocumentMoniker": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\BillingHistory.cshtml",
+              "RelativeDocumentMoniker": "SantaFeWaterSystem\\Views\\User\\BillingHistory.cshtml",
+              "ToolTip": "C:\\Users\\LENOVO\\source\\repos\\SantaFeWaterSystemclone\\SantaFeWaterSystem\\Views\\User\\BillingHistory.cshtml",
+              "RelativeToolTip": "SantaFeWaterSystem\\Views\\User\\BillingHistory.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-07T22:44:27.081Z",
               "EditorCaption": ""
             }
           ]

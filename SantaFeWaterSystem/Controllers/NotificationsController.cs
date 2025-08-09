@@ -6,18 +6,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using QuestPDF.Infrastructure;
 using SantaFeWaterSystem.Data;
+using SantaFeWaterSystem.Extensions;
 using SantaFeWaterSystem.Helpers;
 using SantaFeWaterSystem.Models;
 using SantaFeWaterSystem.Models.ViewModels;
 using SantaFeWaterSystem.Services;
 using SantaFeWaterSystem.Settings;
+using System.Security.Claims;
 using System.Text.Json;
 using X.PagedList;
 using X.PagedList.Extensions;
 
+
 namespace SantaFeWaterSystem.Controllers
 {
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Staff,User")]
     public class NotificationsController(
         ApplicationDbContext context,
         ISmsQueue smsQueue,
@@ -276,33 +279,83 @@ namespace SantaFeWaterSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Archived()
-        {
-            var archived = _context.Notifications
-                .Include(n => n.Consumer)
-                .Where(n => n.IsArchived)
-                .OrderByDescending(n => n.CreatedAt)
-                .ToList();
-
-            return View("Archived", archived);
-        }
-
         [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unarchive(int id)
         {
             var notification = await _context.Notifications.FindAsync(id);
             if (notification == null)
+            {
                 return NotFound();
+            }
 
             notification.IsArchived = false;
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Archived");
+            TempData["Success"] = "Notification successfully unarchived.";
+            return RedirectToAction("Archived"); // redirect back to archived view
+        }
+
+
+        /////////ARCHRIVE NOTIFICATION///////////////////////////////
+        [Authorize(Roles = "Admin,Staff")]
+        public IActionResult Archived(int page = 1, int pageSize = 8)
+        {
+            var totalArchived = _context.Notifications.Count(n => n.IsArchived);
+
+            var archived = _context.Notifications
+                .Include(n => n.Consumer)
+                .Where(n => n.IsArchived)
+                .OrderByDescending(n => n.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalArchived / pageSize);
+
+            return View("Archived", archived);
+        }
+
+
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveSelectedByAdmin(string selectedIds)
+        {
+            if (string.IsNullOrEmpty(selectedIds))
+                return RedirectToAction("Index");
+
+            var ids = selectedIds.Split(',').Select(int.Parse).ToList();
+
+            var notifications = await _context.Notifications
+                .Where(n => ids.Contains(n.Id))
+                .ToListAsync();
+
+            foreach (var n in notifications)
+            {
+                n.IsArchived = true;
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"{notifications.Count} notifications archived.";
+            return RedirectToAction("Index");
         }
 
 
 
+
+
+
+
+
+
+
+
+
+        /////////////////////////////////////Use later if needed not yet use////////
 
         // GET: SendSms
         [Authorize(Roles = "Admin,Staff")]
@@ -573,7 +626,140 @@ namespace SantaFeWaterSystem.Controllers
             return RedirectToAction("ArchivedSmsLogs");
         }
 
+
+
+
+
+
+        // Filter support
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> UserNotification(string filter = "all")
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized();
+
+            var consumer = await _context.Consumers
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (consumer == null)
+                return Content("Consumer not found.");
+
+            var query = _context.Notifications
+                .Where(n => n.ConsumerId == consumer.Id);
+
+            if (filter == "unread")
+                query = query.Where(n => !n.IsRead);
+            else if (filter == "read")
+                query = query.Where(n => n.IsRead);
+
+            var notifications = await query
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+
+            ViewBag.Filter = filter;
+            return View("UserNotification", notifications);
+        }
+
+        // Mark all as read
+        [Authorize(Roles = "User")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized();
+
+            var consumer = await _context.Consumers.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (consumer == null) return NotFound();
+
+            var notifications = await _context.Notifications
+                .Where(n => (n.ConsumerId == consumer.Id || n.SendToAll) && !n.IsRead)
+                .ToListAsync();
+
+            foreach (var notif in notifications)
+                notif.IsRead = true;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("UserNotification");
+        }
+
+
+        [Authorize(Roles = "User")]
+        [HttpPost] // <-- use POST instead
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteNotification(int id)
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized();
+
+            var consumer = await _context.Consumers.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (consumer == null) return NotFound();
+
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == id && (n.ConsumerId == consumer.Id || n.SendToAll));
+
+            if (notification == null) return NotFound();
+
+            _context.Notifications.Remove(notification);
+            await _context.SaveChangesAsync();
+
+            return Ok(); // return 200 OK
+        }
+
+
+
+        [Authorize(Roles = "User")]
+        [HttpGet]
+        public async Task<IActionResult> GetUnreadCount()
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Json(0);
+
+            var consumer = await _context.Consumers.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (consumer == null) return Json(0);
+
+            var count = await _context.Notifications
+               .CountAsync(n => n.ConsumerId == consumer.Id && !n.IsRead);
+
+
+            return Json(count);
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkNotificationAsRead(int id)
+        {
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized();
+
+            var consumer = await _context.Consumers.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (consumer == null) return NotFound();
+
+            var notification = await _context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == id && (n.ConsumerId == consumer.Id || n.SendToAll));
+
+            if (notification == null) return NotFound();
+
+            if (!notification.IsRead)
+            {
+                notification.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok();
+        }
+
+
     }
+
+
 
 
 }

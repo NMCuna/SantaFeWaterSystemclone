@@ -1,12 +1,25 @@
 ﻿/* ⚙️ PROFILE CONTAINER */
 .profile-container {
     max-width: 700px;
-    max-height: 90vh;
     overflow-y: auto;
     background-color: white;
     -webkit-overflow-scrolling: touch; /* ✅ smoother scroll on iOS */
     scroll-behavior: smooth; /* ✅ smoother scroll overall */
 }
+
+.scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    scroll-behavior: smooth;
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem; /* optional for scroll spacing */
+}
+
+
 
 /* 🟩 UPLOAD AREA */
 .upload-area {

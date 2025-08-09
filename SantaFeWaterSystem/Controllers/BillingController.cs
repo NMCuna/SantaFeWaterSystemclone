@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Lib.Net.Http.WebPush;
 using Lib.Net.Http.WebPush.Authentication;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +13,11 @@ using SantaFeWaterSystem.Models;
 using SantaFeWaterSystem.Services;
 using SantaFeWaterSystem.Settings;
 using SantaFeWaterSystem.ViewModels;
+using System.Globalization;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading.Tasks;
 using X.PagedList;
 
 
@@ -131,15 +134,15 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-        ////// NOTIFICATION FOR OVERDUE BILL //////
         [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Notify(int id)
+        public async Task<IActionResult> Notify(int id)
         {
-            var billing = _context.Billings
+            var billing = await _context.Billings
                 .Include(b => b.Consumer)
-                .FirstOrDefault(b => b.Id == id);
+                .ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (billing != null)
             {
@@ -148,28 +151,93 @@ namespace SantaFeWaterSystem.Controllers
                 var notif = new Notification
                 {
                     ConsumerId = billing.ConsumerId,
-                    Title = isOverdue ? "Overdue Bill Notification" : "Billing Notification",
+                    Title = isOverdue ? "💧 Overdue Water Bill" : "💧 Water Billing Notification",
                     Message = isOverdue
-                        ? $"Hello {billing.Consumer.FirstName}, your bill (Bill No: {billing.BillNo}) dated {billing.BillingDate:yyyy-MM-dd} is now **overdue** since {billing.DueDate:yyyy-MM-dd}. A penalty may apply. Please pay the total amount of ₱{billing.TotalAmount:N2} immediately to avoid disconnection."
-                        : $"Hello {billing.Consumer.FirstName}, your bill (Bill No: {billing.BillNo}) dated {billing.BillingDate:yyyy-MM-dd} is due on {billing.DueDate:yyyy-MM-dd} with a total amount of ₱{billing.TotalAmount:N2}. Please settle it promptly to avoid disconnection.",
+                        ? $"Hello {billing.Consumer.FirstName}, your water bill (Bill No: {billing.BillNo}) dated {billing.BillingDate:yyyy-MM-dd} is now **overdue** since {billing.DueDate:yyyy-MM-dd}. Please pay ₱{billing.TotalAmount:N2} immediately to avoid disconnection."
+                        : $"Hello {billing.Consumer.FirstName}, your water bill (Bill No: {billing.BillNo}) dated {billing.BillingDate:yyyy-MM-dd} is due on {billing.DueDate:yyyy-MM-dd}. Amount due: ₱{billing.TotalAmount:N2}. Please settle it promptly to avoid disconnection.",
                     CreatedAt = DateTime.Now
                 };
 
                 _context.Notifications.Add(notif);
-                _context.SaveChanges();
+
+                // ✅ Push Notification
+                var user = billing.Consumer.User;
+                if (user != null)
+                {
+                    var subscriptions = await _context.UserPushSubscriptions
+                        .Where(s => s.UserId == user.Id)
+                        .ToListAsync();
+
+                    var vapidAuth = new VapidAuthentication(
+                        "BA_B1RL8wfVkIA7o9eZilYNt7D0_CbU5zsvqCZUFcCnVeqFr6a9BPxHPtWlNNgllEkEqk6jcRgp02ypGhGO3gZI",
+                        "0UqP8AfB9hFaQhm54rEabEwlaCo44X23BO6ID8n7E_U")
+                    {
+                        Subject = "mailto:cunanicolemichael@gmail.com"
+                    };
+
+                    var pushClient = new PushServiceClient
+                    {
+                        DefaultAuthentication = vapidAuth
+                    };
+
+                    string pushPayload = JsonSerializer.Serialize(new
+                    {
+                        title = notif.Title,
+                        body = isOverdue
+                            ? "Your water bill is overdue. Please pay now to avoid disconnection."
+                            : "New water bill available. Please check your account."
+                    });
+
+                    foreach (var sub in subscriptions)
+                    {
+                        var subscription = new PushSubscription
+                        {
+                            Endpoint = sub.Endpoint,
+                            Keys = new Dictionary<string, string>
+                    {
+                        { "p256dh", sub.P256DH },
+                        { "auth", sub.Auth }
+                    }
+                        };
+
+                        try
+                        {
+                            await pushClient.RequestPushMessageDeliveryAsync(subscription, new PushMessage(pushPayload));
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[Push Error] {ex.Message}");
+                        }
+                    }
+                }
+
+                // 🔍 Audit log
+                var audit = new AuditTrail
+                {
+                    Action = "Notify",
+                    PerformedBy = GetCurrentUsername(),
+                    Details = $"Sent disconnection notice to Consumer ID {id}.",
+                    Timestamp = DateTime.Now
+                };
+                _context.AuditTrails.Add(audit);
+
+                await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = $"✅ Notification sent for Billing ID: {id}.";
             }
             else
             {
-                TempData["Error"] = $"Billing ID {id} not found.";
+                TempData["Error"] = $"❌ Billing ID {id} not found.";
             }
 
             return RedirectToAction("Index");
         }
 
 
-
+        private string GetCurrentUsername()
+        {
+            return User.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
+        }
 
 
 

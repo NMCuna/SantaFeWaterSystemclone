@@ -94,12 +94,15 @@
 <div class="modal fade" id="paymentsModal" tabindex="-1" aria-labelledby="paymentsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
+            <!-- Modal Header -->
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title fw-bold" id="paymentsModalLabel">
-                    <i class="bi bi-wallet2 me-2"></i>All Payments
+                    <i class="bi bi-wallet2 me-2"></i> All Payments
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <!-- Modal Body -->
             <div class="modal-body">
                 @if (Model.RecentPayments?.Any() == true)
                 {
@@ -110,63 +113,21 @@
                             {
                                 "Cash" => "bg-light text-dark border",
                                 "Gcash" => "bg-info text-white",
+                                "Maya" => "bg-info text-white",
                                 "Online" => "bg-primary text-white",
                                 "Bank" => "bg-secondary text-white",
                                 _ => "bg-dark text-white"
                             };
-                            <div class="col-12 col-md-6">
-                                <div class="card shadow-sm h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title mb-1 fw-bold">₱@p.AmountPaid.ToString("N2")</h6>
-                                        <p class="card-text mb-1">Date: @p.PaymentDate.ToString("MMM dd, yyyy")</p>
-                                        <span class="badge @methodClass">@p.Method</span>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted">No payments recorded.</p>
-                }
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Support Tickets Modal -->
-<div class="modal fade" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title fw-bold" id="supportModalLabel">
-                    <i class="bi bi-life-preserver me-2"></i>All Support Tickets
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @if (Model.RecentSupportTickets?.Any() == true)
-                {
-                    <div class="row g-3">
-                        @foreach (var t in Model.RecentSupportTickets)
-                        {
-                            var ticketClass = t.Status switch
-                            {
-                                "Open" => "bg-warning text-dark",
-                                "Closed" => "bg-success text-white",
-                                _ => "bg-secondary text-white"
-                            };
                             <div class="col-12 col-md-6">
                                 <div class="card shadow-sm h-100">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold">@t.Subject</h6>
-                                        <p class="card-text">
-                                            <span class="badge @ticketClass">@t.Status</span><br />
-                                            <small class="text-muted">Created: @t.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="card-title fw-bold mb-1">₱@p.AmountPaid.ToString("N2")</h6>
+                                            <span class="badge @methodClass">@p.Method</span>
+                                        </div>
+                                        <p class="card-text small mb-0" style="color: black;">
+                                            <i class="bi bi-calendar-event me-1"></i>Paid on: @p.PaymentDate.ToString("MMM dd, yyyy")
                                         </p>
                                     </div>
                                 </div>
@@ -176,52 +137,13 @@
                 }
                 else
                 {
-                    <p class="text-muted">No support tickets to show.</p>
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-info-circle me-2"></i>No payments recorded.
+                    </div>
                 }
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Notifications Modal -->
-<div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title fw-bold" id="notificationsModalLabel">
-                    <i class="bi bi-bell me-2"></i>All Notifications
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @if (Model.Notifications?.Any() == true)
-                {
-                    <div class="row g-3">
-                        @foreach (var n in Model.Notifications)
-                        {
-                            <div class="col-12 col-md-6">
-                                <div class="card notif-item shadow-sm h-100" data-id="@n.Id" style="cursor: pointer;" title="Click to mark as read">
-                                    <div class="card-body">
-                                        <h6 class="fw-bold mb-1">@n.Title</h6>
-                                        <small class="text-muted">@n.CreatedAt.ToString("MMM dd, yyyy • hh:mm tt")</small>
-                                        <p class="mb-0 mt-1">@n.Message</p>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center text-muted">
-                        <i class="bi bi-inbox-fill display-6 d-block mb-2"></i>
-                        <p class="mb-0">No notifications to display.</p>
-                    </div>
-                }
-            </div>
+            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-1"></i> Close
