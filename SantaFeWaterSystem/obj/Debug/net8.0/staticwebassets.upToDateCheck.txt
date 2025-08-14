@@ -7,6 +7,7 @@ wwwroot\css\auditlogs-page.css
 wwwroot\css\billing-card.css
 wwwroot\css\billing-history.css
 wwwroot\css\billing.css
+wwwroot\css\contact.css
 wwwroot\css\dark-mode.css
 wwwroot\css\disconnection.css
 wwwroot\css\feedback.css
@@ -20,6 +21,8 @@ wwwroot\css\manage-payments.css
 wwwroot\css\payment-confirmation.css
 wwwroot\css\payment-steps.css
 wwwroot\css\payments.css
+wwwroot\css\privacy-policy-agree.css
+wwwroot\css\privacy-policy.css
 wwwroot\css\privacy.css
 wwwroot\css\profile.css
 wwwroot\css\receipt.css
@@ -41,9 +44,10 @@ wwwroot\images\gcash-qr.png
 wwwroot\images\logo.png
 wwwroot\images\maya-logo.png
 wwwroot\images\maya-qr.png
+wwwroot\images\profiles\20917931-1896-4421-8e55-710c731a2f60.jpeg
 wwwroot\images\profiles\4bd0ea0a-94b4-44f3-8066-9b68919abdd1.jpg
+wwwroot\images\profiles\5f9715d2-2e70-40d5-a99d-3510222e297b.jpg
 wwwroot\images\profiles\default.png
-wwwroot\images\profiles\f226ffab-b7f6-4a62-b4bf-9db458ec0508.jpeg
 wwwroot\images\profiles\user_1_20e04d28-2d67-44a1-ad0a-b3ce6bd97375.png
 wwwroot\images\profiles\user_2_3c33ccfe-3883-4353-b07e-bcffa29e0df5.jpeg
 wwwroot\js\site.js
@@ -109,6 +113,7 @@ wwwroot\service-worker.js
 wwwroot\uploads\receipts\00d6e96c-f757-4339-8087-75bb0e9f8458.png
 wwwroot\uploads\receipts\02ffd9f5-0c43-4407-b67f-ba79e5982253.jpg
 wwwroot\uploads\receipts\048c22f6-9fba-4e76-8bc1-53dbc8b16b96.png
+wwwroot\uploads\receipts\07b3bb00-aea4-46d2-b479-990efe6119f5.jpg
 wwwroot\uploads\receipts\0a747697-17ec-450a-965c-6fc9485a91c1.png
 wwwroot\uploads\receipts\111ab2bb-971e-49b6-a824-845aaeac8e26.jpg
 wwwroot\uploads\receipts\131938cf-6aca-4f41-add2-4f5d3b6be855.jpg
@@ -154,11 +159,14 @@ wwwroot\uploads\receipts\a59fd914-b42a-48ed-a2c8-00713193fd13.png
 wwwroot\uploads\receipts\acf976ae-0e81-432f-9c75-1de80f5da5e2.png
 wwwroot\uploads\receipts\ae52e8c7-f8a1-4399-b05e-7b0d86ade79a.png
 wwwroot\uploads\receipts\b0aaf735-2236-4657-9e18-432b4f0b47fc.png
+wwwroot\uploads\receipts\b37dcd4a-a7a2-41e5-ba64-ef44cc5dded9.png
 wwwroot\uploads\receipts\bbb909e5-d30b-4e8d-b8e6-09d2f795479d.jpg
 wwwroot\uploads\receipts\c18177e1-3659-4daa-a64e-ab876d787d9f.png
 wwwroot\uploads\receipts\caff4347-b90e-421f-a536-6134d96a29fd.png
+wwwroot\uploads\receipts\cc0e77ce-e1f4-42e4-a5b8-242d4b3c7cb9.jpg
 wwwroot\uploads\receipts\d13c79c9-d23f-4b6b-b128-50d49d5dda08.png
 wwwroot\uploads\receipts\dd14d9e4-3be0-41e0-b973-b845be773330.png
+wwwroot\uploads\receipts\df2bb18a-a0af-40c4-ba84-a303850c9675.png
 wwwroot\uploads\receipts\df367904-5ea3-48b0-bec8-20801c4621e9.png
 wwwroot\uploads\receipts\e3a855ac-88a1-40a5-8a7e-c238332c3e50.png
 wwwroot\uploads\receipts\e40c50af-d58a-4cc3-8d0b-c72342092834.png

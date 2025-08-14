@@ -35,6 +35,7 @@
     <h2 class="dashboard-title m-0">
         <i class="bi @iconClass me-2 text-warning"></i>
         <span class="greeting-text">@greeting, @($"{Model.Consumer.FirstName} {Model.Consumer.LastName}".Trim())!</span>
+    </h2>
 </div>
 
 
@@ -137,67 +138,69 @@
                             _ => "bg-secondary text-white"
                         };
 
-                        <div class="clickable-card d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                            <div>
+                        <div class="clickable-card mb-3 p-2">
+                            <!-- Top row: Bill No + Status Badge -->
+                            <div class="d-flex justify-content-between align-items-center flex-wrap mb-1">
                                 <div class="d-flex flex-wrap align-items-center gap-1 text-break">
                                     <i class="bi bi-receipt me-1"></i>
                                     <strong>Bill No:</strong>
                                     <span>@bill.BillNo</span>
                                 </div>
-                                <div class="d-flex flex-wrap align-items-center gap-1 text-break">
-                                    <i class="bi bi-calendar-event me-1"></i>
-                                    <strong>Billing Date:</strong>
-                                    <span>@bill.BillingDate.ToString("MMM dd, yyyy")</span>
-                                </div>
-                                <div class="d-flex flex-wrap align-items-center gap-1 text-break">
-                                    <i class="bi bi-calendar-check me-1"></i>
-                                    <strong>Due Date:</strong>
-                                    <span>@bill.DueDate.ToString("MMM dd, yyyy")</span>
-                                </div>
-                                <div class="d-flex flex-wrap align-items-center gap-1 text-break amount-due">
-                                    <i class="bi bi-currency-exchange me-1"></i>
-                                    <strong>Amount Due:</strong>
-                                    <span>₱@bill.AmountDue.ToString("N2")</span>
-                                </div>
-
-
-                                @if (bill.Penalty > 0)
-                                {
-                                    <div class="d-flex flex-wrap align-items-center gap-1 text-danger text-break">
-                                        <i class="bi bi-exclamation-circle me-1"></i>
-                                        <strong>Overdue Penalty:</strong>
-                                        <span>₱@bill.Penalty.ToString("N2")</span>
-                                    </div>
-                                }
-                                @if ((bill.AdditionalFees ?? 0) > 0)
-                                {
-                                    <div class="d-flex flex-wrap align-items-center gap-1 text-info text-break">
-                                        <i class="bi bi-plus-circle me-1"></i>
-                                        <strong>Additional Fees:</strong>
-                                        <span>₱@bill.AdditionalFees?.ToString("N2")</span>
-                                    </div>
-                                }
-                                @if (bill.Penalty > 0 || (bill.AdditionalFees ?? 0) > 0)
-                                {
-                                    <div class="d-flex flex-wrap align-items-center gap-1 fw-bold text-primary text-break">
-                                        <i class="bi bi-cash-coin me-1"></i>
-                                        <strong>Total Amount:</strong>
-                                        <span>₱@bill.TotalAmount.ToString("N2")</span>
-                                    </div>
-                                }
-
-                                <!-- Combined status and button -->
-                                <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
-                                    <div class="badge-status @statusClass">@bill.Status</div>
-                                    @if (bill.Status == "Unpaid")
-                                    {
-                                        <a href="@Url.Action("Pay", "User", new { billId = bill.Id })"
-                                           class="btn btn-sm btn-primary pay-now-btn">
-                                            Pay Now
-                                        </a>
-                                    }
-                                </div>
+                                <div class="badge @statusClass">@bill.Status</div>
                             </div>
+
+                            <!-- Other bill details -->
+                            <div class="d-flex flex-wrap align-items-center gap-1 text-break mb-1">
+                                <i class="bi bi-calendar-event me-1"></i>
+                                <strong>Billing Date:</strong>
+                                <span>@bill.BillingDate.ToString("MMM dd, yyyy")</span>
+                            </div>
+                            <div class="d-flex flex-wrap align-items-center gap-1 text-break mb-1">
+                                <i class="bi bi-calendar-check me-1"></i>
+                                <strong>Due Date:</strong>
+                                <span>@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                            </div>
+                            <div class="d-flex flex-wrap align-items-center gap-1 text-break amount-due mb-1">
+                                <i class="bi bi-currency-exchange me-1"></i>
+                                <strong>Amount Due:</strong>
+                                <span>₱@bill.AmountDue.ToString("N2")</span>
+                            </div>
+
+                            @if (bill.Penalty > 0)
+                            {
+                                <div class="d-flex flex-wrap align-items-center gap-1 text-danger text-break mb-1">
+                                    <i class="bi bi-exclamation-circle me-1"></i>
+                                    <strong>Overdue Penalty:</strong>
+                                    <span>₱@bill.Penalty.ToString("N2")</span>
+                                </div>
+                            }
+                            @if ((bill.AdditionalFees ?? 0) > 0)
+                            {
+                                <div class="d-flex flex-wrap align-items-center gap-1 text-info text-break mb-1">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    <strong>Additional Fees:</strong>
+                                    <span>₱@bill.AdditionalFees?.ToString("N2")</span>
+                                </div>
+                            }
+                            @if (bill.Penalty > 0 || (bill.AdditionalFees ?? 0) > 0)
+                            {
+                                <div class="d-flex flex-wrap align-items-center gap-1 fw-bold text-primary text-break mb-1">
+                                    <i class="bi bi-cash-coin me-1"></i>
+                                    <strong>Total Amount:</strong>
+                                    <span>₱@bill.TotalAmount.ToString("N2")</span>
+                                </div>
+                            }
+
+                            <!-- Pay Now Button -->
+                            @if (bill.Status == "Unpaid")
+                            {
+                                <div class="mt-2 d-flex justify-content-end">
+                                    <a href="@Url.Action("Pay", "User", new { billId = bill.Id })"
+                                       class="btn btn-sm btn-primary pay-now-btn">
+                                        Pay Now
+                                    </a>
+                                </div>
+                            }
                         </div>
                     }
                 }

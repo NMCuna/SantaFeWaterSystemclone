@@ -231,6 +231,51 @@ namespace SantaFeWaterSystem.Migrations
                     b.ToTable("Consumers");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.ContactInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FacebookName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FacebookUrl")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("IntroText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("WaterMeterHeading")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WaterMeterInstructions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactInfos");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.Disconnection", b =>
                 {
                     b.Property<int>("Id")
@@ -608,7 +653,89 @@ namespace SantaFeWaterSystem.Migrations
                             Id = 31,
                             Description = "Permission to verify payment records",
                             Name = "VerifyPayment"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Description = "Permission to manage privacy policies",
+                            Name = "ManagePrivacyPolicy"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Description = "Permission to manage contact information",
+                            Name = "ManageContact"
                         });
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.PrivacyPolicy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("PrivacyPolicies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Content = "This is the default privacy policy.",
+                            CreatedAt = new DateTime(2025, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Default Privacy Policy",
+                            Version = 1
+                        });
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.PrivacyPolicySection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PrivacyPolicyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SectionTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrivacyPolicyId");
+
+                    b.ToTable("PrivacyPolicySections");
                 });
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.Rate", b =>
@@ -838,6 +965,36 @@ namespace SantaFeWaterSystem.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.UserPrivacyAgreement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AgreedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ConsumerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PolicyVersion")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PrivacyPolicyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrivacyPolicyId");
+
+                    b.HasIndex("ConsumerId", "PolicyVersion")
+                        .IsUnique();
+
+                    b.ToTable("UserPrivacyAgreements");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.UserPushSubscription", b =>
                 {
                     b.Property<int>("Id")
@@ -966,6 +1123,17 @@ namespace SantaFeWaterSystem.Migrations
                     b.Navigation("Consumer");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.PrivacyPolicySection", b =>
+                {
+                    b.HasOne("SantaFeWaterSystem.Models.PrivacyPolicy", "PrivacyPolicy")
+                        .WithMany("Sections")
+                        .HasForeignKey("PrivacyPolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PrivacyPolicy");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.SmsLog", b =>
                 {
                     b.HasOne("SantaFeWaterSystem.Models.Consumer", "Consumer")
@@ -1005,6 +1173,23 @@ namespace SantaFeWaterSystem.Migrations
                     b.Navigation("Consumer");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.UserPrivacyAgreement", b =>
+                {
+                    b.HasOne("SantaFeWaterSystem.Models.Consumer", "Consumer")
+                        .WithMany()
+                        .HasForeignKey("ConsumerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SantaFeWaterSystem.Models.PrivacyPolicy", "Policy")
+                        .WithMany()
+                        .HasForeignKey("PrivacyPolicyId");
+
+                    b.Navigation("Consumer");
+
+                    b.Navigation("Policy");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.UserPushSubscription", b =>
                 {
                     b.HasOne("SantaFeWaterSystem.Models.User", "User")
@@ -1026,6 +1211,11 @@ namespace SantaFeWaterSystem.Migrations
                     b.Navigation("Billings");
 
                     b.Navigation("Notifications");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.PrivacyPolicy", b =>
+                {
+                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.User", b =>

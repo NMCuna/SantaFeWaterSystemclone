@@ -1,195 +1,56 @@
-﻿ @{
+﻿@model SantaFeWaterSystem.Models.PrivacyPolicy
+@{
     ViewData["Title"] = "Privacy Policy";
-    var lang = Context.Request.Query["lang"].ToString().ToLower();
-    if (string.IsNullOrEmpty(lang)) lang = "en";
-
-    var text = new Dictionary<string, string>();
-    switch (lang)
-    {
-        case "fil":
-            text["Title"] = "Patakaran sa Privacy";
-            text["Intro"] = "Mahalaga sa amin ang iyong privacy. Basahin ang mga sumusunod upang malaman kung paano namin pinoprotektahan ang iyong impormasyon.";
-            text["Section1"] = "Impormasyon na Kinokolekta";
-            text["Desc1"] = "Kinokolekta namin ang personal na impormasyon gaya ng iyong pangalan, detalye ng pakikipag-ugnayan, numero ng account, at paggamit ng tubig para sa pagsingil at suporta.";
-            text["Section2"] = "Paano Namin Ginagamit ang Iyong Impormasyon";
-            text["Desc2"] = "Ginagamit namin ang iyong impormasyon upang makabuo ng mga bill, subaybayan ang mga bayad, magbigay ng mga update, at tiyakin ang tamang serbisyo ng tubig.";
-            text["Section3"] = "Proteksyon sa Datos";
-            text["Desc3"] = "Lahat ng personal na impormasyon ay ligtas na nakaimbak at may limitadong access. Gumagamit kami ng makabagong teknolohiya sa seguridad.";
-            text["Section4"] = "Iyong mga Karapatan";
-            text["Desc4"] = "Maaari mong tingnan o humiling ng pagwawasto sa iyong impormasyon sa pamamagitan ng pakikipag-ugnayan sa aming support team.";
-            text["Section5"] = "Makipag-ugnayan";
-            text["Desc5"] = "Kung may katanungan ka tungkol sa patakarang ito, makipag-ugnayan sa amin sa";
-            text["Accept"] = "Inaamin at tinatanggap ko ang patakaran sa privacy.";
-            text["Back"] = "Bumalik sa Home";
-            text["Updated"] = "Huling Update: Hunyo 18, 2025";
-            break;
-        case "ceb":
-            text["Title"] = "Palisiya sa Privacy";
-            text["Intro"] = "Importante kanamo ang imong privacy. Palihug basaha kini aron masabtan kung giunsa namo pagpanalipod sa imong impormasyon.";
-            text["Section1"] = "Impormasyon nga among Gikolekta";
-            text["Desc1"] = "Nangolekta kami og personal nga impormasyon sama sa imong ngalan, contact details, account number, ug paggamit sa tubig para sa billing ug suporta.";
-            text["Section2"] = "Giunsa Paggamit ang Imong Impormasyon";
-            text["Desc2"] = "Gigamit namo ang imong impormasyon aron sa paghimo og bills, pagsubay sa bayad, pagpadala og update, ug pagsiguro sa tukmang serbisyo sa tubig.";
-            text["Section3"] = "Pagpanalipod sa Datos";
-            text["Desc3"] = "Tanang personal nga datos among gipanalipdan ug gi-encrypt. Gigamit namo ang modernong teknolohiya sa seguridad.";
-            text["Section4"] = "Imong mga Katungod";
-            text["Desc4"] = "Pwede ka mangayo og access o pag-usab sa imong personal nga datos pinaagi sa among support team.";
-            text["Section5"] = "Kontaka Kami";
-            text["Desc5"] = "Kung naa kay mga pangutana bahin sa palisiya, kontaka kami sa";
-            text["Accept"] = "Ako nagdawat ug misabot sa palisiya sa privacy.";
-            text["Back"] = "Balik sa Home";
-            text["Updated"] = "Katapusang Update: Hunyo 18, 2025";
-            break;
-        default:
-            text["Title"] = "Privacy Policy";
-            text["Intro"] = "Your privacy is important to us. Please read below to learn how we handle your data securely and respectfully.";
-            text["Section1"] = "Information We Collect";
-            text["Desc1"] = "We collect personal information such as your name, contact details, account number, and water usage to provide billing and support services.";
-            text["Section2"] = "How We Use Your Information";
-            text["Desc2"] = "We use your information to generate bills, track payments, notify you of updates, and ensure accurate water service delivery.";
-            text["Section3"] = "Data Protection";
-            text["Desc3"] = "All personal data is securely stored and access is restricted. We use modern encryption and system security practices.";
-            text["Section4"] = "Your Rights";
-            text["Desc4"] = "You may view or request corrections to your personal data by contacting our support team.";
-            text["Section5"] = "Contact";
-            text["Desc5"] = "If you have questions about this policy, contact us at";
-            text["Accept"] = "I acknowledge and accept the privacy policy.";
-            text["Back"] = "Back to Home";
-            text["Updated"] = "Last Updated: June 18, 2025";
-            break;
-    }
 }
 
 @section Styles {
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-    <link href="~/css/privacy.css" rel="stylesheet" asp-append-version="true" />
-    <style>
-        /* Fallback to show content if AOS fails */
-        [data-aos] {
-            opacity: 1 !important;
-            transform: none !important;
-        }
-        /* Font scaling using clamp */
-        h1.privacy-title {
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
-        }
-
-        .privacy-section-title {
-            font-size: clamp(1rem, 4vw, 1.25rem);
-            font-weight: 600;
-        }
-
-        .privacy-box p {
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-            line-height: 1.6;
-            word-wrap: break-word;
-            word-break: break-word;
-        }
-
-        .form-check-label,
-        .btn,
-        .lead {
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
-        }
-
-        .back-home-btn .btn {
-            font-size: clamp(1rem, 4vw, 1.2rem);
-        }
-
-        /* Ensure all content visible even if AOS fails */
-        [data-aos] {
-            opacity: 1 !important;
-            transform: none !important;
-        }
-
-        /* Optional: spacing tweak for very small screens */
-        @@media (max-width: 576px) {
-            .privacy-box
-
-        {
-            padding: 1rem;
-        }
-
-        .privacy-title,
-        .privacy-section-title,
-        .privacy-box p,
-        .form-check-label {
-            text-align: left;
-        }
-
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/privacy-policy.css" asp-append-version="true" />
 }
 
-<div class="container py-5">
-    <div class="lang-switch text-end mb-3">
-        <a class="btn btn-sm btn-outline-primary" href="?lang=en">EN</a>
-        <a class="btn btn-sm btn-outline-primary" href="?lang=fil">FIL</a>
-        <a class="btn btn-sm btn-outline-primary" href="?lang=ceb">CEB</a>
-    </div>
-
+<div class="container pt-3">
+    <!-- reduced top padding -->
     <div class="row justify-content-center">
-        <div class="col-12 col-md-11 col-lg-10">
-            <div class="text-center mb-5" data-aos="fade-down">
-                <h1 class="privacy-title text-success">@text["Title"]</h1>
-                <p class="lead text-muted">@text["Intro"]</p>
+        <div class="col-12 col-md-10 col-lg-8">
+
+            <!-- Title -->
+            <div class="text-center mb-3">
+                <!-- reduced bottom margin -->
+                <h1 class="privacy-title">@Model.Title</h1>
+                <p class="text-muted mb-0">Last Updated: @Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
             </div>
 
-            <div class="privacy-box">
-                <h5 class="privacy-section-title aos-init aos-animate" data-aos="flip-left">
-                    <i class="bi bi-shield-lock me-2 text-success"></i>1. @text["Section1"]
-                </h5>
-                <p class="aos-init aos-animate" data-aos="fade-up">@text["Desc1"]</p>
+           
 
-                <h5 class="privacy-section-title aos-init aos-animate" data-aos="flip-left">
-                    <i class="bi bi-gear me-2 text-success"></i>2. @text["Section2"]
-                </h5>
-                <p class="aos-init aos-animate" data-aos="fade-up">@text["Desc2"]</p>
+            <!-- Policy Content (scrollable) -->
+            <div class="privacy-box border rounded shadow-sm privacy-scrollable">
+                @if (!string.IsNullOrWhiteSpace(Model.Content))
+                {
+                    <p class="privacy-intro text-center">@Model.Content</p>
+                }
 
-                <h5 class="privacy-section-title aos-init aos-animate" data-aos="flip-left">
-                    <i class="bi bi-lock me-2 text-success"></i>3. @text["Section3"]
-                </h5>
-                <p class="aos-init aos-animate" data-aos="fade-up">@text["Desc3"]</p>
 
-                <h5 class="privacy-section-title aos-init aos-animate" data-aos="flip-left">
-                    <i class="bi bi-person-check me-2 text-success"></i>4. @text["Section4"]
-                </h5>
-                <p class="aos-init aos-animate" data-aos="fade-up">@text["Desc4"]</p>
 
-                <h5 class="privacy-section-title aos-init aos-animate" data-aos="flip-left">
-                    <i class="bi bi-envelope-fill me-2 text-success"></i>5. @text["Section5"]
-                </h5>
-                <p class="aos-init aos-animate" data-aos="fade-up">
-                    @text["Desc5"] <a href="mailto:support@santafewater.com">support@santafewater.com</a>
-                </p>
+                <!-- Sections -->
+                @if (Model.Sections != null && Model.Sections.Any(s => s.IsActive))
+                {
+                    @foreach (var sec in Model.Sections.Where(s => s.IsActive))
+                    {
+                        <div class="privacy-section mb-3">
+                            <h5 class="privacy-section-title">@sec.SectionTitle</h5>
+                            <p class="privacy-section-content">@sec.Content</p>
+                        </div>
+                    }
+                }
 
-                <div class="form-check mt-4 aos-init aos-animate" data-aos="fade-in">
-                    <input class="form-check-input" type="checkbox" id="agreeCheckbox">
-                    <label class="form-check-label" for="agreeCheckbox">@text["Accept"]</label>
-                </div>
-
-                <div class="text-center mt-4 back-home-btn aos-init aos-animate" data-aos="zoom-in">
-                    <a href="/" class="btn btn-outline-success btn-lg disabled" id="proceedBtn">
-                        <i class="bi bi-house-door-fill me-1"></i>@text["Back"]
-                    </a>
-                </div>
-
-                <p class="text-muted text-end mt-4 aos-init aos-animate" data-aos="fade-in">@text["Updated"]</p>
             </div>
+
+            <!-- Back to Home Button -->
+            <div class="text-center mt-4">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-house-door-fill"></i> Back to Home
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-    <script>
-        AOS.init({ duration: 800, once: true });
-
-        const checkbox = document.getElementById("agreeCheckbox");
-        const proceedBtn = document.getElementById("proceedBtn");
-        checkbox.addEventListener("change", function () {
-            proceedBtn.classList.toggle("disabled", !this.checked);
-        });
-    </script>
-}

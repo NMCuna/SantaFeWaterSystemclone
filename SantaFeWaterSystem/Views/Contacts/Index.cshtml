@@ -1,0 +1,41 @@
+﻿@model IEnumerable<SantaFeWaterSystem.Models.ContactInfo>
+@{
+    ViewData["Title"] = "Manage Contacts";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Manage Contacts</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Add New Contact</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Facebook</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in Model)
+        {
+            <tr>
+                <td>@contact.Phone</td>
+                <td>@contact.Email</td>
+                <td><a href="@contact.FacebookUrl" target="_blank">@contact.FacebookName</a></td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@contact.Id" class="btn btn-sm btn-primary">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@contact.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

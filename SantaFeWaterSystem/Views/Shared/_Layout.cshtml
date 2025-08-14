@@ -16,13 +16,7 @@
     <!-- Custom External Styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/login.css" />
-    <link rel="stylesheet" href="~/css/user-login.css" />
-    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
-
-
+    
     @RenderSection("Styles", required: false)
 
 </head>
@@ -111,11 +105,18 @@
         </main>
     </div>
 
-    <footer class="footer text-center border-top mt-5 py-3 bg-light">
-        <div class="container">
-            &copy; 2025 - Santa Fe Water Billing System - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer border-top mt-5 py-3 bg-light">
+        <div class="container d-flex justify-content-center flex-wrap">
+            <span class="text-nowrap">&copy; @DateTime.Now.Year - Santa Fe Water Billing System -</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <span class="text-nowrap">|</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Index">Home</a>
+            <span class="text-nowrap">|</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Contact">Contact</a>
         </div>
     </footer>
+
+
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

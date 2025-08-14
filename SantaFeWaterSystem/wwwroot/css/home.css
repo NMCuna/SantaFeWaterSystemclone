@@ -1,6 +1,18 @@
-﻿body {
+﻿html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* remove horizontal scroll */
+}
+
+/* Limit decoration overflow so they don't push scrollbars */
+.svg-wave,
+.drop-behind,
+.bubble {
+    overflow: hidden;
+}
+
+body {
     background: linear-gradient(to bottom, #e8f5e9, #ffffff);
-    overflow-x: hidden;
 }
 
 /* 🌊 Animated Wave Background */
@@ -258,6 +270,7 @@
         background-color: #2e7d32;
         box-shadow: 0 0 15px rgba(46, 125, 50, 0.5);
     }
+
 /* Glowing gradient ring for icon circle */
 .icon-circle {
     position: relative;
@@ -273,7 +286,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-    /* ::before creates animated glowing border */
     .icon-circle::before {
         content: '';
         position: absolute;
@@ -282,14 +294,13 @@
         width: 96px;
         height: 96px;
         border-radius: 50%;
-        background: conic-gradient( from 0deg, #0d6efd, #198754, #d63384, #0dcaf0, #0d6efd );
+        background: conic-gradient(from 0deg, #0d6efd, #198754, #d63384, #0dcaf0, #0d6efd);
         z-index: -1;
         animation: rotateGlow 4s linear infinite;
         filter: blur(8px);
         opacity: 0.7;
     }
 
-/* Smooth gradient rotation */
 @keyframes rotateGlow {
     0% {
         transform: rotate(0deg);
@@ -302,15 +313,11 @@
 
 /* Pulse the entire card gently */
 .home-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 12px;
-    background-color: #ffffff;
     animation: pulseCard 6s ease-in-out infinite;
     position: relative;
     overflow: hidden;
 }
 
-/* Pulse animation */
 @keyframes pulseCard {
     0%, 100% {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
@@ -333,6 +340,7 @@
 .card-pink .icon-circle::before {
     background: conic-gradient(from 0deg, #d63384, #f88abb, #d63384);
 }
+
 @media (max-width: 320px) {
     .btn-login {
         padding-left: 1rem !important;

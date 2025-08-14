@@ -37,7 +37,7 @@ namespace SantaFeWaterSystem.Controllers
         {
             var today = DateTime.Today;
 
-            // Step 1: Get overdue billing info grouped by ConsumerId
+            // Step 1: Get overdue billing info grouped by ConsumerId (materialized in memory)
             var overdueGrouped = await _context.Billings
                 .Where(b => !b.IsPaid && b.DueDate < today)
                 .GroupBy(b => b.ConsumerId)
@@ -49,48 +49,45 @@ namespace SantaFeWaterSystem.Controllers
                     TotalUnpaidAmount = g.Sum(b => b.TotalAmount),
                     LatestDueDate = g.Max(b => b.DueDate)
                 })
-                .ToListAsync();
+                .ToListAsync(); // ✅ Now in memory
 
-            var consumerIds = overdueGrouped.Select(g => g.ConsumerId).ToList();
-
-            // Step 2: Fetch consumer data
-            var consumers = await _context.Consumers
-                .Where(c => consumerIds.Contains(c.Id))
-                .ToListAsync();
-
-            // Step 3: Join consumers with their overdue billing data
-            var disconnectionData = (from c in consumers
-                                     join b in overdueGrouped on c.Id equals b.ConsumerId
-                                     select new DisconnectionViewModel
-                                     {
-                                         ConsumerId = c.Id,
-                                         ConsumerName = c.FullName,
-                                         OverdueBillsCount = b.OverdueBillsCount,
-                                         TotalUnpaidAmount = b.TotalUnpaidAmount,
-                                         LatestDueDate = b.LatestDueDate,
-                                         IsDisconnected = c.IsDisconnected
-                                     }).ToList();
+            // Step 2 & 3: Switch Consumers query to in-memory before join
+            var disconnectionData = _context.Consumers
+                .AsEnumerable() // ✅ Forces client-side join
+                .Join(overdueGrouped,
+                    c => c.Id,
+                    b => b.ConsumerId,
+                    (c, b) => new DisconnectionViewModel
+                    {
+                        ConsumerId = c.Id,
+                        ConsumerName = c.FullName,
+                        OverdueBillsCount = b.OverdueBillsCount,
+                        TotalUnpaidAmount = b.TotalUnpaidAmount,
+                        LatestDueDate = b.LatestDueDate,
+                        IsDisconnected = c.IsDisconnected
+                    })
+                .AsQueryable();
 
             // Step 4: Search filter
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.ToLower();
                 disconnectionData = disconnectionData
-                    .Where(d => d.ConsumerName.ToLower().Contains(searchTerm) || d.ConsumerId.ToString().Contains(searchTerm))
-                    .ToList();
+                    .Where(d => d.ConsumerName.ToLower().Contains(searchTerm) ||
+                                d.ConsumerId.ToString().Contains(searchTerm));
             }
 
             // Step 5: Sorting
             disconnectionData = sortOrder switch
             {
-                "name_desc" => disconnectionData.OrderByDescending(d => d.ConsumerName).ToList(),
-                "overdue" => disconnectionData.OrderBy(d => d.OverdueBillsCount).ToList(),
-                "overdue_desc" => disconnectionData.OrderByDescending(d => d.OverdueBillsCount).ToList(),
-                "amount" => disconnectionData.OrderBy(d => d.TotalUnpaidAmount).ToList(),
-                "amount_desc" => disconnectionData.OrderByDescending(d => d.TotalUnpaidAmount).ToList(),
-                "date" => disconnectionData.OrderBy(d => d.LatestDueDate).ToList(),
-                "date_desc" => disconnectionData.OrderByDescending(d => d.LatestDueDate).ToList(),
-                _ => disconnectionData.OrderBy(d => d.ConsumerName).ToList()
+                "name_desc" => disconnectionData.OrderByDescending(d => d.ConsumerName),
+                "overdue" => disconnectionData.OrderBy(d => d.OverdueBillsCount),
+                "overdue_desc" => disconnectionData.OrderByDescending(d => d.OverdueBillsCount),
+                "amount" => disconnectionData.OrderBy(d => d.TotalUnpaidAmount),
+                "amount_desc" => disconnectionData.OrderByDescending(d => d.TotalUnpaidAmount),
+                "duedate" => disconnectionData.OrderBy(d => d.LatestDueDate),
+                "duedate_desc" => disconnectionData.OrderByDescending(d => d.LatestDueDate),
+                _ => disconnectionData.OrderBy(d => d.ConsumerName)
             };
 
             // Step 6: Pagination
@@ -102,12 +99,14 @@ namespace SantaFeWaterSystem.Controllers
 
             var paginated = new PaginatedList<DisconnectionViewModel>(items, count, page, pageSize);
 
+            // ✅ Pass values to view for search + sorting persistence
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.SearchTerm = searchTerm;
+
             return View(paginated);
         }
 
 
-
-        
         // GET: Disconnection/Details/5
         public async Task<IActionResult> Details(int id)
         {

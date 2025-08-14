@@ -421,7 +421,28 @@
             {
                 <nav>
                     <ul class="pagination justify-content-center">
-                        @for (int i = 1; i <= Model.TotalPages; i++)
+
+                        <!-- Previous button -->
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link"
+                                   asp-action="ManageUsers"
+                                   asp-route-roleFilter="User"
+                                   asp-route-searchTerm="@ViewBag.UserSearchTerm"
+                                   asp-route-page="@(Model.CurrentPage - 1)">
+                                    &laquo; Previous
+                                </a>
+                            </li>
+                        }
+
+                        @{
+                            // Show only 3 page numbers: current - 1, current, current + 1
+                            int startPage = Math.Max(1, Model.CurrentPage - 1);
+                            int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 1);
+                        }
+
+                        @for (int i = startPage; i <= endPage; i++)
                         {
                             <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
                                 <a class="page-link"
@@ -431,9 +452,25 @@
                                    asp-route-page="@i">@i</a>
                             </li>
                         }
+
+                        <!-- Next button -->
+                        @if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link"
+                                   asp-action="ManageUsers"
+                                   asp-route-roleFilter="User"
+                                   asp-route-searchTerm="@ViewBag.UserSearchTerm"
+                                   asp-route-page="@(Model.CurrentPage + 1)">
+                                    Next &raquo;
+                                </a>
+                            </li>
+                        }
+
                     </ul>
                 </nav>
             }
+
 
         </div>
     </div>

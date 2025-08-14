@@ -33,14 +33,15 @@
 
         <div class="row g-3 mb-3 align-items-center justify-content-center">
             <div class="col-12 text-center">
-                <!-- Preview Image -->
+                <!-- Preview Image (clickable for modal) -->
                 <img id="previewImage"
                      src="~/images/profiles/@(Model.ExistingProfilePicture ?? "default.png")"
                      class="rounded-circle shadow-sm mb-3"
                      loading="lazy"
-                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0 10px rgba(0,123,255,0.5);"
-                     alt="Profile Picture" />
-
+                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0 10px rgba(0,123,255,0.5); cursor: pointer;"
+                     alt="Profile Picture"
+                     data-bs-toggle="modal"
+                     data-bs-target="#profilePreviewModal" />
             </div>
 
             <div class="col-12 text-center">
@@ -48,7 +49,6 @@
                     <i class="bi bi-camera-fill me-2"></i>Change Profile Picture
                 </label>
 
-                <!-- Action Buttons -->
                 <div class="d-flex justify-content-center flex-nowrap gap-2 mb-2" style="overflow-x: auto;">
                     <button type="button" class="btn btn-success btn-sm d-flex align-items-center justify-content-center px-2 flex-shrink-1 text-nowrap"
                             onclick="document.getElementById('cameraInput').click();">
@@ -60,8 +60,6 @@
                         <i class="bi bi-image me-1"></i> Choose from Gallery
                     </button>
                 </div>
-
-
 
                 <!-- Hidden File Inputs -->
                 <input type="file"
@@ -80,7 +78,6 @@
                 <span asp-validation-for="ProfileImage" class="text-danger small"></span>
             </div>
         </div>
-
 
         <div class="row g-2">
             <div class="col-12 col-sm-6">
@@ -133,10 +130,39 @@
                 <span class="text-nowrap">Change Password</span>
             </a>
         </div>
-
-
-
     </form>
+</div>
+
+<!-- Profile Picture Preview Modal -->
+<div class="modal fade" id="profilePreviewModal" tabindex="-1" aria-labelledby="profilePreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0 shadow-none">
+            <div class="modal-body p-0 text-center">
+                <img id="modalPreviewImage"
+                     src=""
+                     class="img-fluid rounded shadow"
+                     style="max-height: 80vh; object-fit: contain;"
+                     alt="Profile Preview" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Picture Preview Modal -->
+<div class="modal fade" id="profilePreviewModal" tabindex="-1" aria-labelledby="profilePreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0 shadow-none">
+            <div class="modal-body p-0 text-center">
+                <div id="imageContainer" style="overflow: hidden; display: inline-block; cursor: grab;">
+                    <img id="modalPreviewImage"
+                         src=""
+                         class="img-fluid rounded shadow"
+                         style="max-height: 80vh; object-fit: contain; transform-origin: center;"
+                         alt="Profile Preview" />
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -144,46 +170,81 @@
         const previewImage = document.getElementById('previewImage');
         const cameraInput = document.getElementById('cameraInput');
         const galleryInput = document.getElementById('galleryInput');
-        const imageUpload = document.getElementById('imageUpload');
-        const uploadLabel = document.querySelector('.upload-label');
+        const modalPreviewImage = document.getElementById('modalPreviewImage');
+        const imageContainer = document.getElementById('imageContainer');
 
-        // Optional: if you're still using an extra #imageUpload input
-        if (imageUpload) {
-            imageUpload.addEventListener('change', function (event) {
-                const file = event.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        previewImage.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        // Optional: if a clickable label triggers #imageUpload
-        if (uploadLabel && imageUpload) {
-            uploadLabel.addEventListener('click', function () {
-                imageUpload.click();
-            });
-        }
+        // Update modal image when profile picture is clicked
+        previewImage.addEventListener('click', function () {
+            modalPreviewImage.src = this.src;
+            resetZoomAndPosition();
+        });
 
         // Camera & Gallery preview
         function updatePreview(input) {
             const file = input.files[0];
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
-                reader.onload = e => previewImage.src = e.target.result;
+                reader.onload = e => {
+                    previewImage.src = e.target.result;
+                    modalPreviewImage.src = e.target.result;
+                };
                 reader.readAsDataURL(file);
             }
         }
 
-        if (cameraInput) {
-            cameraInput.addEventListener('change', () => updatePreview(cameraInput));
+        if (cameraInput) cameraInput.addEventListener('change', () => updatePreview(cameraInput));
+        if (galleryInput) galleryInput.addEventListener('change', () => updatePreview(galleryInput));
+
+        // Zoom & Drag functionality
+        let scale = 1;
+        let isDragging = false;
+        let startX, startY, currentX = 0, currentY = 0;
+
+        function resetZoomAndPosition() {
+            scale = 1;
+            currentX = 0;
+            currentY = 0;
+            updateTransform();
         }
 
-        if (galleryInput) {
-            galleryInput.addEventListener('change', () => updatePreview(galleryInput));
+        function updateTransform() {
+            modalPreviewImage.style.transform =
+                `translate(${currentX}px, ${currentY}px) scale(${scale})`;
         }
+
+        // Zoom with mouse wheel
+        imageContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomSpeed = 0.1;
+            if (e.deltaY < 0) {
+                scale = Math.min(scale + zoomSpeed, 5); // Max zoom x5
+            } else {
+                scale = Math.max(scale - zoomSpeed, 1); // Min zoom x1
+            }
+            updateTransform();
+        });
+
+        // Drag functionality
+        imageContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - currentX;
+            startY = e.clientY - currentY;
+            imageContainer.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            imageContainer.style.cursor = 'grab';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX - startX;
+            currentY = e.clientY - startY;
+            updateTransform();
+        });
+
+        // Reset zoom when modal closes
+        document.getElementById('profilePreviewModal').addEventListener('hidden.bs.modal', resetZoomAndPosition);
     </script>
 }

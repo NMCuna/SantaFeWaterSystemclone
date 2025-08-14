@@ -26,8 +26,11 @@ namespace SantaFeWaterSystem.Data
         public DbSet<SmsLog> SmsLogs { get; set; }
         public DbSet<BillNotification> BillNotifications { get; set; }
         public DbSet<UserPushSubscription> UserPushSubscriptions { get; set; }
+        public DbSet<PrivacyPolicy> PrivacyPolicies { get; set; }
+        public DbSet<PrivacyPolicySection> PrivacyPolicySections { get; set; }
 
-
+        public DbSet<UserPrivacyAgreement> UserPrivacyAgreements { get; set; }
+        public DbSet<ContactInfo> ContactInfos { get; set; }
 
 
 
@@ -116,7 +119,33 @@ namespace SantaFeWaterSystem.Data
                 .HasForeignKey(d => d.BillingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-           
+            // Unique constraints
+            modelBuilder.Entity<PrivacyPolicy>()
+                .HasIndex(p => p.Version)
+                .IsUnique();
+            modelBuilder.Entity<PrivacyPolicySection>()
+    .HasOne(s => s.PrivacyPolicy)
+    .WithMany(p => p.Sections)
+    .HasForeignKey(s => s.PrivacyPolicyId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<UserPrivacyAgreement>()
+                .HasIndex(a => new { a.ConsumerId, a.PolicyVersion })
+                .IsUnique();
+
+            // Seed a default policy (version 1)
+            modelBuilder.Entity<PrivacyPolicy>().HasData(
+     new PrivacyPolicy
+     {
+         Id = 1,
+         Title = "Default Privacy Policy",
+         Content = "This is the default privacy policy.",
+         Version = 1,
+         CreatedAt = new DateTime(2025, 8, 14) // <-- fixed date
+     }
+ );
+
 
 
 
@@ -152,7 +181,9 @@ namespace SantaFeWaterSystem.Data
     new Permission { Id = 28, Name = "ViewPayment", Description = "Permission to view payment records" },
     new Permission { Id = 29, Name = "EditPayment", Description = "Permission to edit payment records" },
     new Permission { Id = 30, Name = "DeletePayment", Description = "Permission to delete payment records" },
-    new Permission { Id = 31, Name = "VerifyPayment", Description = "Permission to verify payment records" }
+    new Permission { Id = 31, Name = "VerifyPayment", Description = "Permission to verify payment records" },
+    new Permission { Id = 32, Name = "ManagePrivacyPolicy", Description = "Permission to manage privacy policies" },
+    new Permission { Id = 33, Name = "ManageContact", Description = "Permission to manage contact information" }
 );
         }
 

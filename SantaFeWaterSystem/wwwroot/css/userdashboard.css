@@ -156,3 +156,36 @@ body.dark-mode .amount-line {
     overflow: hidden;
 }
 
+/* Base style: Use clamp for fluid font scaling */
+.clickable-card {
+    font-size: clamp(14px, 2.5vw, 18px); /* min 14px, max 18px */
+    line-height: 1.5;
+}
+
+
+    /* Make icons scale with text */
+    .clickable-card i {
+        font-size: 1em;
+    }
+
+    /* Adjust badge size */
+    .clickable-card .badge {
+        font-size: 0.85em;
+        padding: 0.35em 0.6em;
+    }
+
+/* Tighten spacing for small screens */
+@media (max-width: 360px) {
+    .clickable-card {
+        padding: 0.5rem;
+    }
+
+        .clickable-card strong {
+            font-size: 0.9em;
+        }
+
+        .clickable-card .btn {
+            font-size: 0.85em;
+            padding: 0.25rem 0.5rem;
+        }
+}

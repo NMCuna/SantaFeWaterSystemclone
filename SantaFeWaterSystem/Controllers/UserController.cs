@@ -48,6 +48,7 @@ namespace SantaFeWaterSystem.Controllers
             if (consumer == null)
                 return Content("Consumer information not found.");
 
+
             ViewBag.IsMfaEnabled = consumer.User?.IsMfaEnabled ?? false;
 
             // ✅ Get latest 5 bills (can be changed if needed)

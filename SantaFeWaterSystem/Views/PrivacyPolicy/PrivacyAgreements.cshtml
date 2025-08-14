@@ -1,0 +1,37 @@
+﻿@model IEnumerable<SantaFeWaterSystem.Models.UserPrivacyAgreement>
+
+@{
+    ViewData["Title"] = "User Privacy Agreements";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>User Privacy Agreements</h2>
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-secondary">Open Policies</a>
+    <a asp-action="Create" asp-controller="PrivacyPolicy" class="btn btn-success">Create New Policy</a>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>User Account</th>
+            <th>User Name</th>
+            <th>Consumer Name</th>
+            <th>Policy Version</th>
+            <th>Agreed At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var agreement in Model)
+        {
+            <tr>
+                <td>@agreement.Consumer.User.AccountNumber</td>
+                <td>@agreement.Consumer.User.Username</td>
+                <td>@agreement.Consumer.FullName</td>
+                <td>@agreement.PolicyVersion</td>
+                <td>@agreement.AgreedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+            </tr>
+        }
+    </tbody>
+</table>

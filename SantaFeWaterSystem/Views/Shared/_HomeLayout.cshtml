@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Santa Fe Water Billing System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-primary text-white py-3 mb-4">
+        <div class="container text-center">
+            <h1 class="h4 mb-0">Santa Fe Water Billing System</h1>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main role="main" class="container mb-5">
+        @RenderBody()
+    </main>
+
+
+    <footer class="footer border-top mt-5 py-3 bg-light">
+        <div class="container d-flex justify-content-center flex-wrap">
+            <span class="text-nowrap">&copy; @DateTime.Now.Year - Santa Fe Water Billing System -</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <span class="text-nowrap">|</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Index">Home</a>
+            <span class="text-nowrap">|</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Contact">Contact</a>
+        </div>
+    </footer>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

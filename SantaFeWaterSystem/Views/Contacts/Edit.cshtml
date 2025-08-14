@@ -1,0 +1,57 @@
+﻿@model SantaFeWaterSystem.Models.ContactInfo
+@{
+    ViewData["Title"] = "Edit Contact";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Edit Contact</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FacebookUrl" class="form-label"></label>
+        <input asp-for="FacebookUrl" class="form-control" />
+        <span asp-validation-for="FacebookUrl" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FacebookName" class="form-label"></label>
+        <input asp-for="FacebookName" class="form-control" />
+        <span asp-validation-for="FacebookName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="IntroText" class="form-label"></label>
+        <textarea asp-for="IntroText" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WaterMeterHeading" class="form-label"></label>
+        <input asp-for="WaterMeterHeading" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WaterMeterInstructions" class="form-label"></label>
+        <textarea asp-for="WaterMeterInstructions" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Changes</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

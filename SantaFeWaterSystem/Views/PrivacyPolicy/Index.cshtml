@@ -1,0 +1,104 @@
+﻿@model SantaFeWaterSystem.Models.PrivacyPolicy
+
+@{
+    ViewData["Title"] = "Privacy Policy Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="mb-4">Privacy Policy Management</h2>
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">
+        No privacy policy exists yet.
+        <a asp-action="Create" class="btn btn-success btn-sm ms-2">
+            <i class="bi bi-plus-circle me-1"></i>Create the First One
+        </a>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <h4 class="fw-bold mb-1">
+                @Model.Title <small class="text-muted">(Version @Model.Version)</small>
+            </h4>
+            <p class="mb-3">
+                <strong>Created:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy")
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#policyModal">
+                    <i class="bi bi-eye me-1"></i>View Full Policy
+                </button>
+                
+                <a asp-action="PrivacyAgreements" class="btn btn-secondary">
+                    <i class="bi bi-list-check me-1"></i>User Agreements
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policy Details Modal -->
+    <div class="modal fade" id="policyModal" tabindex="-1" aria-labelledby="policyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="policyModalLabel">
+                        @Model.Title <small class="text-light">(Version @Model.Version)</small>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <!-- Policy Overview -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-success">Overview</h6>
+                        @if (!string.IsNullOrWhiteSpace(Model.Content))
+                        {
+                            <div class="border rounded p-3 bg-light">
+                                <pre class="mb-0" style="white-space: pre-wrap; font-size: 0.95rem;">
+                                            @Model.Content
+                                        </pre>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic">No main content provided.</p>
+                        }
+                    </div>
+
+                    <!-- Active Sections -->
+                    <div>
+                        <h6 class="fw-bold text-success">Sections</h6>
+                        @if (Model.Sections?.Any(s => s.IsActive) == true)
+                        {
+                            @foreach (var sec in Model.Sections.Where(s => s.IsActive))
+                            {
+                                <div class="card border-0 shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <h5 class="fw-bold">@sec.SectionTitle</h5>
+                                        <pre class="mb-0" style="white-space: pre-wrap; font-size: 0.95rem;">
+                                                        @sec.Content
+                                                    </pre>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic">No active sections available.</p>
+                        }
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-1"></i>Create New Version
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

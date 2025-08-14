@@ -10,15 +10,51 @@
 }
 
 @section Styles {
-<link rel="stylesheet" href="~/css/disconnection.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/disconnection.css" asp-append-version="true" />
+    <style>
+        /* Input focus style */
+        input.form-control:focus {
+            box-shadow: 0 0 5px 2px rgba(13, 110, 253, 0.5); /* Bootstrap primary blue shadow */
+            border-color: #0d6efd; /* Bootstrap primary color */
+        }
+
+        /* Clear button hover */
+        button.btn-outline-primary:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+    </style>
+
 }
 
 <h2 class="disconnection-title mb-4">Disconnection List</h2>
+<form method="get" asp-action="Index" class="mb-3 d-flex flex-wrap align-items-center gap-2" id="searchForm" role="search" aria-label="Disconnection search form">
+    <div class="position-relative" style="max-width: 300px; width: 100%;">
+        <input type="search"
+               name="searchTerm"
+               value="@ViewBag.SearchTerm"
+               class="form-control border-primary shadow-sm"
+               placeholder="Search by name or meter no..."
+               aria-label="Search by name or meter number"
+               oninput="autoSearch()"
+               style="transition: box-shadow 0.3s ease;" />
+        <button type="button"
+                class="btn btn-sm btn-outline-primary position-absolute top-50 end-0 translate-middle-y me-1"
+                onclick="clearSearch()"
+                aria-label="Clear search"
+                style="transition: background-color 0.3s, color 0.3s;">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
 
-<form method="get" asp-action="Index" class="mb-3 d-flex gap-2">
-    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control w-25" placeholder="Search by name or meter no..." />
-    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Search</button>
+    <noscript>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i> Search
+        </button>
+    </noscript>
 </form>
+
+
 
 @if (TempData["Message"] != null)
 {
@@ -34,7 +70,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
 
 @if (!Model.Any())
 {
@@ -92,7 +127,6 @@ else
                                         <i class="bi bi-plug"></i> Reconnect
                                     </button>
                                 </form>
-
                             }
                             else
                             {
@@ -143,6 +177,14 @@ else
 
 @section Scripts {
     <script>
+        let searchTimeout;
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById("searchForm").submit();
+            }, 800); // delay to avoid firing too fast
+        }
+
         // Auto-remove alert after 5 seconds
         setTimeout(function () {
             var alert = document.getElementById("tempAlert");
@@ -150,6 +192,16 @@ else
                 var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
                 bsAlert.close();
             }
-        }, 5000); // 5000ms = 5 seconds
+        }, 5000);
+    </script>
+
+    <script>
+        function clearSearch() {
+          const input = document.querySelector('input[name="searchTerm"]');
+          if (input.value.length > 0) {
+            input.value = '';
+            input.dispatchEvent(new Event('input')); // trigger autoSearch()
+          }
+        }
     </script>
 }

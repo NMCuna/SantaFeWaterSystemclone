@@ -1,0 +1,28 @@
+﻿@model SantaFeWaterSystem.Models.ContactInfo
+@{
+    ViewData["Title"] = "Delete Contact";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Delete Contact</h2>
+
+<div class="alert alert-warning">
+    Are you sure you want to delete this contact information?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Phone</dt>
+    <dd class="col-sm-9">@Model.Phone</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+
+    <dt class="col-sm-3">Facebook</dt>
+    <dd class="col-sm-9">@Model.FacebookName</dd>
+</dl>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>

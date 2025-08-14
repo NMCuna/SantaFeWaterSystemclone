@@ -397,7 +397,31 @@ public class AccountController(
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            await _audit.LogAsync("Login Success", "User logged in successfully.", user.AccountNumber);
+        var consumer = await _context.Consumers
+       .FirstOrDefaultAsync(c => c.UserId == user.Id);
+
+        if (consumer != null)
+        {
+            var latestPolicy = await _context.PrivacyPolicies
+                .OrderByDescending(p => p.Version)
+                .FirstOrDefaultAsync();
+
+            if (latestPolicy != null)
+            {
+                var agreement = await _context.UserPrivacyAgreements
+                    .Where(a => a.ConsumerId == consumer.Id)
+                    .OrderByDescending(a => a.PolicyVersion)
+                    .FirstOrDefaultAsync();
+
+                if (agreement == null || agreement.PolicyVersion < latestPolicy.Version)
+                {
+                    await _audit.LogAsync("Privacy Agreement Required", "User redirected to agree to latest privacy policy.", user.AccountNumber);
+                    return RedirectToAction("Agree", "Privacy", new { version = latestPolicy.Version });
+                }
+            }
+        }
+
+        await _audit.LogAsync("Login Success", "User logged in successfully.", user.AccountNumber);
             return RedirectToAction("Dashboard", "User");
         }
 
@@ -545,67 +569,88 @@ public class AccountController(
     ////////////User Consumer in  User in Login Forgot pass////////////////////
     // GET: /Account/ForgotPasswordUser
     [HttpGet]
-        public IActionResult ForgotPasswordUser()
+    public IActionResult ForgotPasswordUser()
+    {
+        return View();
+    }
+
+    // POST: /Account/ForgotPasswordUser
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPasswordUser(ForgotPasswordUserViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        // Step 1: Find the Consumer by email
+        var consumer = await _context.Consumers
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Email == model.Email);
+
+        if (consumer == null || consumer.User == null)
         {
-            return View();
-        }
-
-        // POST: /Account/ForgotPasswordUser
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPasswordUser(ForgotPasswordUserViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // Step 1: Find the Consumer by email
-            var consumer = await _context.Consumers
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.Email == model.Email);
-
-            if (consumer == null || consumer.User == null)
-            {
-                // Always redirect regardless of match to avoid exposing user info
-                return RedirectToAction(nameof(ForgotPasswordUserConfirmation));
-            }
-
-            // Step 2: Generate token and set expiry on User
-            string token = GenerateSecureToken();
-            consumer.User.PasswordResetToken = token;
-            consumer.User.PasswordResetExpiry = DateTime.UtcNow.AddHours(1);
-
-            await _context.SaveChangesAsync();
-
-            // Step 3: Generate reset link with token
-            var resetLink = Url.Action(
-                "ResetPasswordUser",
-                "Account",
-              new { token },
-                Request.Scheme);
-
-            // Step 4: Send email
-            await _emailSender.SendEmailAsync(consumer.Email, "Reset Password",
-                $"Please reset your password by clicking here: <a href='{resetLink}'>Reset Password</a>");
-
-            // ✅ AuditTrail
-            _context.AuditTrails.Add(new AuditTrail
-            {
-                Action = "Forgot Password Request",
-                PerformedBy = consumer.User.Username ?? consumer.Email,
-                Timestamp = DateTime.Now,
-                Details = $"Password reset token generated and sent to email: {consumer.Email}"
-            });
-
-            await _context.SaveChangesAsync();
-
+            // Always redirect regardless of match to avoid exposing user info
             return RedirectToAction(nameof(ForgotPasswordUserConfirmation));
         }
 
+        // Step 2: Generate token and set expiry on User
+        string token = GenerateSecureToken();
+        consumer.User.PasswordResetToken = token;
+        consumer.User.PasswordResetExpiry = DateTime.UtcNow.AddHours(1);
+
+        await _context.SaveChangesAsync();
+
+        // Step 3: Generate reset link with token
+        var resetLink = Url.Action(
+            "ResetPasswordUser",
+            "Account",
+            new { token },
+            Request.Scheme);
+
+        // Step 4: Build styled email body
+        string emailBody = $@"
+        <h2 style='color: #007bff; font-family: Arial, sans-serif;'>Santa Fe Water Billing System</h2>
+        <p>Please reset your password by clicking the button below:</p>
+        <p>
+            <a href='{resetLink}' 
+               style='
+                   display: inline-block; 
+                   padding: 12px 24px; 
+                   font-size: 16px; 
+                   color: white; 
+                   background-color: #007bff; 
+                   text-decoration: none; 
+                   border-radius: 6px;
+                   font-weight: bold;
+               '>
+                Reset Password
+            </a>
+        </p>
+        <p style='font-size: 12px; color: #555;'>If you did not request this, please ignore this email.</p>
+    ";
+
+        // Step 5: Send email
+        await _emailSender.SendEmailAsync(consumer.Email, "Reset Password - Santa Fe Water Billing System", emailBody);
+
+        // ✅ AuditTrail
+        _context.AuditTrails.Add(new AuditTrail
+        {
+            Action = "Forgot Password Request",
+            PerformedBy = consumer.User.Username ?? consumer.Email,
+            Timestamp = DateTime.Now,
+            Details = $"Password reset token generated and sent to email: {consumer.Email}"
+        });
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(ForgotPasswordUserConfirmation));
+    }
 
 
 
-        // GET: /Account/ForgotPasswordUserConfirmation
-        [HttpGet]
+
+    // GET: /Account/ForgotPasswordUserConfirmation
+    [HttpGet]
         public IActionResult ForgotPasswordUserConfirmation()
         {
             return View();
@@ -856,7 +901,7 @@ public class AccountController(
             "DeleteUser", "Reset2FA", "LockUser", "UnlockUser","ViewConsumer", 
             "EditConsumer", "DeleteConsumer","ViewBilling", "EditBilling", "DeleteBilling", 
             "NotifyBilling", "ViewPenaltyLog", "ViewPayment", "EditPayment", "DeletePayment", 
-            "VerifyPayment"
+            "VerifyPayment", "ManagePrivacyPolicy","ManageContact"
         };
 
                 foreach (var permission in adminPermissions)

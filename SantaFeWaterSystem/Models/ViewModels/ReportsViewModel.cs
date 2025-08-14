@@ -29,5 +29,16 @@ namespace SantaFeWaterSystem.ViewModels
         public decimal TotalUnpaid { get; set; }
         public decimal TotalRevenue { get; set; }
 
+        // NEW: Revenue grouped by billing month (e.g., July 2025 → total payments for July's bills)
+        public List<RevenueByMonthViewModel> RevenueByBillingMonth { get; set; } = new();
+    }
+
+    public class RevenueByMonthViewModel
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public decimal TotalRevenue { get; set; }
+
+        public string MonthName => new DateTime(Year, Month, 1).ToString("MMMM yyyy");
     }
 }

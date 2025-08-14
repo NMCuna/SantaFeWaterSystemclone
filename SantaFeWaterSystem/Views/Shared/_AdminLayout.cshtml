@@ -98,6 +98,15 @@
                     @if (userPermissions.Contains("ManageRate"))
                     {
                         <li><a class="dropdown-item" href="/Rate/Index"><i class="bi bi-droplet-half me-2"></i> Cubic Meter Rate</a></li>
+                    }                  
+                    @if (userPermissions.Contains("ManagePrivacyPolicy"))
+                    {
+                        <li><a class="dropdown-item" asp-controller="PrivacyPolicy" asp-action="PrivacyAgreements"><i class="bi bi-shield-lock me-2"></i> Privacy Policy</a></li>
+                    }
+                  
+                    @if (userPermissions.Contains("ManageContact"))
+                    {
+                        <li><a class="dropdown-item" asp-controller="Contacts" asp-action="Index"><i class="bi bi-telephone-fill me-2"></i> Manage Contact</a></li>
                     }
                     @if (userPermissions.Any(p => new[] { "RegisterAdmin", "RegisterUser", "ManageQRCodes", "ManageRate" }.Contains(p)))
                     {
