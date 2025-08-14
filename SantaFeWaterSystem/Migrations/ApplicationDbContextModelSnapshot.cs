@@ -361,6 +361,70 @@ namespace SantaFeWaterSystem.Migrations
                     b.ToTable("Feedbacks");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.HomePageContent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Card1Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card1Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card1Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card2Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card2Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card2Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card3Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card3Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card3Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card4Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card4Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card4Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card5Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card5Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Card5Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subtitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HomePageContents");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -665,6 +729,12 @@ namespace SantaFeWaterSystem.Migrations
                             Id = 33,
                             Description = "Permission to manage contact information",
                             Name = "ManageContact"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Description = "Permission to manage homepage content (create, edit, delete)",
+                            Name = "ManageHome"
                         });
                 });
 

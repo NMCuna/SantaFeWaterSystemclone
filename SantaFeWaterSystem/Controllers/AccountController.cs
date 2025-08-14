@@ -901,7 +901,7 @@ public class AccountController(
             "DeleteUser", "Reset2FA", "LockUser", "UnlockUser","ViewConsumer", 
             "EditConsumer", "DeleteConsumer","ViewBilling", "EditBilling", "DeleteBilling", 
             "NotifyBilling", "ViewPenaltyLog", "ViewPayment", "EditPayment", "DeletePayment", 
-            "VerifyPayment", "ManagePrivacyPolicy","ManageContact"
+            "VerifyPayment", "ManagePrivacyPolicy","ManageContact","ManageHome"
         };
 
                 foreach (var permission in adminPermissions)

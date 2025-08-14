@@ -31,6 +31,8 @@ namespace SantaFeWaterSystem.Data
 
         public DbSet<UserPrivacyAgreement> UserPrivacyAgreements { get; set; }
         public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<HomePageContent> HomePageContents { get; set; }
+
 
 
 
@@ -101,16 +103,16 @@ namespace SantaFeWaterSystem.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<BillNotification>()
-    .HasOne(bn => bn.Billing)
-    .WithMany() // No navigation collection in Billing
-    .HasForeignKey(bn => bn.BillingId)
-    .OnDelete(DeleteBehavior.Cascade);
+               .HasOne(bn => bn.Billing)
+               .WithMany() // No navigation collection in Billing
+               .HasForeignKey(bn => bn.BillingId)
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<BillNotification>()
-    .HasOne(bn => bn.Consumer)
-    .WithMany()
-    .HasForeignKey(bn => bn.ConsumerId)
-    .OnDelete(DeleteBehavior.Restrict);
+              .HasOne(bn => bn.Consumer)
+              .WithMany()
+              .HasForeignKey(bn => bn.ConsumerId)
+              .OnDelete(DeleteBehavior.Restrict);
 
            
             modelBuilder.Entity<Disconnection>()
@@ -124,10 +126,10 @@ namespace SantaFeWaterSystem.Data
                 .HasIndex(p => p.Version)
                 .IsUnique();
             modelBuilder.Entity<PrivacyPolicySection>()
-    .HasOne(s => s.PrivacyPolicy)
-    .WithMany(p => p.Sections)
-    .HasForeignKey(s => s.PrivacyPolicyId)
-    .OnDelete(DeleteBehavior.Cascade);
+               .HasOne(s => s.PrivacyPolicy)
+               .WithMany(p => p.Sections)
+               .HasForeignKey(s => s.PrivacyPolicyId)
+               .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<UserPrivacyAgreement>()
@@ -150,16 +152,16 @@ namespace SantaFeWaterSystem.Data
 
 
 
-            modelBuilder.Entity<Permission>().HasData(
-     new Permission { Id = 1, Name = "ManageUsers", Description = "Access to user management" },
-     new Permission { Id = 2, Name = "ManageConsumers", Description = "Access to consumer management" },
-     new Permission { Id = 3, Name = "ManageBilling", Description = "Access to billing management" },
-     new Permission { Id = 4, Name = "ManagePayments", Description = "Access to payment management" },
-     new Permission { Id = 5, Name = "ManageDisconnections", Description = "Access to disconnection management" },
-     new Permission { Id = 6, Name = "ViewReports", Description = "Access to reports" },
-     new Permission { Id = 7, Name = "ManageNotifications", Description = "Access to notifications management" },
-     new Permission { Id = 8, Name = "ManageSupport", Description = "Access to support management" },
-     new Permission { Id = 9, Name = "ManageFeedback", Description = "Access to feedback management" },
+  modelBuilder.Entity<Permission>().HasData(
+    new Permission { Id = 1, Name = "ManageUsers", Description = "Access to user management" },
+    new Permission { Id = 2, Name = "ManageConsumers", Description = "Access to consumer management" },
+    new Permission { Id = 3, Name = "ManageBilling", Description = "Access to billing management" },
+    new Permission { Id = 4, Name = "ManagePayments", Description = "Access to payment management" },
+    new Permission { Id = 5, Name = "ManageDisconnections", Description = "Access to disconnection management" },
+    new Permission { Id = 6, Name = "ViewReports", Description = "Access to reports" },
+    new Permission { Id = 7, Name = "ManageNotifications", Description = "Access to notifications management" },
+    new Permission { Id = 8, Name = "ManageSupport", Description = "Access to support management" },
+    new Permission { Id = 9, Name = "ManageFeedback", Description = "Access to feedback management" },
     new Permission { Id = 10, Name = "RegisterAdmin", Description = "Permission to register new admins" },
     new Permission { Id = 11, Name = "RegisterUser", Description = "Permission to register new users" },
     new Permission { Id = 12, Name = "ManageQRCodes", Description = "Permission to manage QR codes" },
@@ -183,7 +185,8 @@ namespace SantaFeWaterSystem.Data
     new Permission { Id = 30, Name = "DeletePayment", Description = "Permission to delete payment records" },
     new Permission { Id = 31, Name = "VerifyPayment", Description = "Permission to verify payment records" },
     new Permission { Id = 32, Name = "ManagePrivacyPolicy", Description = "Permission to manage privacy policies" },
-    new Permission { Id = 33, Name = "ManageContact", Description = "Permission to manage contact information" }
+    new Permission { Id = 33, Name = "ManageContact", Description = "Permission to manage contact information" },
+    new Permission { Id = 34, Name = "ManageHome", Description = "Permission to manage homepage content (create, edit, delete)" }
 );
         }
 

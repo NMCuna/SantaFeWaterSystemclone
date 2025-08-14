@@ -37,7 +37,7 @@
                     </p>
                 }
 
-                @if (!string.IsNullOrWhiteSpace(Model.FacebookUrl))
+                @if (!string.IsNullOrWhiteSpace(Model.FacebookUrl) && !string.IsNullOrWhiteSpace(Model.FacebookName))
                 {
                     <p class="contact-text">
                         <i class="bi bi-facebook contact-icon" style="color:#1877f2;"></i>
@@ -45,6 +45,7 @@
                         <a href="@Model.FacebookUrl" target="_blank">@Model.FacebookName</a>
                     </p>
                 }
+
 
                 <div class="divider"></div>
 

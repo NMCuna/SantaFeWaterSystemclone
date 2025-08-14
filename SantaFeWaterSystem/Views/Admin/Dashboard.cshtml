@@ -7,6 +7,12 @@
     var currentUser = HttpContextAccessor.HttpContext?.User;
     var isAdmin = currentUser?.IsInRole("Admin") ?? false;
     var isStaff = currentUser?.IsInRole("Staff") ?? false;
+
+    // Add permissions list
+    var userPermissions = currentUser?.Claims
+        .Where(c => c.Type == "Permission")
+        .Select(c => c.Value)
+        .ToList() ?? new List<string>();
 }
 
 <h2 class="page-header text-primary mb-4">
@@ -96,9 +102,20 @@
 <div class="mb-4">
     <h5>Quick Actions</h5>
     <div class="btn-group flex-wrap">
-        <a href="@Url.Action("CreateConsumer", "Admin")" class="btn btn-outline-primary">Add Consumer</a>
-        <a href="@Url.Action("Index", "Reports")" class="btn btn-outline-secondary">View Reports</a>
-        <a href="@Url.Action("ManageUsers", "Admin")" class="btn btn-outline-info">Manage Users</a>
+        <a href="@Url.Action("CreateConsumer", "Admin")" class="btn btn-outline-primary">
+            <i class="bi bi-person-plus me-2"></i> Add Consumer
+        </a>
+
+        @if (userPermissions.Contains("ViewReports"))
+        {
+            <a href="@Url.Action("Index", "Reports")" class="btn btn-outline-secondary">
+                <i class="bi bi-bar-chart me-2"></i> View Reports
+            </a>
+        }
+
+        <a href="@Url.Action("ManageUsers", "Admin")" class="btn btn-outline-info">
+            <i class="bi bi-people me-2"></i> Manage Users
+        </a>
     </div>
 </div>
 

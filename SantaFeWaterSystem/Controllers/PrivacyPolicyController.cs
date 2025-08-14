@@ -100,16 +100,29 @@ namespace SantaFeWaterSystem.Controllers.Admin
 
 
 
-        // GET: Show all user agreements
-        public async Task<IActionResult> PrivacyAgreements()
+        public async Task<IActionResult> PrivacyAgreements(int page = 1, int pageSize = 10)
         {
+            var totalAgreements = await _context.UserPrivacyAgreements.CountAsync();
+
+            var totalPages = (int)Math.Ceiling(totalAgreements / (double)pageSize);
+            totalPages = Math.Max(totalPages, 1);
+
+            page = Math.Max(1, page);
+            page = Math.Min(page, totalPages);
+
             var agreements = await _context.UserPrivacyAgreements
                 .Include(a => a.Consumer)
                 .ThenInclude(c => c.User)
                 .OrderByDescending(a => a.AgreedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
 
             return View(agreements);
         }
+
     }
 }

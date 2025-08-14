@@ -16,9 +16,33 @@ namespace SantaFeWaterSystem.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            // Fetch the latest home page content created by admin
+            var content = await _context.HomePageContents
+                                .OrderByDescending(h => h.Id)
+                                .FirstOrDefaultAsync();
+
+            if (content == null)
+            {
+                // Optional: fallback content if admin hasn't created any
+                content = new HomePageContent
+                {
+                    Title = "Welcome to Santa Fe Water Billing System",
+                    Subtitle = "Manage your water bills, view payment history, and stay connected—anytime, anywhere.",
+                    Card1Title = "View Your Bills",
+                    Card1Text = "Track your monthly water consumption and billing statements with ease.",
+                    Card1Icon = "bi-droplet-half",
+                    Card2Title = "Make Payments",
+                    Card2Text = "Submit payments online and keep a record of your payment history.",
+                    Card2Icon = "bi-credit-card-2-front",
+                    Card3Title = "Update Profile",
+                    Card3Text = "Keep your contact information up to date to ensure seamless communication.",
+                    Card3Icon = "bi-person-lines-fill"
+                };
+            }
+
+            return View(content);
         }
 
         public IActionResult Privacy()
