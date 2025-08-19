@@ -27,28 +27,62 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-        public IActionResult Index(string month, string actionType, int page = 1)
+        public IActionResult Index(string month, string actionType, string search, int page = 1)
         {
-            var query = _context.AuditTrails.AsQueryable();
-
-            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out var selectedMonth))
+            try
             {
-                var nextMonth = selectedMonth.AddMonths(1);
-                query = query.Where(a => a.Timestamp >= selectedMonth && a.Timestamp < nextMonth);
-            }
+                int pageSize = 8;
+                var query = _context.AuditTrails.AsQueryable();
 
-            if (!string.IsNullOrEmpty(actionType))
+                // Filter by month
+                DateTime start, end;
+                if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out var selectedMonth))
+                {
+                    start = selectedMonth;
+                    end = start.AddMonths(1);
+                }
+                else
+                {
+                    var now = DateTime.Now;
+                    start = new DateTime(now.Year, now.Month, 1);
+                    end = start.AddMonths(1);
+                }
+                query = query.Where(a => a.Timestamp >= start && a.Timestamp < end);
+
+                // Filter by action type
+                if (!string.IsNullOrEmpty(actionType))
+                {
+                    query = query.Where(a => a.Action != null && a.Action.Contains(actionType));
+                }
+
+                // Move to memory for search filter
+                var logs = query
+                    .OrderByDescending(a => a.Timestamp)
+                    .ToList();
+
+                // Search filter
+                if (!string.IsNullOrEmpty(search))
+                {
+                    string term = search.ToLower();
+                    logs = logs.Where(a =>
+                        (a.Action != null && a.Action.ToLower().Contains(term)) ||
+                        (a.PerformedBy != null && a.PerformedBy.ToLower().Contains(term)) ||
+                        (a.Details != null && a.Details.ToLower().Contains(term))
+                    ).ToList();
+                }
+
+                // Pagination
+                var pagedLogs = logs.ToPagedList(page, pageSize);
+
+                return View(pagedLogs);
+            }
+            catch (Exception ex)
             {
-                query = query.Where(a => a.Action.Contains(actionType));
+                // Log the error if needed: _logger.LogError(ex, "Error loading audit logs");
+                TempData["Error"] = "An error occurred while loading the audit logs. Please try again.";
+                return View(new List<AuditTrail>().ToPagedList(page, 8)); // return empty list
             }
-
-            var auditLogs = query
-                .OrderByDescending(a => a.Timestamp)
-                .ToPagedList(page, 8);
-
-            return View(auditLogs);
         }
-
 
 
         public IActionResult Details(int id)

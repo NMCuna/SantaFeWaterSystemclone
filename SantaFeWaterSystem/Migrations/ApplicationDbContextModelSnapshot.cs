@@ -22,6 +22,41 @@ namespace SantaFeWaterSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.Announcement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AdminId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PostedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.AuditTrail", b =>
                 {
                     b.Property<int>("Id")
@@ -76,6 +111,55 @@ namespace SantaFeWaterSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuditTrailArchives");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.Backup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("BackupDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Backups");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.BackupLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ActionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PerformedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BackupLogs");
                 });
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.BillNotification", b =>
@@ -328,14 +412,20 @@ namespace SantaFeWaterSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AnnouncementId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Comment")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<bool>("IsArchived")
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsArchived")
                         .HasColumnType("bit");
 
-                    b.Property<int>("Rating")
+                    b.Property<int?>("Rating")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("RepliedAt")
@@ -345,20 +435,84 @@ namespace SantaFeWaterSystem.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("SubmittedAt")
+                    b.Property<DateTime?>("SubmittedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AnnouncementId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Feedbacks");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.FeedbackComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CommentedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int?>("FeedbackId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeedbackId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FeedbackComments");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.FeedbackLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FeedbackId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LikedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeedbackId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FeedbackLikes");
                 });
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.HomePageContent", b =>
@@ -735,6 +889,18 @@ namespace SantaFeWaterSystem.Migrations
                             Id = 34,
                             Description = "Permission to manage homepage content (create, edit, delete)",
                             Name = "ManageHome"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Description = "Permission to manage system name and branding",
+                            Name = "ManageSystemName"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Description = "Permission to manage community posts, announcements, and feedback",
+                            Name = "ManageCommunity"
                         });
                 });
 
@@ -969,11 +1135,43 @@ namespace SantaFeWaterSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("SupportFeedbackAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SupportFeedbackEmoji")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupportFeedbackNote")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ConsumerId");
 
                     b.ToTable("Supports");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.SystemBranding", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("IconClass")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LogoPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SystemName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemBrandings");
                 });
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.User", b =>
@@ -1095,6 +1293,15 @@ namespace SantaFeWaterSystem.Migrations
                     b.ToTable("UserPushSubscriptions");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.Announcement", b =>
+                {
+                    b.HasOne("SantaFeWaterSystem.Models.User", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminId");
+
+                    b.Navigation("Admin");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.BillNotification", b =>
                 {
                     b.HasOne("SantaFeWaterSystem.Models.Billing", "Billing")
@@ -1155,11 +1362,46 @@ namespace SantaFeWaterSystem.Migrations
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.Feedback", b =>
                 {
+                    b.HasOne("SantaFeWaterSystem.Models.Announcement", "Announcement")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("AnnouncementId");
+
                     b.HasOne("SantaFeWaterSystem.Models.User", "User")
                         .WithMany("Feedbacks")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Announcement");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.FeedbackComment", b =>
+                {
+                    b.HasOne("SantaFeWaterSystem.Models.Feedback", "Feedback")
+                        .WithMany("Comments")
+                        .HasForeignKey("FeedbackId");
+
+                    b.HasOne("SantaFeWaterSystem.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Feedback");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.FeedbackLike", b =>
+                {
+                    b.HasOne("SantaFeWaterSystem.Models.Feedback", "Feedback")
+                        .WithMany("FeedbackLikes")
+                        .HasForeignKey("FeedbackId");
+
+                    b.HasOne("SantaFeWaterSystem.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Feedback");
 
                     b.Navigation("User");
                 });
@@ -1271,6 +1513,11 @@ namespace SantaFeWaterSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SantaFeWaterSystem.Models.Announcement", b =>
+                {
+                    b.Navigation("Feedbacks");
+                });
+
             modelBuilder.Entity("SantaFeWaterSystem.Models.Billing", b =>
                 {
                     b.Navigation("Disconnections");
@@ -1281,6 +1528,13 @@ namespace SantaFeWaterSystem.Migrations
                     b.Navigation("Billings");
 
                     b.Navigation("Notifications");
+                });
+
+            modelBuilder.Entity("SantaFeWaterSystem.Models.Feedback", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("FeedbackLikes");
                 });
 
             modelBuilder.Entity("SantaFeWaterSystem.Models.PrivacyPolicy", b =>

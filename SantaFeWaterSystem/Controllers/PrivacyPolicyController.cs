@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SantaFeWaterSystem.Data;
 using SantaFeWaterSystem.Models;
+using SantaFeWaterSystem.Services;
 using SantaFeWaterSystem.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace SantaFeWaterSystem.Controllers.Admin
 {
@@ -15,10 +16,12 @@ namespace SantaFeWaterSystem.Controllers.Admin
     public class PrivacyPolicyController : Controller
     {
         private readonly ApplicationDbContext _context;
+        protected readonly AuditLogService _audit;
 
-        public PrivacyPolicyController(ApplicationDbContext context)
+        public PrivacyPolicyController(ApplicationDbContext context, AuditLogService audit)
         {
             _context = context;
+            _audit = audit;
         }
 
         // Show the latest policy
@@ -58,7 +61,6 @@ namespace SantaFeWaterSystem.Controllers.Admin
             return View(model);
         }
 
-
         // POST: Save new policy version
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -93,11 +95,26 @@ namespace SantaFeWaterSystem.Controllers.Admin
             _context.PrivacyPolicies.Add(newPolicy);
             await _context.SaveChangesAsync();
 
+            // ✅ Audit trail
+            var performedBy = User.Identity?.Name ?? "Unknown";
+            var sectionTitles = string.Join(", ", sections.Select(s => s.SectionTitle));
+            var details = $"Created Privacy Policy v{newPolicy.Version} - Title: {newPolicy.Title}, Sections: {sectionTitles}";
+            var phTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
+            var timestampPH = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, phTimeZone);
+            var audit = new AuditTrail
+            {
+                Action = "Create Privacy Policy",
+                PerformedBy = performedBy,
+                Timestamp = DateTime.UtcNow,
+                Details = details
+            };
+
+            _context.AuditTrails.Add(audit);
+            await _context.SaveChangesAsync();
+
             TempData["Success"] = $"Privacy Policy v{newPolicy.Version} created successfully.";
             return RedirectToAction(nameof(Index));
         }
-
-
 
 
         public async Task<IActionResult> PrivacyAgreements(int page = 1, int pageSize = 10)

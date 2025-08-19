@@ -144,6 +144,7 @@
 </a>
 
 <!-- Table -->
+<!-- Table -->
 <table class="table table-bordered table-striped table-support">
     <thead class="table-light">
         <tr>
@@ -151,6 +152,7 @@
             <th><i class="bi bi-person"></i> Consumer</th>
             <th><i class="bi bi-info-circle"></i> Status</th>
             <th><i class="bi bi-calendar-event"></i> Created At</th>
+            <th><i class="bi bi-emoji-smile"></i> Feedback</th> <!-- 👈 NEW -->
             <th><i class="bi bi-gear"></i> Actions</th>
         </tr>
     </thead>
@@ -171,6 +173,27 @@
                     }
                 </td>
                 <td>@ticket.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+
+                <!-- 🔥 Feedback Column -->
+                <td>
+                    @if (!string.IsNullOrEmpty(ticket.SupportFeedbackEmoji))
+                    {
+                        <span style="font-size: 1.2rem;">@ticket.SupportFeedbackEmoji</span>
+                
+                        <br />
+                        <small class="text-muted">@ticket.SupportFeedbackNote</small>
+
+                        <br />
+                        <small class="text-secondary">
+                            @ticket.SupportFeedbackAt?.ToString("MMM dd, yyyy hh:mm tt")
+                        </small>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No Feedback</span>
+                    }
+                </td>
+
                 <td>
                     <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-info text-white mb-1">
                         <i class="bi bi-eye"></i> View

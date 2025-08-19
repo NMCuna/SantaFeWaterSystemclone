@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Hangfire;
+using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
+using SantaFeWaterSystem.Controllers;
 using SantaFeWaterSystem.Data;
 using SantaFeWaterSystem.Models;
-using System.Globalization;
-using QuestPDF.Infrastructure;
-using Microsoft.AspNetCore.Identity;
-using SantaFeWaterSystem.Settings;
 using SantaFeWaterSystem.Services;
+using SantaFeWaterSystem.Settings;
+using System.Globalization;
+
 
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -57,6 +61,14 @@ Console.WriteLine("Environment: " + builder.Environment.EnvironmentName); // Sho
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
+// Hangfire configuration
+builder.Services.AddHangfire(config =>
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+          .UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings()
+          .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHangfireServer();
 
 
 // Register database context
@@ -126,6 +138,14 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+// Hangfire Dashboard
+app.UseHangfireDashboard("/hangfire"); // Only admin should access this
+
+// Recurring daily backup at midnight
+RecurringJob.AddOrUpdate<BackupController>(
+    "DailyBackup",
+    controller => controller.ScheduledBackup(),
+    Cron.Daily(0, 0)); // Every day at 00:00 (midnight)
 
 // Order is important:
 app.UseSession();

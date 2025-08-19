@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SantaFeWaterSystem.Data;
+using SantaFeWaterSystem.Models;
 using SantaFeWaterSystem.Services;
 using System.IO;
 using System.Linq;
@@ -40,34 +41,32 @@ namespace SantaFeWaterSystem.Controllers
 
         // ✅ GCash QR Upload
         [HttpPost]
-        public IActionResult UploadGcashQr(IFormFile qrImage)
+        public async Task<IActionResult> UploadGcashQr(IFormFile qrImage)
         {
-            return SaveQrImage(qrImage, "gcash-qr.png", "GCash");
+            return await SaveQrImageAsync(qrImage, "gcash-qr.png", "GCash");
         }
-
         // ✅ Maya QR Upload
         [HttpPost]
-        public IActionResult UploadMayaQr(IFormFile qrImage)
+        public async Task<IActionResult> UploadMayaQr(IFormFile qrImage)
         {
-            return SaveQrImage(qrImage, "maya-qr.png", "Maya");
+            return await SaveQrImageAsync(qrImage, "maya-qr.png", "Maya");
         }
 
         // ✅ GCash QR Delete
         [HttpPost]
-        public IActionResult DeleteGcashQr()
+        public async Task<IActionResult> DeleteGcashQr()
         {
-            return DeleteQrImage("gcash-qr.png", "GCash");
+            return await DeleteQrImageAsync("gcash-qr.png", "GCash");
         }
 
         // ✅ Maya QR Delete
         [HttpPost]
-        public IActionResult DeleteMayaQr()
+        public async Task<IActionResult> DeleteMayaQr()
         {
-            return DeleteQrImage("maya-qr.png", "Maya");
+            return await DeleteQrImageAsync("maya-qr.png", "Maya");
         }
 
-        // ✅ Common QR Image Saver
-        private IActionResult SaveQrImage(IFormFile qrImage, string fileName, string label)
+        private async Task<IActionResult> SaveQrImageAsync(IFormFile qrImage, string fileName, string label)
         {
             if (qrImage != null && qrImage.Length > 0)
             {
@@ -84,13 +83,36 @@ namespace SantaFeWaterSystem.Controllers
 
                 string filePath = Path.Combine(folder, fileName);
 
-                // Delete old image if it exists
+                // Delete old image if exists
                 if (System.IO.File.Exists(filePath))
                     System.IO.File.Delete(filePath);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    qrImage.CopyTo(stream);
+                    await qrImage.CopyToAsync(stream);
+                }
+
+                // ✅ Audit trail
+                var performedBy = User?.Identity?.Name ?? "System";
+                if (performedBy.Length > 100) performedBy = performedBy.Substring(0, 100);
+
+                var audit = new AuditTrail
+                {
+                    Action = "Upload QR Code",
+                    PerformedBy = performedBy,
+                    Timestamp = DateTime.UtcNow,
+                    Details = $"{label} QR Code uploaded: {fileName}"
+                };
+
+                try
+                {
+                    _context.AuditTrails.Add(audit);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Optional: log error
+                    Console.WriteLine($"Audit trail failed: {ex.Message}");
                 }
 
                 TempData["Message"] = $"{label} QR Code uploaded successfully.";
@@ -103,14 +125,37 @@ namespace SantaFeWaterSystem.Controllers
             return RedirectToAction("QrCodes");
         }
 
-        // ✅ Common QR Image Deleter
-        private IActionResult DeleteQrImage(string fileName, string label)
+        private async Task<IActionResult> DeleteQrImageAsync(string fileName, string label)
         {
             string filePath = Path.Combine(_env.WebRootPath, "images", fileName);
 
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
+
+                // ✅ Audit trail
+                var performedBy = User?.Identity?.Name ?? "System";
+                if (performedBy.Length > 100) performedBy = performedBy.Substring(0, 100);
+
+                var audit = new AuditTrail
+                {
+                    Action = "Delete QR Code",
+                    PerformedBy = performedBy,
+                    Timestamp = DateTime.UtcNow,
+                    Details = $"{label} QR Code deleted: {fileName}"
+                };
+
+                try
+                {
+                    _context.AuditTrails.Add(audit);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Optional: log the error somewhere
+                    Console.WriteLine($"Audit trail failed: {ex.Message}");
+                }
+
                 TempData["Message"] = $"{label} QR Code deleted successfully.";
             }
             else
@@ -120,5 +165,6 @@ namespace SantaFeWaterSystem.Controllers
 
             return RedirectToAction("QrCodes");
         }
+
     }
 }

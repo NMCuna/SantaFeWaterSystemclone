@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SantaFeWaterSystem.Data;
 using SantaFeWaterSystem.Models;
+using SantaFeWaterSystem.Services;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,10 +13,12 @@ namespace SantaFeWaterSystem.Controllers.Admin
     public class ContactsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        protected readonly AuditLogService _audit;
 
-        public ContactsController(ApplicationDbContext context)
+        public ContactsController(ApplicationDbContext context, AuditLogService audit)
         {
             _context = context;
+            _audit = audit;
         }
 
         // GET: Admin/Contacts
@@ -40,11 +43,31 @@ namespace SantaFeWaterSystem.Controllers.Admin
             {
                 _context.ContactInfos.Add(model);
                 await _context.SaveChangesAsync();
+
+                // ✅ Audit trail
+                var performedBy = User.Identity?.Name ?? "Unknown";
+                var details = $"New contact created. Name={model.FacebookName}, Email={model.Email}, Phone={model.Phone}.";
+
+                var phTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
+                var timestampPH = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, phTimeZone);
+
+                var audit = new AuditTrail
+                {
+                    Action = "Create Contact",
+                    PerformedBy = performedBy,
+                    Timestamp = DateTime.Now,
+                    Details = details
+                };
+
+                _context.AuditTrails.Add(audit);
+                await _context.SaveChangesAsync();
+
                 TempData["Success"] = "Contact created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
+
 
         // GET: Admin/Contacts/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -71,8 +94,32 @@ namespace SantaFeWaterSystem.Controllers.Admin
             {
                 try
                 {
+                    // Get original contact for audit details
+                    var originalContact = await _context.ContactInfos.AsNoTracking()
+                                                .FirstOrDefaultAsync(c => c.Id == id);
+
                     _context.Update(model);
                     await _context.SaveChangesAsync();
+
+                    // ✅ Audit trail
+                    var performedBy = User.Identity?.Name ?? "Unknown";
+                    var details = $"Contact updated. " +
+                                  $"Before: Name={originalContact.FacebookName}, Email={originalContact.Email}, Phone={originalContact.Phone}. " +
+                                  $"After: Name={model.FacebookName}, Email={model.Email}, Phone={model.Phone}.";
+
+                    var phTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
+                    var timestampPH = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, phTimeZone);
+
+                    var audit = new AuditTrail
+                    {
+                        Action = "Edit Contact",
+                        PerformedBy = performedBy,
+                        Timestamp = DateTime.Now,
+                        Details = details
+                    };
+                    _context.AuditTrails.Add(audit);
+                    await _context.SaveChangesAsync();
+
                     TempData["Success"] = "Contact updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
@@ -111,10 +158,28 @@ namespace SantaFeWaterSystem.Controllers.Admin
             {
                 _context.ContactInfos.Remove(contact);
                 await _context.SaveChangesAsync();
+
+                // ✅ Audit trail
+                var performedBy = User.Identity?.Name ?? "Unknown";
+                var details = $"Contact deleted. Name={contact.FacebookName}, Email={contact.Email}, Phone={contact.Phone}.";
+                var phTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
+                var timestampPH = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, phTimeZone);
+                var audit = new AuditTrail
+                {
+                    Action = "Delete Contact",
+                    PerformedBy = performedBy,
+                    Timestamp = DateTime.Now,
+                    Details = details
+                };
+                _context.AuditTrails.Add(audit);
+                await _context.SaveChangesAsync();
+
                 TempData["Success"] = "Contact deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
         }
+
+
 
         private bool ContactExists(int id)
         {

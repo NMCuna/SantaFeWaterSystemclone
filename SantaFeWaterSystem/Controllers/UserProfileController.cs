@@ -159,6 +159,20 @@ namespace SantaFeWaterSystem.Controllers
             user.PasswordHash = _passwordHasher.HashPassword(user, model.NewPassword);
             await _context.SaveChangesAsync();
 
+            // ✅ Audit trail
+            var performedBy = User.Identity?.Name ?? "Unknown";
+            var details = $"Password reset for user: {user.Username} (ID: {user.Id})";
+
+            var audit = new AuditTrail
+            {
+                Action = "Reset Password",
+                PerformedBy = performedBy,
+                Timestamp = DateTime.UtcNow,
+                Details = details
+            };
+            _context.AuditTrails.Add(audit);
+            await _context.SaveChangesAsync();
+
             TempData["Message"] = "Your password has been reset successfully.";
             return RedirectToAction("Profile");
         }

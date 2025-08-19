@@ -5,37 +5,43 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Edit Support Ticket</h2>
+<h2><i class="bi bi-pencil-square me-1"></i> Edit Support Ticket</h2>
 
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="ConsumerId" />
 
-    <div class="form-group">
-        <label asp-for="Subject"></label>
+    <div class="mb-3">
+        <label asp-for="Subject" class="form-label fw-bold"></label>
         <input asp-for="Subject" class="form-control" readonly />
     </div>
 
-    <div class="form-group">
-        <label asp-for="Message"></label>
+    <div class="mb-3">
+        <label asp-for="Message" class="form-label fw-bold"></label>
         <textarea asp-for="Message" class="form-control" rows="4" readonly></textarea>
     </div>
 
-    <div class="form-group">
-        <label asp-for="AdminReply"></label>
-        <textarea asp-for="AdminReply" class="form-control" rows="4"></textarea>
+    <div class="mb-3">
+        <label asp-for="AdminReply" class="form-label fw-bold"></label>
+        <textarea asp-for="AdminReply" class="form-control" rows="4" placeholder="Type your reply here..."></textarea>
         <span asp-validation-for="AdminReply" class="text-danger"></span>
     </div>
 
-    <div class="form-check mb-3">
+    <div class="form-check mb-4">
         <input asp-for="IsResolved" class="form-check-input" />
         <label asp-for="IsResolved" class="form-check-label">Mark as Resolved</label>
     </div>
 
-    <button type="submit" class="btn btn-success">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-save me-1"></i> Save Changes
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-x-circle me-1"></i> Cancel
+        </a>
+    </div>
 </form>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <partial name="_ValidationScriptsPartial" />
 }

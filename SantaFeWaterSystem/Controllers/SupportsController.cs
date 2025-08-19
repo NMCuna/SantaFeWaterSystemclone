@@ -268,25 +268,53 @@ namespace SantaFeWaterSystem.Controllers
         }
 
 
-        [Authorize(Roles = "User")]
-        [HttpGet]
-        public IActionResult GetUnseenRepliesCount()
+      
+
+        // -------------------- POST: Save Feedback --------------------
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitSupportFeedback(int id, string? emoji, string? note)
         {
-            var userIdClaim = User.FindFirst("UserId"); // ✅ Use "UserId" claim
+            var support = await _context.Supports.FindAsync(id);
+            if (support == null)
+                return NotFound();
+
+            var userIdClaim = User.FindFirst("UserId");
             if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
-                return Json(new { count = 0 });
+                return Unauthorized();
 
-            var unseenCount = _context.Supports
-                .Where(s =>
-                    s.Consumer != null &&
-                    s.Consumer.UserId == userId &&
-                    !s.IsReplySeen &&
-                    !string.IsNullOrEmpty(s.AdminReply))
-                .Count();
+            var consumer = await _context.Consumers.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (support.ConsumerId != consumer.Id)
+                return Forbid();
 
-            return Json(new { count = unseenCount });
+            // Update feedback
+            support.SupportFeedbackEmoji = emoji;
+            support.SupportFeedbackNote = note;
+            support.SupportFeedbackAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Feedback submitted successfully!";
+            return RedirectToAction("UserSupport");
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetUnseenRepliesCount()
+        {
+            var accountNumber = User.Identity?.Name;
+            var consumer = await _context.Consumers
+                .FirstOrDefaultAsync(c => c.User.AccountNumber == accountNumber);
+
+            if (consumer == null)
+                return Unauthorized();
+
+            int count = await _context.Supports
+                .Where(s => s.ConsumerId == consumer.Id && !s.IsReplySeen)
+                .CountAsync();
+
+            return Json(new { count });
+        }
 
 
     }

@@ -8,7 +8,7 @@
 @section Styles {
     <style>
         .form-section {
-            background-color: #929497;
+            background-color: #dee2e6;
             border: 1px solid #dee2e6;
             border-radius: 10px;
             padding: 30px;
@@ -33,6 +33,12 @@
         .form-label {
             font-weight: 500;
         }
+
+        .is-invalid {
+            border: 2px solid red !important;
+            background-color: #ffe6e6;
+        }
+
     </style>
 }
 
@@ -190,16 +196,25 @@
         additionalFeesInput.addEventListener('input', calculateBilling);
         dueDateInput.addEventListener('change', calculateBilling);
 
-        function calculateBilling() {
+               function calculateBilling() {
             const prev = parseFloat(prevReadingInput.value) || 0;
             const present = parseFloat(presentReadingInput.value) || 0;
 
+            // 🆕 Remove old invalid styles in case user corrected the value
+            presentReadingInput.classList.remove("is-invalid");
+
             if (present < prev) {
+                // 🆕 Add invalid style to highlight in red
+                presentReadingInput.classList.add("is-invalid");
+
                 cubicMeterUsedInput.value = '';
                 amountDueInput.value = '';
                 penaltyInput.value = '0.00';
                 totalAmountInput.value = '';
-                remarksInput.value = '';
+
+                // 🆕 Show warning message in remarks
+                remarksInput.value = '❌ Invalid: Present reading is lower than previous.';
+
                 return;
             }
 
@@ -230,6 +245,7 @@
             // ✅ Set remarks if minimum charge applied
             remarksInput.value = actualCubicUsed < 10 ? 'Minimum charge applied' : '';
         }
+
 
         function clearBillingFields() {
             cubicMeterUsedInput.value = '';

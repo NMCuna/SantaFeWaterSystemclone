@@ -113,12 +113,22 @@
         </ol>
     </div>
 
+    <!-- QR Preview -->
     <div class="mb-4 text-center">
         <h5><i class="bi bi-qr-code-scan text-success me-2"></i>Scan QR Code to Pay</h5>
         <p id="qrPlaceholder" class="text-muted">Select a payment method to view QR Code</p>
-        <img id="qrCodeImage" src="" alt="Payment QR Code" class="img-fluid rounded shadow qr-img" style="max-width: 190px;display:none;" />
+
+        <!-- Small QR Thumbnail -->
+        <img id="qrCodeImage" src="" alt="Payment QR Code"
+             class="img-fluid rounded shadow qr-img"
+             style="max-width: 190px; display:none; cursor:pointer;"
+             data-bs-toggle="modal" data-bs-target="#qrModal" />
+        <small class="text-muted d-block mt-2" id="qrClickNote" style="display:none;">
+            Click QR to preview & download
+        </small>
     </div>
 
+    <!-- Payment Method -->
     <div class="mb-4 text-center">
         <label class="form-label fw-bold">
             <i class="bi bi-credit-card text-primary me-2"></i>Select Payment Method
@@ -128,13 +138,46 @@
             <option value="GCash">GCash</option>
             <option value="Maya">Maya</option>
         </select>
-        <div id="paymentMethodError" class="text-danger mt-2" style="display:none;">Please choose a payment method.</div>
+        <div id="paymentMethodError" class="text-danger mt-2" style="display:none;">
+            Please choose a payment method.
+        </div>
     </div>
 
+    <!-- Proceed Button -->
     <button class="btn btn-success" onclick="validateAndProceed()">
         <i class="bi bi-upload me-2"></i> Proceed to Upload Receipt
     </button>
 </div>
+
+<!-- Modal for QR Preview -->
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrModalLabel">
+                    <i class="bi bi-qr-code me-2 text-success"></i> Payment QR Code
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="qrModalImage" src="" alt="QR Code" class="img-fluid rounded shadow" />
+            </div>
+            <div class="modal-footer">
+                <a id="downloadQrBtn" class="btn btn-primary" download="PaymentQRCode.png">
+                    <i class="bi bi-download me-2"></i> Download QR Code
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
 <!-- STEP 3 -->
 <div id="step3Section" class="step-section animate__animated animate__fadeIn" style="display:none;">
     <form asp-action="Pay" method="post" enctype="multipart/form-data" novalidate onsubmit="return validateReceiptFile()">
@@ -186,28 +229,55 @@
     <script>
         const qrImg = document.getElementById('qrCodeImage');
         const qrPlaceholder = document.getElementById('qrPlaceholder');
+        const qrClickNote = document.getElementById("qrClickNote");
+        const qrModalImage = document.getElementById("qrModalImage");
+        const downloadQrBtn = document.getElementById("downloadQrBtn");
+
         const gcashUrl = '@Url.Content(Model.GcashQrImageUrl)';
         const mayaUrl = '@Url.Content(Model.MayaQrImageUrl)';
         const select = document.getElementById('paymentMethodSelect');
         let isSubmitting = false;
 
+        // Handle QR code display + modal download
         select.addEventListener('change', function () {
+            let qrUrl = "";
+
             if (this.value === 'GCash') {
-                qrImg.src = gcashUrl + '?v=' + new Date().getTime();
+                qrUrl = gcashUrl + '?v=' + new Date().getTime();
                 qrImg.alt = "GCash QR Code";
             } else if (this.value === 'Maya') {
-                qrImg.src = mayaUrl + '?v=' + new Date().getTime();
+                qrUrl = mayaUrl + '?v=' + new Date().getTime();
                 qrImg.alt = "Maya QR Code";
             } else {
                 qrImg.src = "";
                 qrImg.alt = "Payment QR Code";
             }
 
-            qrImg.style.display = this.value ? 'block' : 'none';
-            qrPlaceholder.style.display = this.value ? 'none' : 'block';
+            if (qrUrl) {
+                qrImg.src = qrUrl;
+                qrImg.style.display = 'block';
+                qrPlaceholder.style.display = 'none';
+                if (qrClickNote) qrClickNote.style.display = "block";
+
+                if (qrModalImage) qrModalImage.src = qrUrl;
+                if (downloadQrBtn) downloadQrBtn.href = qrUrl;
+            } else {
+                qrImg.style.display = 'none';
+                qrPlaceholder.style.display = 'block';
+                if (qrClickNote) qrClickNote.style.display = "none";
+            }
         });
 
-        document.getElementById("receiptInput").addEventListener("change", function () {
+        // Thumbnail click → update modal
+        if (qrImg) {
+            qrImg.addEventListener("click", () => {
+                if (qrModalImage) qrModalImage.src = qrImg.src;
+                if (downloadQrBtn) downloadQrBtn.href = qrImg.src;
+            });
+        }
+
+        // Receipt file validation
+        document.getElementById("receiptInput")?.addEventListener("change", function () {
             document.getElementById("fileLabel").innerText = this.files[0]?.name || "No file chosen.";
         });
 
@@ -250,9 +320,9 @@
             }
         }
 
-        stepButtons[1].addEventListener('click', () => goToStep(1));
-        stepButtons[2].addEventListener('click', () => goToStep(2));
-        stepButtons[3].addEventListener('click', () => goToStep(3));
+        stepButtons[1]?.addEventListener('click', () => goToStep(1));
+        stepButtons[2]?.addEventListener('click', () => goToStep(2));
+        stepButtons[3]?.addEventListener('click', () => goToStep(3));
 
         window.addEventListener('DOMContentLoaded', function () {
             var modal = new bootstrap.Modal(document.getElementById('paymentInstructionModal'));
@@ -262,7 +332,7 @@
                 select.dispatchEvent(new Event('change'));
             }
 
-            updateProgressBar(1); // Initialize progress bar at Step 1
+            updateProgressBar(1);
         });
 
         function validateAndProceed() {
@@ -277,13 +347,12 @@
             }
         }
 
-               function validateReceiptFile() {
+        function validateReceiptFile() {
             const fileInput = document.getElementById('receiptInput');
             const fileError = document.getElementById('fileError');
             const file = fileInput.files[0];
             const payNowBtn = document.getElementById('payNowBtn');
 
-            // Reset error and button state
             fileError.style.display = "none";
             fileError.textContent = "";
             payNowBtn.disabled = false;
@@ -306,7 +375,6 @@
                 return false;
             }
 
-            // ✅ Only show spinner if all validations pass
             payNowBtn.disabled = true;
             payNowBtn.innerHTML = `
                 <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
@@ -316,15 +384,13 @@
             return true;
         }
 
-
-        // Prevent double submissions
         document.querySelectorAll('form').forEach(form => {
             form.addEventListener('submit', function (e) {
                 if (isSubmitting) {
                     e.preventDefault();
                 }
+                isSubmitting = true;
             });
         });
     </script>
-
 }

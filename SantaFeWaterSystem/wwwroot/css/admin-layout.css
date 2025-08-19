@@ -326,3 +326,37 @@ main {
         color: #fff;
     }
 
+    /* Sidebar base */
+.sidebar {
+    width: 250px;
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+}
+
+/* Collapsed sidebar */
+.sidebar.collapsed {
+    width: 70px;
+}
+
+/* Nav links */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(0.85rem, 1vw + 0.6rem, 1.2rem);
+}
+
+/* Icons auto resize */
+.nav-link i {
+    font-size: clamp(1rem, 1vw + 0.5rem, 1.4rem);
+    flex-shrink: 0;
+}
+
+/* Hide text when collapsed */
+.sidebar.collapsed .nav-link span {
+    display: none;
+}

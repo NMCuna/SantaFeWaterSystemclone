@@ -66,17 +66,45 @@ else
                             @Html.Raw(item.Message.Length > 100 ? item.Message.Substring(0, 100) + "..." : item.Message)
                         </p>
 
-                        <p>
+                        <div class="mt-2">
                             <strong>Admin Reply:</strong>
                             @if (!string.IsNullOrWhiteSpace(item.AdminReply))
                             {
-                                @Html.Raw(item.AdminReply.Length > 100 ? item.AdminReply.Substring(0, 100) + "..." : item.AdminReply)
+                                <div>
+                                    @Html.Raw(item.AdminReply.Length > 100 ? item.AdminReply.Substring(0, 100) + "..." : item.AdminReply)
+                                </div>
+
+                                <hr />
+
+                                @if (string.IsNullOrEmpty(item.SupportFeedbackEmoji))
+                                {
+                                    <button class="btn btn-sm btn-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#feedbackModal"
+                                            data-id="@item.Id"
+                                            data-subject="@item.Subject"
+                                            data-message="@item.Message"
+                                            data-reply="@item.AdminReply">
+                                        Give Feedback
+                                    </button>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-success p-2 mt-2">
+                                        <strong>Feedback:</strong> @item.SupportFeedbackEmoji <br />
+                                        <span>@item.SupportFeedbackNote</span><br />
+                                        <small class="text-muted">
+                                            Submitted on @item.SupportFeedbackAt?.ToLocalTime().ToString("MMM dd, yyyy - hh:mm tt")
+                                        </small>
+                                    </div>
+                                }
                             }
                             else
                             {
                                 <span class="text-muted">No reply yet</span>
                             }
-                        </p>
+                        </div>
+
 
                         <div class="text-end mt-3">
                             <button class="btn btn-outline-primary btn-sm"
@@ -101,6 +129,57 @@ else
         }
     </div>
 }
+
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="feedbackModalLabel">Submit Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="feedbackForm" method="post" asp-action="SubmitSupportFeedback" asp-controller="Supports">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="feedbackId" />
+
+                    <div class="mb-2">
+                        <strong>Message:</strong>
+                        <div class="bg-light border rounded p-2" id="feedbackMessage"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Admin Reply:</strong>
+                        <div class="bg-light border rounded p-2" id="feedbackAdminReply"></div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-2">
+                        <label class="fw-bold">Your Feedback:</label><br />
+                        <button type="button" class="btn btn-light emoji-btn" data-value="❤️">❤️</button>
+                        <button type="button" class="btn btn-light emoji-btn" data-value="😊">😊</button>
+                        <button type="button" class="btn btn-light emoji-btn" data-value="😐">😐</button>
+                        <button type="button" class="btn btn-light emoji-btn" data-value="😞">😞</button>
+                        <button type="button" class="btn btn-light emoji-btn" data-value="😡">😡</button>
+                        <input type="hidden" name="emoji" id="feedbackEmoji" />
+                    </div>
+
+                    <div class="mb-3">
+                        <textarea name="note" id="feedbackNote" class="form-control" rows="3" placeholder="Leave a note (optional)"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- 🔍 Full Details Modal -->
 <div class="modal fade" id="viewSupportModal" tabindex="-1" aria-labelledby="viewSupportModalLabel" aria-hidden="true">
@@ -144,29 +223,98 @@ else
                     <div class="bg-light border rounded p-3" id="modalMessage" style="white-space: pre-wrap;"></div>
                 </div>
 
-                <div>
+                <div class="mb-3">
                     <h6 class="fw-bold text-secondary">Admin Reply:</h6>
                     <div class="bg-light border rounded p-3" id="modalReply" style="white-space: pre-wrap;"></div>
+                </div>
+
+                <!-- ✅ User Feedback Section -->
+                <div id="modalFeedback" class="mt-3">
+                    <h6 class="fw-bold text-secondary">Your Feedback:</h6>
+                    <div class="bg-light border rounded p-3" id="modalFeedbackContent" style="white-space: pre-wrap;">
+                        <!-- Feedback content will be injected here -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+
+
 @section Scripts {
+
     <script>
-        const viewSupportModal = document.getElementById('viewSupportModal');
+        const feedbackModal = document.getElementById('feedbackModal');
+        const emojiButtons = feedbackModal.querySelectorAll('.emoji-btn');
+        const feedbackEmoji = document.getElementById('feedbackEmoji');
 
-        viewSupportModal.addEventListener('show.bs.modal', function (event) {
+        function highlightSelected(value) {
+            emojiButtons.forEach(btn => {
+                btn.classList.toggle('btn-primary', btn.dataset.value === value);
+                btn.classList.toggle('btn-light', btn.dataset.value !== value);
+            });
+        }
+
+        // Emoji click
+        emojiButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                feedbackEmoji.value = this.dataset.value;
+                highlightSelected(this.dataset.value);
+            });
+        });
+
+        feedbackModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+            const subject = button.getAttribute('data-subject');
+            const message = button.getAttribute('data-message');
+            const reply = button.getAttribute('data-reply');
 
-            document.getElementById('modalSubject').textContent = button.getAttribute('data-subject');
-            document.getElementById('modalStatus').textContent = button.getAttribute('data-status');
-            document.getElementById('modalCreated').textContent = button.getAttribute('data-created');
-            document.getElementById('modalMessage').textContent = button.getAttribute('data-message');
-            document.getElementById('modalReply').textContent = button.getAttribute('data-reply');
-            document.getElementById('modalReplied').textContent = button.getAttribute('data-replied');
-            document.getElementById('modalSeen').textContent = button.getAttribute('data-seen');
+            document.getElementById('feedbackId').value = id;
+            document.getElementById('feedbackMessage').innerText = message;
+            document.getElementById('feedbackAdminReply').innerText = reply;
+            document.getElementById('feedbackNote').value = '';
+            feedbackEmoji.value = '';
+            highlightSelected('');
+            document.getElementById('feedbackModalLabel').innerText = `Submit Feedback for: ${subject}`;
+        });
+    </script>
+
+    <script>
+               var viewSupportModal = document.getElementById('viewSupportModal');
+        viewSupportModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+
+            // Read data attributes
+            var subject = button.getAttribute('data-subject');
+            var status = button.getAttribute('data-status');
+            var seen = button.getAttribute('data-seen');
+            var created = button.getAttribute('data-created');
+            var replied = button.getAttribute('data-replied');
+            var message = button.getAttribute('data-message');
+            var reply = button.getAttribute('data-reply');
+
+            // Populate modal fields
+            document.getElementById('modalSubject').innerText = subject;
+            document.getElementById('modalStatus').innerText = status;
+            document.getElementById('modalSeen').innerText = seen;
+            document.getElementById('modalCreated').innerText = created;
+            document.getElementById('modalReplied').innerText = replied;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('modalReply').innerText = reply;
+
+            // Optional: Feedback
+            var feedbackContent = document.getElementById('modalFeedbackContent');
+            var emoji = button.getAttribute('data-feedback-emoji');
+            var note = button.getAttribute('data-feedback-note');
+            var at = button.getAttribute('data-feedback-at');
+
+            if (emoji) {
+                feedbackContent.innerText = emoji + (note ? "\nNote: " + note : "") + (at ? "\nSubmitted: " + at : "");
+            } else {
+                feedbackContent.innerText = "No feedback submitted yet.";
+            }
         });
     </script>
 
@@ -190,4 +338,5 @@ else
         }
     </script>
 
+    
 }

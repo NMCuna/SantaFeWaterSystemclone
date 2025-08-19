@@ -22,6 +22,9 @@ namespace SantaFeWaterSystem.Services
             {
                 performedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Anonymous";
             }
+            // Convert UTC to Philippine Time
+            var phTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila");
+            var timestampPH = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, phTimeZone);
 
             _context.AuditTrails.Add(new AuditTrail
             {

@@ -40,6 +40,12 @@ namespace SantaFeWaterSystem.Models
 
         [ForeignKey("ConsumerId")]
         public Consumer Consumer { get; set; }
+
+
+        // ✅ User feedback (emoji + note + date)
+        public string? SupportFeedbackEmoji { get; set; }
+        public string? SupportFeedbackNote { get; set; }
+        public DateTime? SupportFeedbackAt { get; set; }
     }
 }
 

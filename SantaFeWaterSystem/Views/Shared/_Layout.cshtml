@@ -1,7 +1,18 @@
 ﻿@{
     Layout = null;
     var title = ViewData["Title"] ?? "Santa Fe Water System";
+
+    // Safely get the ApplicationDbContext
+    var dbContext = Context.RequestServices
+        .GetService<SantaFeWaterSystem.Data.ApplicationDbContext>();
+
+    // Use null-conditional operators to prevent dereference if dbContext or SystemBrandings is null
+    var branding = dbContext?.SystemBrandings?.FirstOrDefault();
+
+    string brandName = branding?.SystemName ?? "Santa Fe Water System";
+    string iconClass = branding?.IconClass ?? "bi bi-droplet-half";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,8 +36,59 @@
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary shadow-sm">
             <div class="container">
                 <a class="navbar-brand fw-bold d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-droplet-half me-2"></i> Santa Fe Water System
+                    <div class="animated-logo-wrapper me-2" style="width:36px; height:36px; position:relative;">
+
+                        <!-- Outer Halo (subtle background glow for contrast) -->
+                        <div style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: rgba(255,255,255,0.1);"></div>
+
+                        <!-- Glow Ring 1 -->
+                        <svg class="glow-ring ring1" viewBox="0 0 120 120" style="width:100%; height:100%;">
+                            <defs>
+                                <linearGradient id="glowGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffffff" />
+                                    <stop offset="50%" stop-color="#ffea00" />
+                                    <stop offset="100%" stop-color="#ffffff" />
+                                </linearGradient>
+                                <filter id="blur1">
+                                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" /> <!-- stronger blur -->
+                                </filter>
+                            </defs>
+                            <!-- slightly bigger radius -->
+                            <circle cx="60" cy="60" r="55"
+                                    stroke="url(#glowGradient1)"
+                                    stroke-width="5"
+                                    fill="none"
+                                    filter="url(#blur1)" />
+
+                        </svg>
+
+                        <!-- Glow Ring 2 -->
+                        <svg class="glow-ring ring2" viewBox="0 0 120 120" style="width:100%; height:100%; position:absolute; top:0; left:0;">
+                            <circle cx="60" cy="60" r="50"
+                                    stroke="#ffffff"
+                                    stroke-width="2"
+                                    fill="none"
+                                    opacity="0.8" /> <!-- stronger opacity -->
+                        </svg>
+
+                        <!-- Logo / Icon -->
+                        @if (!string.IsNullOrEmpty(branding?.LogoPath))
+                        {
+                            <img src="@branding.LogoPath" alt="Logo"
+                                 style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+                            height:28px;
+                            filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 5px #ffea00);" />
+                        }
+                        else
+                        {
+                            <i class="@iconClass fs-5" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+                                                 text-shadow: 0 0 3px #fff, 0 0 5px #ffea00;"></i>
+                        }
+                    </div>
+
+                    <span>@brandName</span>
                 </a>
+
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                         aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,9 +170,9 @@
     <footer class="footer border-top mt-5 py-3 bg-light">
         <div class="container d-flex justify-content-center flex-wrap">
             <span class="text-nowrap">&copy; @DateTime.Now.Year - Santa Fe Water Billing System -</span>
-            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Privacy">Privacy</a>
-            <span class="text-nowrap">|</span>
             <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Index">Home</a>
+            <span class="text-nowrap">|</span>
+            <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Privacy">Privacy</a>
             <span class="text-nowrap">|</span>
             <a class="mx-1 text-nowrap" asp-controller="Home" asp-action="Contact">Contact</a>
         </div>

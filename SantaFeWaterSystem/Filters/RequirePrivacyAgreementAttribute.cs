@@ -10,20 +10,29 @@ namespace SantaFeWaterSystem.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var db = (ApplicationDbContext)context.HttpContext.RequestServices
+            var httpContext = context.HttpContext;
+            var db = (ApplicationDbContext)httpContext.RequestServices
                 .GetService(typeof(ApplicationDbContext));
 
-            // Step 1: Get logged-in username/account number from session
-            var usernameOrAccountNumber = context.HttpContext.Session.GetString("LoggedInUser");
-
-            if (string.IsNullOrEmpty(usernameOrAccountNumber))
+            // ✅ Step 0: Skip PrivacyController actions (avoid redirect loop)
+            var path = httpContext.Request.Path.Value?.ToLower() ?? "";
+            if (path.Contains("/privacy/agree") || path.Contains("/privacy/agreepolicy"))
             {
-                // No logged-in user, skip
                 base.OnActionExecuting(context);
                 return;
             }
 
-            // Step 2: Get user and linked consumer
+            // ✅ Step 1: Get logged-in username/account number from session
+            var usernameOrAccountNumber = httpContext.Session.GetString("LoggedInUser");
+
+            if (string.IsNullOrEmpty(usernameOrAccountNumber))
+            {
+                // Not logged in → let normal auth handle it
+                base.OnActionExecuting(context);
+                return;
+            }
+
+            // ✅ Step 2: Get user and linked consumer
             var user = db.Users
                 .Include(u => u.Consumer)
                 .FirstOrDefault(u =>
@@ -32,31 +41,31 @@ namespace SantaFeWaterSystem.Filters
 
             if (user == null || user.Consumer == null)
             {
-                // No linked consumer (probably admin/staff)
+                // Admin/staff or invalid → skip privacy check
                 base.OnActionExecuting(context);
                 return;
             }
 
-            // Step 3: Get latest policy
+            // ✅ Step 3: Get latest published policy
             var latestPolicy = db.PrivacyPolicies
                 .OrderByDescending(p => p.Version)
                 .FirstOrDefault();
 
             if (latestPolicy == null)
             {
-                // No policy exists yet — allow access
+                // No policy exists → allow everything
                 base.OnActionExecuting(context);
                 return;
             }
 
-            // Step 4: Get user's latest agreement
+            // ✅ Step 4: Get user’s latest agreement
             var agreement = db.UserPrivacyAgreements
                 .AsNoTracking()
                 .Where(a => a.ConsumerId == user.Consumer.Id)
                 .OrderByDescending(a => a.PolicyVersion)
                 .FirstOrDefault();
 
-            // Step 5: Redirect if no agreement or outdated
+            // ✅ Step 5: Redirect if missing or outdated
             if (agreement == null || agreement.PolicyVersion < latestPolicy.Version)
             {
                 context.Result = new RedirectToActionResult(

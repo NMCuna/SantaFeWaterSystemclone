@@ -4,9 +4,13 @@ wwwroot\css\admin-layout.css
 wwwroot\css\audit-log.css
 wwwroot\css\auditlogs-details.css
 wwwroot\css\auditlogs-page.css
+wwwroot\css\backup-dashboard.css
+wwwroot\css\backup-history.css
+wwwroot\css\backup-management.css
 wwwroot\css\billing-card.css
 wwwroot\css\billing-history.css
 wwwroot\css\billing.css
+wwwroot\css\community-feed.css
 wwwroot\css\contact.css
 wwwroot\css\dark-mode.css
 wwwroot\css\disconnection.css
@@ -26,6 +30,7 @@ wwwroot\css\privacy-policy.css
 wwwroot\css\privacy.css
 wwwroot\css\profile.css
 wwwroot\css\receipt.css
+wwwroot\css\restore-database.css
 wwwroot\css\site.css
 wwwroot\css\support.css
 wwwroot\css\twofa.css
@@ -38,6 +43,7 @@ wwwroot\css\userlayout.css
 wwwroot\css\usernotifications.css
 wwwroot\css\usersupport.css
 wwwroot\favicon.ico
+wwwroot\images\3e1473e0-39fa-472d-90f4-df859dbec71e.png
 wwwroot\images\default-avatar.png
 wwwroot\images\gcash-logo.png
 wwwroot\images\gcash-qr.png
@@ -48,7 +54,7 @@ wwwroot\images\profiles\20917931-1896-4421-8e55-710c731a2f60.jpeg
 wwwroot\images\profiles\4bd0ea0a-94b4-44f3-8066-9b68919abdd1.jpg
 wwwroot\images\profiles\5f9715d2-2e70-40d5-a99d-3510222e297b.jpg
 wwwroot\images\profiles\default.png
-wwwroot\images\profiles\user_1_20e04d28-2d67-44a1-ad0a-b3ce6bd97375.png
+wwwroot\images\profiles\user_1_40f08175-0cfd-4d41-958e-8fa763831249.jpeg
 wwwroot\images\profiles\user_2_3c33ccfe-3883-4353-b07e-bcffa29e0df5.jpeg
 wwwroot\js\site.js
 wwwroot\js\user-dashboard.js
@@ -110,6 +116,11 @@ wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
 wwwroot\service-worker.js
+wwwroot\uploads\15358bbf-4c9e-4b90-9427-c0ad471a511b.png
+wwwroot\uploads\330980a9-d158-4a39-a719-bc42f439e2ed.png
+wwwroot\uploads\51a32975-50a6-4275-9aba-3852f616bb73.png
+wwwroot\uploads\c57b5b42-dc3f-4e00-b385-efb37a7d13d7.jpg
+wwwroot\uploads\d1491f6f-c311-4df2-b31c-6579c69122d0.png
 wwwroot\uploads\receipts\00d6e96c-f757-4339-8087-75bb0e9f8458.png
 wwwroot\uploads\receipts\02ffd9f5-0c43-4407-b67f-ba79e5982253.jpg
 wwwroot\uploads\receipts\048c22f6-9fba-4e76-8bc1-53dbc8b16b96.png

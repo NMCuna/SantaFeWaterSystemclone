@@ -97,6 +97,14 @@
             </select>
         </div>
 
+        <div class="col-md-auto d-flex align-items-center gap-2">
+            <label for="search" class="col-form-label mb-0">Search:</label>
+            <input type="text" name="search" id="search" class="form-control"
+                   value="@Context.Request.Query["search"].FirstOrDefault()" placeholder="Search logs..." />
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
 
         <div class="col ms-auto text-end">
             <a asp-controller="Admin" asp-action="Dashboard" class="btn btn-outline-danger" title="Back to Dashboard">
@@ -118,6 +126,13 @@
     {
         <div class="alert alert-info alert-dismissible fade show mt-2" role="alert">
             <i class="bi bi-info-circle-fill me-2"></i> @TempData["Info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }

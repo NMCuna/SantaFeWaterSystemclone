@@ -180,6 +180,30 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlckxpc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Announcement/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50XENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Announcement/EditAnnouncement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50XEVkaXRBbm5vdW5jZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Announcement/EditFeedback.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50XEVkaXRGZWVkYmFjay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Announcement/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Announcement/_FeedbackCommentItem.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50XF9GZWVkYmFja0NvbW1lbnRJdGVtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Announcement/_FeedbackItem.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50XF9GZWVkYmFja0l0ZW0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/AuditTrail/ArchiveDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXVkaXRUcmFpbFxBcmNoaXZlRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -194,6 +218,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/AuditTrail/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXVkaXRUcmFpbFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Backup/BackupHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFja3VwXEJhY2t1cEhpc3RvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Backup/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFja3VwXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Backup/ManageBackups.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFja3VwXE1hbmFnZUJhY2t1cHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Backup/RestoreDatabase.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFja3VwXFJlc3RvcmVEYXRhYmFzZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Billing/Create.cshtml]
@@ -238,42 +278,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Disconnection/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlzY29ubmVjdGlvblxJbmRleC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/Archive.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcQXJjaGl2ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/ArchivedFeedbacks.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcQXJjaGl2ZWRGZWVkYmFja3MuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcQ3JlYXRlLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcRGV0YWlscy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcRWRpdC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcSW5kZXguY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/Reply.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcUmVwbHkuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/ThankYou.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcVGhhbmtZb3UuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Feedback/UserFeedbacks.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmVlZGJhY2tcVXNlckZlZWRiYWNrcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/HomePage/Create.cshtml]
@@ -470,6 +474,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/Supports/UserSupport.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydHNcVXNlclN1cHBvcnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/SystemBranding/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3lzdGVtQnJhbmRpbmdcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/SystemBranding/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3lzdGVtQnJhbmRpbmdcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/SystemBranding/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3lzdGVtQnJhbmRpbmdcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/SystemBranding/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3lzdGVtQnJhbmRpbmdcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/LENOVO/source/repos/SantaFeWaterSystemclone/SantaFeWaterSystem/Views/UserActivity/Archive.cshtml]

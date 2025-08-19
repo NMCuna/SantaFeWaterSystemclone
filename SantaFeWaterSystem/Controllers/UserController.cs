@@ -15,11 +15,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SantaFeWaterSystem.Filters;
+
 
 
 namespace SantaFeWaterSystem.Controllers
 {
     [Authorize(Roles = "User")]
+    [RequirePrivacyAgreement]
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -35,6 +38,7 @@ namespace SantaFeWaterSystem.Controllers
             _audit = audit;
         }
 
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Dashboard()
         {
             var userIdClaim = User.FindFirst("UserId");
@@ -113,8 +117,12 @@ namespace SantaFeWaterSystem.Controllers
 
             if (consumer == null) return NotFound();
 
-            // ✅ Log activity
-            await _audit.LogAsync("Viewed Billing History", $"User viewed their billing history. Filters - SearchTerm: '{searchTerm}', Status: '{statusFilter}'", userId.ToString());
+            // ✅ Use AccountNumber instead of userId
+            await _audit.LogAsync(
+                "Viewed Billing History",
+                $"User ({consumer.User.AccountNumber}) viewed their billing history. Filters - SearchTerm: '{searchTerm}', Status: '{statusFilter}'",
+                consumer.User.AccountNumber
+            );
 
 
             // Build billing query
@@ -207,8 +215,12 @@ namespace SantaFeWaterSystem.Controllers
             var billing = await _context.Billings.FirstOrDefaultAsync(b => b.Id == id && b.ConsumerId == consumer.Id);
             if (billing == null) return NotFound();
 
-            // ✅ Log activity
-            await _audit.LogAsync("Viewed Billing Details", $"User viewed details for BillNo: {billing.BillNo}, Billing Date: {billing.BillingDate:d}", userId.ToString());
+            // ✅ Log activity with AccountNumber instead of userId
+            await _audit.LogAsync(
+                "Viewed Billing Details",
+                $"User ({consumer.User.AccountNumber}) viewed details for BillNo: {billing.BillNo}, Billing Date: {billing.BillingDate:d}",
+                consumer.User.AccountNumber
+            );
 
             var viewModel = new BillingViewModel
             {
@@ -1009,14 +1021,14 @@ namespace SantaFeWaterSystem.Controllers
 
 
 
-
+      
 
 
 
 
         //////////RESET PASSWORD//////////////
         // GET: /User/ResetPassword
-             
+
         [HttpGet]
         [Authorize(Roles = "User")]
         public IActionResult ResetPassword()

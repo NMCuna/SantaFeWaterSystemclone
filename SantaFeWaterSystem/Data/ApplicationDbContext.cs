@@ -22,7 +22,10 @@ namespace SantaFeWaterSystem.Data
         public DbSet<Rate> Rates { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<StaffPermission> StaffPermissions { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<FeedbackComment> FeedbackComments { get; set; }
+        public DbSet<FeedbackLike> FeedbackLikes { get; set; }
         public DbSet<SmsLog> SmsLogs { get; set; }
         public DbSet<BillNotification> BillNotifications { get; set; }
         public DbSet<UserPushSubscription> UserPushSubscriptions { get; set; }
@@ -32,6 +35,10 @@ namespace SantaFeWaterSystem.Data
         public DbSet<UserPrivacyAgreement> UserPrivacyAgreements { get; set; }
         public DbSet<ContactInfo> ContactInfos { get; set; }
         public DbSet<HomePageContent> HomePageContents { get; set; }
+        public DbSet<SystemBranding> SystemBrandings { get; set; }
+        public DbSet<BackupLog> BackupLogs { get; set; }
+        public DbSet<Backup> Backups { get; set; }
+
 
 
 
@@ -186,7 +193,9 @@ namespace SantaFeWaterSystem.Data
     new Permission { Id = 31, Name = "VerifyPayment", Description = "Permission to verify payment records" },
     new Permission { Id = 32, Name = "ManagePrivacyPolicy", Description = "Permission to manage privacy policies" },
     new Permission { Id = 33, Name = "ManageContact", Description = "Permission to manage contact information" },
-    new Permission { Id = 34, Name = "ManageHome", Description = "Permission to manage homepage content (create, edit, delete)" }
+    new Permission { Id = 34, Name = "ManageHome", Description = "Permission to manage homepage content (create, edit, delete)" },
+    new Permission { Id = 35, Name = "ManageSystemName", Description = "Permission to manage system name and branding" },
+    new Permission { Id = 36, Name = "ManageCommunity", Description = "Permission to manage community posts, announcements, and feedback" }
 );
         }
 

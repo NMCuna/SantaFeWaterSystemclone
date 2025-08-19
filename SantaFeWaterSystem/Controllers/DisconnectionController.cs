@@ -174,15 +174,19 @@ namespace SantaFeWaterSystem.Controllers
 
             _context.Disconnections.Add(disconnection);
 
+            // Store current date in a readable format
+            var notificationDate = DateTime.Now.ToString("MMMM dd, yyyy");
+
             // ✅ In-App Notification
             var notif = new Notification
             {
                 ConsumerId = consumer.Id,
                 Title = "🛑 Water Service Disconnected",
-                Message = $"Hello {consumer.FirstName}, you failed to pay any bill from your 2 overdue bills within 3 days. Your water service has been disconnected. " +
-                          $"To reconnect, please visit the main office of Santa Fe Water System located at the Santa Fe Municipal Hall. Thank you.",
+                Message = $"Hello {consumer.FirstName}, you failed to pay any bill from your 2 overdue bills as of {notificationDate}. " +
+                          $"Your water service has been disconnected. To reconnect, please visit the main office of Santa Fe Water System located at the Santa Fe Municipal Hall. Thank you.",
                 CreatedAt = DateTime.Now
             };
+
             _context.Notifications.Add(notif);
 
             // ✅ Push Notification
@@ -208,7 +212,7 @@ namespace SantaFeWaterSystem.Controllers
                 string pushPayload = JsonSerializer.Serialize(new
                 {
                     title = "\U0001f6d1 Water Service Disconnected",
-                    body = "Your water service has been disconnected due to 2 or more overdue bills. Please visit the office to reconnect."
+                    body = $"Your water service has been disconnected on {notificationDate} due to 2 or more overdue bills. Please visit the office to reconnect."
                 });
 
                 foreach (var sub in subscriptions)
@@ -277,12 +281,15 @@ namespace SantaFeWaterSystem.Controllers
                 disconnection.DateReconnected = DateTime.Now;
             }
 
+            // Store current date in a readable format
+            var notificationDate = DateTime.Now.ToString("MMMM dd, yyyy");
+
             // ➕ In-App Notification
             var notif = new Notification
             {
                 ConsumerId = consumer.Id,
                 Title = "💧 Water Service Reconnected",
-                Message = $"Hello {consumer.FirstName}, your water service has been successfully reconnected. Thank you for settling your bills.",
+                Message = $"Hello {consumer.FirstName}, your water service has been successfully reconnected on {notificationDate}. Thank you for settling your bills.",
                 CreatedAt = DateTime.Now
             };
             _context.Notifications.Add(notif);
@@ -310,7 +317,7 @@ namespace SantaFeWaterSystem.Controllers
                 string pushPayload = JsonSerializer.Serialize(new
                 {
                     title = "💧 Water Service Reconnected",
-                    body = "Your water service has been reconnected. Thank you for settling your bills."
+                    body = $"Your water service has been reconnected on {notificationDate}. Thank you for settling your bills."
                 });
 
                 foreach (var sub in subscriptions)
@@ -373,11 +380,13 @@ namespace SantaFeWaterSystem.Controllers
 
                 if (overdueBills.Count >= 2)
                 {
+                    var disconnectionDate = DateTime.Today.AddDays(3).ToString("MMMM dd, yyyy");
+
                     var notif = new Notification
                     {
                         ConsumerId = consumer.Id,
                         Title = "⚠️ Disconnection Notice",
-                        Message = $"Hello {consumer.FirstName}, you have 2 overdue bills that are not yet paid. Please pay at least one bill within 3 days to avoid disconnection.",
+                        Message = $"Hello {consumer.FirstName}, you have 2 overdue bills that are not yet paid. Please pay at least one bill on or before {disconnectionDate} to avoid disconnection.",
                         CreatedAt = DateTime.Now
                     };
 
@@ -406,7 +415,7 @@ namespace SantaFeWaterSystem.Controllers
                         string pushPayload = JsonSerializer.Serialize(new
                         {
                             title = "⚠️ Disconnection Warning",
-                            body = "You have 2 unpaid overdue bills. Pay within 3 days to avoid disconnection."
+                            body = $"You have 2 unpaid overdue bills. Pay on or before {disconnectionDate} to avoid disconnection."
                         });
 
                         foreach (var sub in subscriptions)
